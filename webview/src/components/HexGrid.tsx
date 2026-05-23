@@ -53,10 +53,13 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
     const offset = Math.max(0, Math.min(jumpTarget.offset, snapshot.cells.length - 1));
     setCursor({ offset, nibble: 'high' });
     requestAnimationFrame(() => {
-      gridRef.current
-        ?.querySelector<HTMLElement>(`[data-byte-offset="${offset}"]`)
-        ?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
-      gridRef.current?.focus();
+      const grid = gridRef.current;
+      const target = grid?.querySelector<HTMLElement>(`[data-byte-offset="${offset}"]`);
+      const row = target?.closest<HTMLElement>('.hex-row');
+
+      row?.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
+      target?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      grid?.focus();
     });
   }, [jumpTarget, snapshot.cells.length]);
 

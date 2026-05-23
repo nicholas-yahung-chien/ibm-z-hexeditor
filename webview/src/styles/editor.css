@@ -192,7 +192,9 @@ h1 {
 
 .hex-grid-shell {
   overflow: auto;
-  padding: 1rem;
+  padding: 1rem 1rem 75vh;
+  scroll-padding-block-start: 1rem;
+  scroll-padding-block-end: 75vh;
   outline: none;
   font-family: var(--vscode-editor-font-family), Consolas, monospace;
   font-size: var(--vscode-editor-font-size);
