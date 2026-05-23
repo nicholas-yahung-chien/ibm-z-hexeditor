@@ -28,6 +28,10 @@ export default function App() {
       if (message.type === 'error') {
         setStatus(message.message);
       }
+
+      if (message.type === 'status') {
+        setStatus(message.message);
+      }
     };
 
     window.addEventListener('message', handleMessage);

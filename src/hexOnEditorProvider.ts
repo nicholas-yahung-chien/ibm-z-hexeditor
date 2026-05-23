@@ -9,6 +9,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
   private readonly changeEmitter = new vscode.EventEmitter<vscode.CustomDocumentEditEvent<HexOnDocument>>();
   readonly onDidChangeCustomDocument = this.changeEmitter.event;
+  private readonly webviews = new WeakMap<HexOnDocument, vscode.Webview>();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -26,6 +27,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     };
 
     webviewPanel.webview.html = this.html(webviewPanel.webview);
+    this.webviews.set(document, webviewPanel.webview);
 
     const disposables: vscode.Disposable[] = [];
     disposables.push(document.onDidChangeSnapshot(snapshot => {
@@ -34,17 +36,33 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     disposables.push(webviewPanel.webview.onDidReceiveMessage((message: FromWebviewMessage) => {
       this.handleMessage(document, webviewPanel.webview, message);
     }));
-    webviewPanel.onDidDispose(() => disposables.forEach(disposable => disposable.dispose()));
+    webviewPanel.onDidDispose(() => {
+      this.webviews.delete(document);
+      disposables.forEach(disposable => disposable.dispose());
+    });
   }
 
   async saveCustomDocument(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<void> {
-    await this.confirmSaveWithProblems(document, cancellation);
-    await document.save(cancellation);
+    const webview = this.webviews.get(document);
+    let problemCount = 0;
+    try {
+      problemCount = await this.confirmSaveWithProblems(document, cancellation);
+      await document.save(cancellation);
+    } catch (error) {
+      this.postStatus(webview, isCancellationError(error) ? 'Save canceled' : `Save failed: ${messageFromError(error)}`);
+      throw error;
+    }
+
+    this.postStatus(webview, problemCount > 0 ? `Saved with ${problemCount} DBCS issue(s)` : 'Saved');
     const column = document.sourceViewColumn ?? vscode.ViewColumn.Active;
-    await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', {
-      viewColumn: column,
-      preview: false,
-    });
+    try {
+      await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', {
+        viewColumn: column,
+        preview: false,
+      });
+    } catch (error) {
+      this.postStatus(webview, `Saved, but failed to reopen default editor: ${messageFromError(error)}`);
+    }
   }
 
   async saveCustomDocumentAs(
@@ -52,8 +70,15 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken,
   ): Promise<void> {
-    await this.confirmSaveWithProblems(document, cancellation);
-    await document.writeTo(destination, cancellation);
+    const webview = this.webviews.get(document);
+    try {
+      const problemCount = await this.confirmSaveWithProblems(document, cancellation);
+      await document.writeTo(destination, cancellation);
+      this.postStatus(webview, problemCount > 0 ? `Saved with ${problemCount} DBCS issue(s)` : 'Saved');
+    } catch (error) {
+      this.postStatus(webview, isCancellationError(error) ? 'Save canceled' : `Save failed: ${messageFromError(error)}`);
+      throw error;
+    }
   }
 
   revertCustomDocument(document: HexOnDocument): Thenable<void> {
@@ -84,7 +109,10 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }
 
     if (message.type === 'save') {
-      void vscode.commands.executeCommand('workbench.action.files.save');
+      this.postStatus(webview, 'Saving...');
+      void Promise.resolve(vscode.commands.executeCommand('workbench.action.files.save')).catch((error: unknown) => {
+        this.post(webview, { type: 'error', message: `Save failed: ${messageFromError(error)}` });
+      });
       return;
     }
 
@@ -139,6 +167,12 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     void webview.postMessage(message);
   }
 
+  private postStatus(webview: vscode.Webview | undefined, message: string): void {
+    if (webview) {
+      this.post(webview, { type: 'status', message });
+    }
+  }
+
   private async revertActiveDocument(): Promise<void> {
     await vscode.commands.executeCommand('workbench.action.files.revert');
   }
@@ -166,7 +200,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     this.post(webview, { type: 'snapshot', snapshot: document.snapshot() });
   }
 
-  private async confirmSaveWithProblems(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<void> {
+  private async confirmSaveWithProblems(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<number> {
     if (cancellation.isCancellationRequested) {
       throw new vscode.CancellationError();
     }
@@ -174,7 +208,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     const diagnostics = document.snapshot().diagnostics;
     const problemCount = countDiagnosticProblems(diagnostics);
     if (problemCount === 0) {
-      return;
+      return 0;
     }
 
     const summary = summarizeProblemCounts(diagnostics);
@@ -192,6 +226,8 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     if (choice !== 'Save Anyway' || cancellation.isCancellationRequested) {
       throw new vscode.CancellationError();
     }
+
+    return problemCount;
   }
 
   private html(webview: vscode.Webview): string {
@@ -220,4 +256,8 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
 function messageFromError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function isCancellationError(error: unknown): boolean {
+  return error instanceof vscode.CancellationError;
 }

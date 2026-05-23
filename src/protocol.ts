@@ -38,6 +38,7 @@ export type ToWebviewMessage =
   | { type: 'init'; snapshot: EditorSnapshot }
   | { type: 'snapshot'; snapshot: EditorSnapshot }
   | { type: 'saved'; snapshot: EditorSnapshot }
+  | { type: 'status'; message: string }
   | { type: 'error'; message: string };
 
 export type FromWebviewMessage =
