@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { bytesFromCells, cellsFromBytes, makeSnapshot, replaceNibble } from './byteModel';
+import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, replaceNibble } from './byteModel';
 import type { ByteCell, EditorSnapshot, HexNibble } from './protocol';
 import type { HexOnSession } from './sessionRegistry';
 
@@ -49,9 +49,24 @@ export class HexOnDocument implements vscode.CustomDocument {
   }
 
   replaceNibble(offset: number, nibble: HexNibble, digit: number): { undo: () => void; redo: () => void } {
-    const before = this.cells;
+    const before = [...this.cells];
     const after = replaceNibble(this.cells, offset, nibble, digit);
+    return this.applyEdit(before, after);
+  }
 
+  insertByte(offset: number, value = 0x00): { undo: () => void; redo: () => void } {
+    const before = [...this.cells];
+    const after = insertByte(this.cells, offset, value);
+    return this.applyEdit(before, after);
+  }
+
+  deleteByte(offset: number): { undo: () => void; redo: () => void } {
+    const before = [...this.cells];
+    const after = deleteByte(this.cells, offset);
+    return this.applyEdit(before, after);
+  }
+
+  private applyEdit(before: ByteCell[], after: ByteCell[]): { undo: () => void; redo: () => void } {
     const apply = (cells: ByteCell[]) => {
       this.cells = cells;
       this.dirty = !sameCellValues(this.cells, this.savedCells);

@@ -64,7 +64,7 @@ export default function App() {
 
       <footer className="status-bar">
         <span>{status}</span>
-        <span>Arrow keys move, 0-9/A-F edits nibbles, Ctrl+S saves</span>
+        <span>Arrows move, 0-9/A-F edits, Ins inserts 00, Del/Backspace deletes, Ctrl+S saves</span>
       </footer>
     </div>
   );

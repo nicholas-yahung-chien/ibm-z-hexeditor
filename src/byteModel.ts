@@ -64,6 +64,27 @@ export function replaceNibble(
   });
 }
 
+export function insertByte(cells: readonly ByteCell[], offset: number, value = 0x00): ByteCell[] {
+  const insertAt = Math.max(0, Math.min(offset, cells.length));
+  const byte = Math.max(0, Math.min(value, 0xff));
+  return [
+    ...cells.slice(0, insertAt),
+    { value: byte },
+    ...cells.slice(insertAt),
+  ];
+}
+
+export function deleteByte(cells: readonly ByteCell[], offset: number): ByteCell[] {
+  if (offset < 0 || offset >= cells.length) {
+    return [...cells];
+  }
+
+  return [
+    ...cells.slice(0, offset),
+    ...cells.slice(offset + 1),
+  ];
+}
+
 export function makeSnapshot(args: {
   uri: string;
   fileName: string;

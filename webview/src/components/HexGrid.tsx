@@ -121,6 +121,37 @@ export function HexGrid({ snapshot }: Props) {
     });
   }, [cursor, snapshot.cells.length]);
 
+  const insertAfterCursor = useCallback(() => {
+    const insertAt = snapshot.cells.length === 0 ? 0 : cursor.offset + 1;
+    vscode.postMessage({ type: 'insertByte', offset: insertAt, value: 0x00 });
+    setCursor({ offset: insertAt, nibble: 'high' });
+  }, [cursor.offset, snapshot.cells.length]);
+
+  const deleteAtCursor = useCallback(() => {
+    if (snapshot.cells.length === 0) {
+      return;
+    }
+
+    vscode.postMessage({ type: 'deleteByte', offset: cursor.offset });
+    setCursor({
+      offset: Math.max(0, Math.min(cursor.offset, snapshot.cells.length - 2)),
+      nibble: 'high',
+    });
+  }, [cursor.offset, snapshot.cells.length]);
+
+  const backspaceBeforeCursor = useCallback(() => {
+    if (snapshot.cells.length === 0) {
+      return;
+    }
+
+    const deleteAt = Math.max(0, cursor.offset - 1);
+    vscode.postMessage({ type: 'deleteByte', offset: deleteAt });
+    setCursor({
+      offset: Math.max(0, deleteAt),
+      nibble: 'high',
+    });
+  }, [cursor.offset, snapshot.cells.length]);
+
   const onKeyDown = useCallback((event: React.KeyboardEvent) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
@@ -132,12 +163,15 @@ export function HexGrid({ snapshot }: Props) {
     if (event.key === 'ArrowRight') { event.preventDefault(); move('right'); return; }
     if (event.key === 'ArrowUp') { event.preventDefault(); move('up'); return; }
     if (event.key === 'ArrowDown') { event.preventDefault(); move('down'); return; }
+    if (event.key === 'Insert') { event.preventDefault(); insertAfterCursor(); return; }
+    if (event.key === 'Delete') { event.preventDefault(); deleteAtCursor(); return; }
+    if (event.key === 'Backspace') { event.preventDefault(); backspaceBeforeCursor(); return; }
 
     if (/^[0-9a-fA-F]$/.test(event.key)) {
       event.preventDefault();
       editNibble(event.key);
     }
-  }, [editNibble, move]);
+  }, [backspaceBeforeCursor, deleteAtCursor, editNibble, insertAfterCursor, move]);
 
   return (
     <main

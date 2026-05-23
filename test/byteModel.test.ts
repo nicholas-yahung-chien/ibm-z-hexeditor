@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { cellsFromBytes, makeSnapshot, previewBytes, replaceNibble } from '../src/byteModel';
+import { cellsFromBytes, deleteByte, insertByte, makeSnapshot, previewBytes, replaceNibble } from '../src/byteModel';
 import { encodeToIbm937, SO, SI } from '../src/codec/ibm937';
 
 describe('byte-first model', () => {
@@ -9,6 +9,15 @@ describe('byte-first model', () => {
     const edited = replaceNibble(cells, 0, 'low', 0x0);
 
     expect(edited).toEqual([{ value: 0xc0 }]);
+  });
+
+  it('inserts and deletes raw bytes', () => {
+    const cells = cellsFromBytes(Uint8Array.from([0xc1, 0xc2]));
+    const inserted = insertByte(cells, 1, 0x0e);
+    const deleted = deleteByte(inserted, 2);
+
+    expect(inserted.map(cell => cell.value)).toEqual([0xc1, 0x0e, 0xc2]);
+    expect(deleted.map(cell => cell.value)).toEqual([0xc1, 0x0e]);
   });
 
   it('previews IBM-937 SO/SI DBCS bytes with byte ranges', () => {

@@ -93,6 +93,28 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
         undo: edit.undo,
         redo: edit.redo,
       });
+      return;
+    }
+
+    if (message.type === 'insertByte') {
+      const edit = document.insertByte(message.offset, message.value);
+      this.changeEmitter.fire({
+        document,
+        label: 'Insert byte',
+        undo: edit.undo,
+        redo: edit.redo,
+      });
+      return;
+    }
+
+    if (message.type === 'deleteByte') {
+      const edit = document.deleteByte(message.offset);
+      this.changeEmitter.fire({
+        document,
+        label: 'Delete byte',
+        undo: edit.undo,
+        redo: edit.redo,
+      });
     }
   }
 
