@@ -37,7 +37,6 @@ export function buildRecordsFromText(text: string): { cells: ByteCell[]; lines: 
     for (let i = 0; i < encoded.length; i++) {
       cells.push({
         value: encoded[i],
-        lineStart: lineIndex > 0 && i === 0,
       });
     }
 
@@ -117,10 +116,10 @@ export function makeSnapshot(args: {
   return {
     uri: args.uri,
     fileName: args.fileName,
-    sourceEncoding: args.sourceEncoding,
-    hexEncoding: 'ibm937',
+    fileEncoding: args.sourceEncoding,
     cells: inspected.cells,
     lines: args.lines,
+    preview: [],
     diagnostics: inspected.diagnostics,
     dirty: args.dirty,
   };

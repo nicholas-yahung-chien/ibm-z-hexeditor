@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
 export interface HexOnSession {
-  sourceEncoding: string;
-  sourceText: string;
+  fileEncoding: string;
+  bytes: Uint8Array;
   sourceViewColumn?: vscode.ViewColumn;
 }
 

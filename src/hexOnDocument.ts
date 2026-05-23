@@ -1,13 +1,11 @@
 import * as vscode from 'vscode';
-import { buildRecordsFromText, decodeRecordsToText, makeSnapshot, replaceNibble } from './recordModel';
-import type { ByteCell, EditorSnapshot, HexNibble, RecordLine } from './protocol';
+import { bytesFromCells, cellsFromBytes, makeSnapshot, replaceNibble } from './byteModel';
+import type { ByteCell, EditorSnapshot, HexNibble } from './protocol';
 import type { HexOnSession } from './sessionRegistry';
-import { encodeTextForFile } from './encoding';
 
 export class HexOnDocument implements vscode.CustomDocument {
   private cells: ByteCell[];
   private savedCells: ByteCell[];
-  private readonly lines: RecordLine[];
   private dirty = false;
 
   private readonly changeEmitter = new vscode.EventEmitter<EditorSnapshot>();
@@ -16,27 +14,23 @@ export class HexOnDocument implements vscode.CustomDocument {
   constructor(
     readonly uri: vscode.Uri,
     readonly fileName: string,
-    readonly sourceEncoding: string,
+    readonly fileEncoding: string,
     readonly sourceViewColumn: vscode.ViewColumn | undefined,
-    sourceText: string,
+    bytes: Uint8Array,
   ) {
-    const records = buildRecordsFromText(sourceText);
-    this.cells = records.cells;
-    this.savedCells = records.cells;
-    this.lines = records.lines;
+    this.cells = cellsFromBytes(bytes);
+    this.savedCells = cellsFromBytes(bytes);
   }
 
   static async create(uri: vscode.Uri, session: HexOnSession | undefined): Promise<HexOnDocument> {
-    const document = session
-      ? { getText: () => session.sourceText, encoding: session.sourceEncoding }
-      : await vscode.workspace.openTextDocument(uri);
+    const bytes = session?.bytes ?? await vscode.workspace.fs.readFile(uri);
 
     return new HexOnDocument(
       uri,
       uri.fsPath || uri.path,
-      session?.sourceEncoding ?? ((document as vscode.TextDocument & { encoding?: string }).encoding ?? 'utf8'),
+      session?.fileEncoding ?? 'utf8',
       session?.sourceViewColumn,
-      document.getText(),
+      bytes,
     );
   }
 
@@ -48,9 +42,8 @@ export class HexOnDocument implements vscode.CustomDocument {
     return makeSnapshot({
       uri: this.uri.toString(),
       fileName: this.fileName,
-      sourceEncoding: this.sourceEncoding,
+      fileEncoding: this.fileEncoding,
       cells: this.cells,
-      lines: this.lines,
       dirty: this.dirty,
     });
   }
@@ -89,8 +82,7 @@ export class HexOnDocument implements vscode.CustomDocument {
       return;
     }
 
-    const text = decodeRecordsToText(this.cells, this.lines);
-    const bytes = await encodeTextForFile(text, this.sourceEncoding, uri);
+    const bytes = bytesFromCells(this.cells);
     if (cancellation?.isCancellationRequested) {
       return;
     }
@@ -99,10 +91,9 @@ export class HexOnDocument implements vscode.CustomDocument {
   }
 
   async revert(): Promise<void> {
-    const document = await vscode.workspace.openTextDocument(this.uri);
-    const records = buildRecordsFromText(document.getText());
-    this.cells = records.cells;
-    this.savedCells = records.cells;
+    const bytes = await vscode.workspace.fs.readFile(this.uri);
+    this.cells = cellsFromBytes(bytes);
+    this.savedCells = cellsFromBytes(bytes);
     this.dirty = false;
     this.changeEmitter.fire(this.snapshot());
   }

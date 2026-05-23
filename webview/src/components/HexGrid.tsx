@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ByteCell, EditorSnapshot, HexNibble } from '../../../src/protocol';
-import { decodeDbcsPair, decodeSbcsByte, SI, SO } from '../../../src/codec/ibm937';
+import type { ByteCell, EditorSnapshot, HexNibble, PreviewEntry } from '../../../src/protocol';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspect937';
 import { vscode } from '../vscode';
 
@@ -16,11 +15,6 @@ interface Cursor {
   nibble: HexNibble;
 }
 
-interface PreviewEntry {
-  kind: 'sbcs' | 'so' | 'si' | 'dbcs-first' | 'dbcs-second' | 'invalid';
-  text: string;
-}
-
 function cellClass(cell: ByteCell): string {
   if (!cell.diagnostic) {
     return '';
@@ -32,43 +26,6 @@ function cellClass(cell: ByteCell): string {
     return 'cell-warning';
   }
   return '';
-}
-
-function sbcsPreview(byte: number): string {
-  const text = decodeSbcsByte(byte);
-  return text.startsWith('[') ? '.' : text;
-}
-
-function buildPreview(cells: readonly ByteCell[]): PreviewEntry[] {
-  const entries: PreviewEntry[] = [];
-  let inDbcs = false;
-  let i = 0;
-
-  while (i < cells.length) {
-    const byte = cells[i].value;
-    if (byte === SO) {
-      entries.push({ kind: 'so', text: '>' });
-      inDbcs = true;
-      i++;
-      continue;
-    }
-    if (byte === SI) {
-      entries.push({ kind: 'si', text: '<' });
-      inDbcs = false;
-      i++;
-      continue;
-    }
-    if (inDbcs && i + 1 < cells.length) {
-      entries.push({ kind: 'dbcs-first', text: decodeDbcsPair(byte, cells[i + 1].value) ?? '?' });
-      entries.push({ kind: 'dbcs-second', text: '' });
-      i += 2;
-      continue;
-    }
-    entries.push({ kind: inDbcs ? 'invalid' : 'sbcs', text: inDbcs ? '?' : sbcsPreview(byte) });
-    i++;
-  }
-
-  return entries;
 }
 
 export function HexGrid({ snapshot }: Props) {
@@ -120,7 +77,12 @@ export function HexGrid({ snapshot }: Props) {
   const groups = useMemo(() => {
     return snapshot.lines.map(line => {
       const cells = snapshot.cells.slice(line.startOffset, line.startOffset + line.length);
-      return { line, cells, preview: buildPreview(cells) };
+      const preview = snapshot.preview.filter(entry => {
+        const entryEnd = entry.byteOffset + entry.byteLength;
+        const lineEnd = line.startOffset + line.length;
+        return entry.byteOffset < lineEnd && entryEnd > line.startOffset;
+      });
+      return { line, cells, preview };
     });
   }, [snapshot]);
 
@@ -191,7 +153,12 @@ export function HexGrid({ snapshot }: Props) {
           rows.push({
             rowOffset,
             cells: group.cells.slice(rowOffset, rowOffset + bytesPerRow),
-            preview: group.preview.slice(rowOffset, rowOffset + bytesPerRow),
+            preview: group.preview.filter(entry => {
+              const rowStart = group.line.startOffset + rowOffset;
+              const rowEnd = rowStart + bytesPerRow;
+              const entryEnd = entry.byteOffset + entry.byteLength;
+              return entry.byteOffset < rowEnd && entryEnd > rowStart;
+            }),
           });
           if (group.cells.length === 0) {
             break;
@@ -209,16 +176,22 @@ export function HexGrid({ snapshot }: Props) {
                   className="byte-grid"
                   style={{ gridTemplateColumns: `repeat(${Math.max(row.cells.length, 1)}, var(--cell-size))` }}
                 >
-                  {row.preview.map((entry, index) => {
-                    if (entry.kind === 'dbcs-second') {
-                      return null;
-                    }
-                    const span = entry.kind === 'dbcs-first' && index + 1 < row.cells.length ? 2 : 1;
+                  {row.preview.map(entry => {
+                    const rowStart = group.line.startOffset + row.rowOffset;
+                    const rowEnd = rowStart + row.cells.length;
+                    const entryEnd = entry.byteOffset + entry.byteLength;
+                    const colStart = Math.max(entry.byteOffset, rowStart) - rowStart;
+                    const span = Math.max(1, Math.min(entryEnd, rowEnd) - Math.max(entry.byteOffset, rowStart));
+                    const activePreview = cursor.offset >= entry.byteOffset && cursor.offset < entryEnd;
                     return (
                       <span
-                        className={`preview preview-${entry.kind}`}
-                        key={`p-${index}`}
-                        style={{ gridColumn: `${index + 1} / span ${span}` }}
+                        className={[
+                          'preview',
+                          `preview-${entry.kind}`,
+                          activePreview ? 'preview-active' : '',
+                        ].filter(Boolean).join(' ')}
+                        key={`p-${entry.byteOffset}`}
+                        style={{ gridColumn: `${colStart + 1} / span ${span}` }}
                       >
                         {entry.text}
                       </span>

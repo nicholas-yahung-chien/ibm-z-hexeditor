@@ -5,23 +5,31 @@ export type HexNibble = 'high' | 'low';
 export interface ByteCell {
   value: number;
   diagnostic?: string;
-  lineStart?: boolean;
 }
 
 export interface RecordLine {
   lineIndex: number;
   startOffset: number;
   length: number;
-  eol: string;
+  eol?: string;
+}
+
+export type PreviewKind = 'sbcs' | 'so' | 'si' | 'dbcs' | 'control' | 'invalid';
+
+export interface PreviewEntry {
+  byteOffset: number;
+  byteLength: number;
+  text: string;
+  kind: PreviewKind;
 }
 
 export interface EditorSnapshot {
   uri: string;
   fileName: string;
-  sourceEncoding: string;
-  hexEncoding: 'ibm937';
+  fileEncoding: string;
   cells: ByteCell[];
   lines: RecordLine[];
+  preview: PreviewEntry[];
   diagnostics: AnalysisResult | null;
   dirty: boolean;
 }

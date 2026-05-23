@@ -2,10 +2,8 @@ import * as vscode from 'vscode';
 import { HexOnEditorProvider } from './hexOnEditorProvider';
 import {
   COMMON_SOURCE_ENCODINGS,
-  decodeFileText,
   getDocumentEncoding,
   normalizeEncoding,
-  PREFERRED_SOURCE_ENCODINGS,
 } from './encoding';
 import { SessionRegistry } from './sessionRegistry';
 
@@ -51,35 +49,21 @@ async function openHexOn(sessions: SessionRegistry): Promise<void> {
     return;
   }
 
-  const hexEncoding = await vscode.window.showQuickPick([
-    {
-      label: 'IBM-937',
-      description: 'Traditional Chinese EBCDIC with DBCS SO/SI validation',
-      value: 'ibm937' as const,
-    },
-  ], {
-    placeHolder: 'Select the IBM Z code page for the hex rows',
-  });
-
-  if (!hexEncoding) {
-    return;
-  }
-
   if (active.dirty && !(await saveActiveResource(active))) {
     void vscode.window.showWarningMessage('Please save the current file before opening HEX ON editing.');
     return;
   }
 
-  const sourceEncoding = await pickSourceEncoding(active.document ? getDocumentEncoding(active.document) : undefined);
-  if (!sourceEncoding) {
+  const fileEncoding = await pickFileEncoding(active.document ? getDocumentEncoding(active.document) : undefined);
+  if (!fileEncoding) {
     return;
   }
 
-  const sourceText = await decodeFileText(active.uri, sourceEncoding);
+  const bytes = await vscode.workspace.fs.readFile(active.uri);
 
   sessions.set(active.uri, {
-    sourceEncoding,
-    sourceText,
+    fileEncoding,
+    bytes,
     sourceViewColumn: active.viewColumn,
   });
 
@@ -123,28 +107,35 @@ async function saveActiveResource(active: ActiveResource): Promise<boolean> {
   return !vscode.window.tabGroups.activeTabGroup.activeTab?.isDirty;
 }
 
-async function pickSourceEncoding(currentEncoding: string | undefined): Promise<string | undefined> {
+async function pickFileEncoding(currentEncoding: string | undefined): Promise<string | undefined> {
   const normalized = normalizeEncoding(currentEncoding);
   const currentItem = currentEncoding
     ? {
       label: `Use VS Code encoding: ${normalized}`,
       description: `${normalized} from the current TextDocument`,
-      detail: 'Read raw file bytes and decode them with the encoding VS Code reports for the current text document.',
+      detail: 'Preview raw file bytes with the encoding VS Code reports for the current text document.',
       value: normalized,
     }
     : {
       label: 'UTF-8',
       description: 'Default when the active tab is not a TextDocument',
-      detail: 'Read raw file bytes and decode them as UTF-8.',
+      detail: 'Preview raw file bytes as UTF-8.',
       value: 'utf8',
     };
 
   const items = [
     currentItem,
+    ...(normalized !== 'ibm937'
+      ? [{
+        label: 'IBM-937',
+        description: 'Preview raw bytes as IBM-937/EBCDIC and inspect SO/SI structure',
+        value: 'ibm937',
+      }]
+      : []),
     ...(normalized !== 'utf8'
       ? [{
         label: 'UTF-8',
-        description: 'Decode raw bytes as UTF-8',
+        description: 'Preview raw bytes as UTF-8',
         value: 'utf8',
       }]
       : []),
@@ -152,7 +143,7 @@ async function pickSourceEncoding(currentEncoding: string | undefined): Promise<
       .filter(encoding => encoding !== normalized && encoding !== 'utf8')
       .map(encoding => ({
         label: encoding,
-        description: 'Decode raw bytes using this VS Code encoding id',
+        description: 'Preview raw bytes using this VS Code encoding id',
         value: encoding,
       })),
     {
@@ -163,7 +154,7 @@ async function pickSourceEncoding(currentEncoding: string | undefined): Promise<
   ];
 
   const picked = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select how to decode the source file before IBM-937 hex editing',
+    placeHolder: 'Select the file content encoding for the read-only preview',
     matchOnDescription: true,
     matchOnDetail: true,
   });
@@ -182,15 +173,6 @@ async function pickSourceEncoding(currentEncoding: string | undefined): Promise<
 
   if (!encoding) {
     return undefined;
-  }
-
-  if (!PREFERRED_SOURCE_ENCODINGS.has(encoding)) {
-    const proceed = await vscode.window.showWarningMessage(
-      `This MVP is primarily validated with UTF-8 source files. Continue by decoding and later saving the file as "${encoding}"?`,
-      { modal: true },
-      'Continue',
-    );
-    return proceed === 'Continue' ? encoding : undefined;
   }
 
   return encoding;

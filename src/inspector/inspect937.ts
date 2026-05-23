@@ -51,11 +51,13 @@ function strongSbcsByte(b: number): boolean {
   switch (b) {
     case 0x40: // space
     case 0x4B: // .
+    case 0x4D: // (
     case 0x6B: // ,
     case 0x5A: // !
     case 0x7A: // :
     case 0x4C: // <
     case 0x50: // &
+    case 0x5C: // *
     case 0x5D: // )
     case 0x5B: // $
     case 0x60: // -
@@ -64,6 +66,7 @@ function strongSbcsByte(b: number): boolean {
     case 0x6F: // ?
     case 0x7C: // @
     case 0x7E: // =
+    case 0x7F: // "
     case 0x7D: // '
     case 0xBA: // [
     case 0xBB: // ]
@@ -228,7 +231,6 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
     counts.MISSING_SO > 0 ||
     counts.MISSING_SI > 0 ||
     counts.MISSING_SI_AT_EOF > 0 ||
-    counts.AMBIGUOUS > 0 ||
     counts.INVALID_OR_UNKNOWN > 0
   );
 

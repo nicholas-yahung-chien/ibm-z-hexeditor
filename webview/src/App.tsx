@@ -42,8 +42,8 @@ export default function App() {
             <h1>{fileLabel}</h1>
           </div>
           <div className="meta-row">
-            <span>{snapshot?.sourceEncoding ?? 'source'}</span>
-            <span>IBM-937</span>
+            <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
+            <span>raw bytes</span>
             <span>{snapshot ? `${snapshot.cells.length.toLocaleString()} bytes` : 'loading'}</span>
           </div>
         </div>

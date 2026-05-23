@@ -145,7 +145,7 @@ h1 {
   overflow: hidden;
 }
 
-.preview-dbcs-first {
+.preview-dbcs {
   color: var(--accent);
   font-weight: 650;
 }
@@ -154,6 +154,11 @@ h1 {
 .preview-si {
   color: var(--vscode-editorWarning-foreground);
   font-weight: 800;
+}
+
+.preview-active {
+  background: color-mix(in srgb, var(--vscode-editor-selectionBackground) 64%, transparent);
+  box-shadow: inset 0 -2px 0 var(--vscode-editorCursor-foreground);
 }
 
 .nibble {
