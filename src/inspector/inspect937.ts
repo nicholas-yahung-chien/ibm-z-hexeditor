@@ -9,6 +9,8 @@ export type DiagnosticKind =
   | 'MISSING_SO'
   | 'MISSING_SI'
   | 'MISSING_SI_AT_EOF'
+  | 'UNMATCHED_SO'
+  | 'UNMATCHED_SI'
   | 'AMBIGUOUS'
   | 'INVALID_OR_UNKNOWN';
 
@@ -133,8 +135,8 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
 
     if (b1 === SO) {
       if (dbcsMode) {
-        events.push(makeEvent('AMBIGUOUS', data, i, 1, ord,
-          'SO', 'SO found while already in DBCS mode; duplicate SO or missing SI.'));
+        events.push(makeEvent('UNMATCHED_SO', data, i, 1, ord,
+          'SO', 'SO found while already in DBCS mode; likely duplicate SO or missing SI before this SO.'));
       } else {
         events.push(makeEvent('SO', data, i, 1, ord, 'SO', 'Enter DBCS mode.'));
       }
@@ -145,8 +147,8 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
 
     if (b1 === SI) {
       if (!dbcsMode) {
-        events.push(makeEvent('AMBIGUOUS', data, i, 1, ord,
-          'SI', 'SI found while already in SBCS mode; duplicate SI or missing SO.'));
+        events.push(makeEvent('UNMATCHED_SI', data, i, 1, ord,
+          'SI', 'SI found while already in SBCS mode; likely duplicate SI or missing SO before this SI.'));
       } else {
         events.push(makeEvent('SI', data, i, 1, ord, 'SI', 'Return to SBCS mode.'));
       }
@@ -229,6 +231,7 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
   const counts: Record<DiagnosticKind, number> = {
     SO: 0, SI: 0, SBCS: 0, DBCS: 0, DBCS_AMBIGUOUS: 0,
     MISSING_SO: 0, MISSING_SI: 0, MISSING_SI_AT_EOF: 0,
+    UNMATCHED_SO: 0, UNMATCHED_SI: 0,
     AMBIGUOUS: 0, INVALID_OR_UNKNOWN: 0,
   };
   for (const e of events) counts[e.kind]++;
@@ -237,6 +240,8 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
     counts.MISSING_SO > 0 ||
     counts.MISSING_SI > 0 ||
     counts.MISSING_SI_AT_EOF > 0 ||
+    counts.UNMATCHED_SO > 0 ||
+    counts.UNMATCHED_SI > 0 ||
     counts.INVALID_OR_UNKNOWN > 0
   );
 
@@ -244,6 +249,6 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
 }
 
 export const PROBLEM_KINDS = new Set<DiagnosticKind>([
-  'MISSING_SO', 'MISSING_SI', 'MISSING_SI_AT_EOF', 'INVALID_OR_UNKNOWN',
+  'MISSING_SO', 'MISSING_SI', 'MISSING_SI_AT_EOF', 'UNMATCHED_SO', 'UNMATCHED_SI', 'INVALID_OR_UNKNOWN',
 ]);
 export const WARNING_KINDS = new Set<DiagnosticKind>(['AMBIGUOUS', 'DBCS_AMBIGUOUS']);

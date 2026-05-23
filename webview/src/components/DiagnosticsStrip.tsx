@@ -12,6 +12,8 @@ export function DiagnosticsStrip({ result }: Props) {
   const problemCount = result.counts.MISSING_SO +
     result.counts.MISSING_SI +
     result.counts.MISSING_SI_AT_EOF +
+    result.counts.UNMATCHED_SO +
+    result.counts.UNMATCHED_SI +
     result.counts.INVALID_OR_UNKNOWN;
   const dbcsPairCount = result.counts.DBCS + result.counts.DBCS_AMBIGUOUS;
   const warningCount = result.counts.AMBIGUOUS + result.counts.DBCS_AMBIGUOUS;

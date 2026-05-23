@@ -27,4 +27,18 @@ describe('IBM-937 codec', () => {
     expect(result.counts.DBCS + result.counts.DBCS_AMBIGUOUS).toBe(2);
     expect(result.counts.DBCS_AMBIGUOUS).toBe(2);
   });
+
+  it('reports an unmatched SI as an SO/SI structure problem', () => {
+    const result = inspectIbm937(Uint8Array.from([0x5a, 0x61, 0x5d, 0x7c, SI]));
+
+    expect(result.hasProblems).toBe(true);
+    expect(result.counts.UNMATCHED_SI).toBe(1);
+  });
+
+  it('reports a duplicate SO as an SO/SI structure problem', () => {
+    const result = inspectIbm937(Uint8Array.from([SO, SO, 0x5a, 0x61, SI]));
+
+    expect(result.hasProblems).toBe(true);
+    expect(result.counts.UNMATCHED_SO).toBe(1);
+  });
 });
