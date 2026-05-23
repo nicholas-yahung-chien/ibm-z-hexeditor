@@ -110,10 +110,11 @@ h1 {
 
 .hex-row {
   display: grid;
-  grid-template-columns: 5.5rem max-content;
+  grid-template-columns: 5.5rem minmax(0, max-content);
   align-items: start;
   gap: 0.8rem;
   min-height: 4.4rem;
+  max-width: max-content;
 }
 
 .offset {
@@ -128,6 +129,7 @@ h1 {
   grid-template-rows: 1.35rem 1.25rem 1.25rem;
   column-gap: 0.18rem;
   align-items: center;
+  max-width: 100%;
 }
 
 .preview {
