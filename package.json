@@ -1,0 +1,100 @@
+{
+  "name": "ibm-z-hex-on-editor",
+  "displayName": "IBM Z HEX ON Editor",
+  "description": "ISPF-style HEX ON editor for IBM Z code page byte editing.",
+  "version": "0.1.0",
+  "publisher": "nicholas-yahung-chien",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicholas-yahung-chien/ibm-z-hexeditor.git"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:ibmZHexEditor.openHexOn",
+    "onCustomEditor:ibmZHexEditor.hexOn"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ibmZHexEditor.openHexOn",
+        "title": "IBM Z Hex Editor: Open HEX ON",
+        "category": "IBM Z Hex Editor"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "ibmZHexEditor.openHexOn",
+          "group": "navigation@90",
+          "when": "editorTextFocus"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "ibmZHexEditor.openHexOn",
+          "group": "navigation@90",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "ibmZHexEditor.hexOn",
+        "displayName": "IBM Z HEX ON Editor",
+        "selector": [
+          {
+            "filenamePattern": "*"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "configuration": {
+      "title": "IBM Z HEX ON Editor",
+      "properties": {
+        "ibmZHexEditor.maxFileSizeKb": {
+          "type": "number",
+          "default": 1024,
+          "minimum": 1,
+          "description": "Maximum source file size in KB for the MVP custom editor."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "compile": "npm run clean && npm run build:extension && npm run build:webview",
+    "build:extension": "node scripts/build-extension.mjs",
+    "build:webview": "vite build --config vite.config.mjs",
+    "watch": "npm-run-all --parallel watch:extension watch:webview",
+    "watch:extension": "node scripts/build-extension.mjs --watch",
+    "watch:webview": "vite build --watch --config vite.config.mjs",
+    "test": "vitest run --config vitest.config.mjs",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.36",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@types/vscode": "^1.100.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "esbuild": "^0.25.5",
+    "jsdom": "^26.1.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.0"
+  }
+}

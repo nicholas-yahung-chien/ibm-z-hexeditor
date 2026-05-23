@@ -1,0 +1,16 @@
+node_modules/
+dist/
+out/
+coverage/
+*.vsix
+*.log
+
+# Local reference material kept outside the published extension source.
+com.ibm.systemz.common.jface.hexwidget/
+com.ibm.systemz.common.jface.hexwidget.nl1_1.2.2.202510212111/
+com.ibm.systemz.common.jface.hexwidget_1.2.1.202510212111/
+dbcs-safe-decoder-0.1.17/
+IBM.zfilemanager-16.1.125082220/
+ibm-937-hex-editor/
+vscode-hexeditor/
+vscode-ispf-hex-on-research-plan.md

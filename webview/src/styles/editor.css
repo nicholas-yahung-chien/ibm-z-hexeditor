@@ -1,0 +1,222 @@
+:root {
+  --cell-size: 1.45rem;
+  --record-gap: 0.7rem;
+  --accent: var(--vscode-terminal-ansiGreen);
+  --accent-soft: color-mix(in srgb, var(--accent) 28%, transparent);
+  --problem: var(--vscode-editorError-foreground);
+  --warning: var(--vscode-editorWarning-foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--vscode-editor-foreground);
+  background: var(--vscode-editor-background);
+  font-family: var(--vscode-font-family);
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+  background: var(--vscode-sideBar-background);
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.meta-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--vscode-descriptionForeground);
+  font-size: 0.78rem;
+}
+
+.toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--vscode-button-border, transparent);
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+  padding: 0.36rem 0.7rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.toolbar-button:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.diagnostics {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.45rem 1rem;
+  color: var(--vscode-descriptionForeground);
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+  background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--accent));
+  font-size: 0.82rem;
+}
+
+.diagnostics-problem {
+  background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--problem));
+}
+
+.hex-grid-shell {
+  overflow: auto;
+  padding: 1rem;
+  outline: none;
+  font-family: var(--vscode-editor-font-family), Consolas, monospace;
+  font-size: var(--vscode-editor-font-size);
+  line-height: 1.25;
+}
+
+.hex-grid-shell:focus {
+  box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
+}
+
+.record-group {
+  padding-block: var(--record-gap);
+  border-bottom: 1px dashed var(--vscode-editorWidget-border);
+}
+
+.hex-row {
+  display: grid;
+  grid-template-columns: 5.5rem max-content;
+  align-items: start;
+  gap: 0.8rem;
+  min-height: 4.4rem;
+}
+
+.offset {
+  color: var(--accent);
+  font-weight: 700;
+  padding-top: 1.52rem;
+  user-select: none;
+}
+
+.byte-grid {
+  display: grid;
+  grid-template-rows: 1.35rem 1.25rem 1.25rem;
+  column-gap: 0.18rem;
+  align-items: center;
+}
+
+.preview {
+  grid-row: 1;
+  color: var(--vscode-editor-foreground);
+  text-align: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.preview-dbcs-first {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.preview-so,
+.preview-si {
+  color: var(--vscode-editorWarning-foreground);
+  font-weight: 800;
+}
+
+.nibble {
+  width: var(--cell-size);
+  height: 1.25rem;
+  border: 0;
+  border-radius: 2px;
+  color: var(--accent);
+  background: transparent;
+  text-align: center;
+  cursor: text;
+  padding: 0;
+}
+
+.nibble-high {
+  grid-row: 2;
+}
+
+.nibble-low {
+  grid-row: 3;
+}
+
+.nibble:hover {
+  background: var(--accent-soft);
+}
+
+.nibble-caret {
+  color: var(--vscode-editorCursor-foreground);
+  background: var(--vscode-editor-selectionBackground);
+  box-shadow: inset 0 -2px 0 var(--vscode-editorCursor-foreground);
+}
+
+.cell-problem {
+  background: color-mix(in srgb, var(--problem) 32%, transparent);
+}
+
+.cell-warning {
+  background: color-mix(in srgb, var(--warning) 32%, transparent);
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  color: var(--vscode-descriptionForeground);
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 1rem;
+  border-top: 1px solid var(--vscode-editorWidget-border);
+  color: var(--vscode-statusBar-foreground);
+  background: var(--vscode-statusBar-background);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --cell-size: 1.25rem;
+  }
+
+  .top-bar,
+  .status-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hex-row {
+    grid-template-columns: 4.6rem max-content;
+    gap: 0.45rem;
+  }
+}
