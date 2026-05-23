@@ -11,8 +11,15 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  overflow: hidden;
   color: var(--vscode-editor-foreground);
   background: var(--vscode-editor-background);
   font-family: var(--vscode-font-family);
@@ -28,7 +35,8 @@ button {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
   display: grid;
   grid-template-rows: auto auto 1fr;
 }
@@ -191,6 +199,7 @@ h1 {
 }
 
 .hex-grid-shell {
+  min-height: 0;
   overflow: auto;
   padding: 1rem 1rem 75vh;
   scroll-padding-block-start: 1rem;

@@ -56,10 +56,22 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
       const grid = gridRef.current;
       const target = grid?.querySelector<HTMLElement>(`[data-byte-offset="${offset}"]`);
       const row = target?.closest<HTMLElement>('.hex-row');
+      if (!grid || !target || !row) {
+        return;
+      }
 
-      row?.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
-      target?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
-      grid?.focus();
+      const gridRect = grid.getBoundingClientRect();
+      const rowRect = row.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const top = rowRect.top - gridRect.top + grid.scrollTop;
+      const left = targetRect.left - gridRect.left + grid.scrollLeft - ((grid.clientWidth - targetRect.width) / 2);
+
+      grid.scrollTo({
+        top: Math.max(0, top),
+        left: Math.max(0, left),
+        behavior: 'smooth',
+      });
+      grid.focus({ preventScroll: true });
     });
   }, [jumpTarget, snapshot.cells.length]);
 
