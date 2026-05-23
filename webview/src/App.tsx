@@ -4,9 +4,17 @@ import { HexGrid } from './components/HexGrid';
 import { DiagnosticsStrip } from './components/DiagnosticsStrip';
 import { vscode } from './vscode';
 
+const EDITING_HINT = 'Arrows move, 0-9/A-F edits, Ins inserts 00, Del/Backspace deletes, Ctrl+S saves';
+
+interface JumpTarget {
+  offset: number;
+  token: number;
+}
+
 export default function App() {
   const [snapshot, setSnapshot] = useState<EditorSnapshot | null>(null);
   const [status, setStatus] = useState('Waiting for editor data...');
+  const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent<ToWebviewMessage>) => {
@@ -45,7 +53,9 @@ export default function App() {
             <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
             <span>raw bytes</span>
             <span>{snapshot ? `${snapshot.cells.length.toLocaleString()} bytes` : 'loading'}</span>
+            <span>{status}</span>
           </div>
+          <div className="hint-row">{EDITING_HINT}</div>
         </div>
         <button className="toolbar-button" type="button" onClick={() => vscode.postMessage({ type: 'save' })}>
           <span className="codicon codicon-save" aria-hidden="true" />
@@ -55,17 +65,15 @@ export default function App() {
 
       {snapshot ? (
         <>
-          <DiagnosticsStrip result={snapshot.diagnostics} />
-          <HexGrid snapshot={snapshot} />
+          <DiagnosticsStrip
+            result={snapshot.diagnostics}
+            onJump={offset => setJumpTarget(current => ({ offset, token: (current?.token ?? 0) + 1 }))}
+          />
+          <HexGrid snapshot={snapshot} jumpTarget={jumpTarget} />
         </>
       ) : (
         <main className="empty-state">{status}</main>
       )}
-
-      <footer className="status-bar">
-        <span>{status}</span>
-        <span>Arrows move, 0-9/A-F edits, Ins inserts 00, Del/Backspace deletes, Ctrl+S saves</span>
-      </footer>
     </div>
   );
 }

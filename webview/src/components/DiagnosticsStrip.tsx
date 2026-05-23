@@ -1,29 +1,143 @@
-import type { AnalysisResult } from '../../../src/inspector/inspect937';
+import { useMemo, useState } from 'react';
+import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspect937';
+import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspect937';
 
 interface Props {
   result: AnalysisResult | null;
+  onJump: (offset: number) => void;
 }
 
-export function DiagnosticsStrip({ result }: Props) {
+const KIND_LABELS: Record<DiagnosticKind, string> = {
+  SO: 'SO',
+  SI: 'SI',
+  SBCS: 'SBCS',
+  DBCS: 'DBCS',
+  DBCS_AMBIGUOUS: 'DBCS ambiguous',
+  MISSING_SO: 'Missing SO',
+  MISSING_SI: 'Missing SI',
+  MISSING_SI_AT_EOF: 'Missing SI at EOF',
+  UNMATCHED_SO: 'Unmatched SO',
+  UNMATCHED_SI: 'Unmatched SI',
+  AMBIGUOUS: 'Ambiguous',
+  INVALID_OR_UNKNOWN: 'Invalid or unknown',
+};
+
+const KIND_ORDER: DiagnosticKind[] = [
+  'MISSING_SO',
+  'MISSING_SI',
+  'MISSING_SI_AT_EOF',
+  'UNMATCHED_SO',
+  'UNMATCHED_SI',
+  'INVALID_OR_UNKNOWN',
+  'DBCS_AMBIGUOUS',
+  'AMBIGUOUS',
+  'SO',
+  'SI',
+  'DBCS',
+  'SBCS',
+];
+
+function countProblems(result: AnalysisResult): number {
+  let count = 0;
+  for (const kind of PROBLEM_KINDS) {
+    count += result.counts[kind] ?? 0;
+  }
+  return count;
+}
+
+function eventLabel(event: DiagnosticEvent): string {
+  const offset = event.offset.toString(16).toUpperCase().padStart(6, '0');
+  const bytes = event.bytesHex ? ` ${event.bytesHex}` : ' EOF';
+  return `${offset}${bytes}`;
+}
+
+export function DiagnosticsStrip({ result, onJump }: Props) {
+  const [expanded, setExpanded] = useState(false);
+
+  const details = useMemo(() => {
+    if (!result) {
+      return [];
+    }
+
+    return KIND_ORDER
+      .map(kind => ({
+        kind,
+        count: result.counts[kind] ?? 0,
+        events: result.events.filter(event => event.kind === kind),
+      }))
+      .filter(item => item.count > 0);
+  }, [result]);
+
   if (!result) {
     return null;
   }
 
-  const problemCount = result.counts.MISSING_SO +
-    result.counts.MISSING_SI +
-    result.counts.MISSING_SI_AT_EOF +
-    result.counts.UNMATCHED_SO +
-    result.counts.UNMATCHED_SI +
-    result.counts.INVALID_OR_UNKNOWN;
+  const problemCount = countProblems(result);
   const dbcsPairCount = result.counts.DBCS + result.counts.DBCS_AMBIGUOUS;
-  const warningCount = result.counts.AMBIGUOUS + result.counts.DBCS_AMBIGUOUS;
+  const warningCount = (result.counts.AMBIGUOUS ?? 0) + (result.counts.DBCS_AMBIGUOUS ?? 0);
+  const jumpKinds = new Set<DiagnosticKind>([...PROBLEM_KINDS, ...WARNING_KINDS]);
+  const jumpGroups = details.filter(item => jumpKinds.has(item.kind));
 
   return (
     <section className={problemCount > 0 ? 'diagnostics diagnostics-problem' : 'diagnostics'}>
-      <span className={`codicon ${problemCount > 0 ? 'codicon-warning' : 'codicon-pass'}`} aria-hidden="true" />
-      <span>{problemCount > 0 ? `${problemCount} DBCS issue(s)` : 'SO/SI structure valid'}</span>
-      <span>{dbcsPairCount} DBCS pair(s)</span>
-      <span>{warningCount} warning(s)</span>
+      <button
+        className="diagnostics-summary"
+        type="button"
+        aria-expanded={expanded}
+        onClick={() => setExpanded(current => !current)}
+      >
+        <span className={`codicon ${expanded ? 'codicon-chevron-down' : 'codicon-chevron-right'}`} aria-hidden="true" />
+        <span className={`codicon ${problemCount > 0 ? 'codicon-warning' : 'codicon-pass'}`} aria-hidden="true" />
+        <span>{problemCount > 0 ? `${problemCount} DBCS issue(s)` : 'SO/SI structure valid'}</span>
+        <span>{dbcsPairCount} DBCS pair(s)</span>
+        <span>{warningCount} warning(s)</span>
+      </button>
+
+      {expanded ? (
+        <div className="diagnostics-detail">
+          <div className="diagnostics-counts" aria-label="Diagnostic category counts">
+            {details.map(item => (
+              <span
+                className={[
+                  'diagnostic-pill',
+                  PROBLEM_KINDS.has(item.kind) ? 'diagnostic-pill-problem' : '',
+                  WARNING_KINDS.has(item.kind) ? 'diagnostic-pill-warning' : '',
+                ].filter(Boolean).join(' ')}
+                key={item.kind}
+              >
+                <span>{KIND_LABELS[item.kind]}</span>
+                <strong>{item.count.toLocaleString()}</strong>
+              </span>
+            ))}
+          </div>
+
+          {jumpGroups.length > 0 ? (
+            <div className="diagnostics-locations">
+              {jumpGroups.map(item => (
+                <div className="diagnostic-location-group" key={`loc-${item.kind}`}>
+                  <div className="diagnostic-location-title">{KIND_LABELS[item.kind]}</div>
+                  <div className="diagnostic-location-list">
+                    {item.events.slice(0, 12).map((event, index) => (
+                      <button
+                        className="diagnostic-location"
+                        type="button"
+                        key={`${event.kind}-${event.offset}-${event.bytesHex}-${index}`}
+                        title={event.message}
+                        onClick={() => onJump(event.offset)}
+                      >
+                        {eventLabel(event)}
+                      </button>
+                    ))}
+                    {item.events.length > 12 ? (
+                      <span className="diagnostic-more">+{item.events.length - 12} more</span>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }

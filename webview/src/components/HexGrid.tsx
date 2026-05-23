@@ -8,6 +8,12 @@ const FALLBACK_BYTES_PER_ROW = 16;
 
 interface Props {
   snapshot: EditorSnapshot;
+  jumpTarget: JumpTarget | null;
+}
+
+interface JumpTarget {
+  offset: number;
+  token: number;
 }
 
 interface Cursor {
@@ -28,7 +34,7 @@ function cellClass(cell: ByteCell): string {
   return '';
 }
 
-export function HexGrid({ snapshot }: Props) {
+export function HexGrid({ snapshot, jumpTarget }: Props) {
   const [cursor, setCursor] = useState<Cursor>({ offset: 0, nibble: 'high' });
   const [bytesPerRow, setBytesPerRow] = useState(FALLBACK_BYTES_PER_ROW);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -38,6 +44,21 @@ export function HexGrid({ snapshot }: Props) {
       setCursor({ offset: Math.max(0, snapshot.cells.length - 1), nibble: 'high' });
     }
   }, [cursor.offset, snapshot.cells.length]);
+
+  useEffect(() => {
+    if (jumpTarget === null || snapshot.cells.length === 0) {
+      return;
+    }
+
+    const offset = Math.max(0, Math.min(jumpTarget.offset, snapshot.cells.length - 1));
+    setCursor({ offset, nibble: 'high' });
+    requestAnimationFrame(() => {
+      gridRef.current
+        ?.querySelector<HTMLElement>(`[data-byte-offset="${offset}"]`)
+        ?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+      gridRef.current?.focus();
+    });
+  }, [jumpTarget, snapshot.cells.length]);
 
   useEffect(() => {
     const element = gridRef.current;
@@ -245,6 +266,7 @@ export function HexGrid({ snapshot }: Props) {
                           cellClass(cell),
                         ].filter(Boolean).join(' ')}
                         style={{ gridColumn: index + 1 }}
+                        data-byte-offset={absoluteOffset}
                         key={`h-${absoluteOffset}`}
                         onClick={() => {
                           gridRef.current?.focus();
@@ -269,6 +291,7 @@ export function HexGrid({ snapshot }: Props) {
                           cellClass(cell),
                         ].filter(Boolean).join(' ')}
                         style={{ gridColumn: index + 1 }}
+                        data-byte-offset={absoluteOffset}
                         key={`l-${absoluteOffset}`}
                         onClick={() => {
                           gridRef.current?.focus();
