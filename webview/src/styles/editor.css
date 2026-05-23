@@ -95,8 +95,34 @@ h1 {
   cursor: pointer;
 }
 
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .toolbar-button:hover {
   background: var(--vscode-button-hoverBackground);
+}
+
+.toolbar-button-secondary {
+  color: var(--vscode-button-secondaryForeground);
+  background: var(--vscode-button-secondaryBackground);
+}
+
+.toolbar-button-secondary:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+
+.toolbar-button:disabled:hover {
+  background: var(--vscode-button-secondaryBackground);
 }
 
 .diagnostics {
@@ -322,6 +348,10 @@ h1 {
   .top-bar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .toolbar-actions {
+    justify-content: flex-start;
   }
 
   .hex-row {

@@ -48,6 +48,10 @@ export class HexOnDocument implements vscode.CustomDocument {
     });
   }
 
+  hasUnsavedChanges(): boolean {
+    return this.dirty;
+  }
+
   replaceNibble(offset: number, nibble: HexNibble, digit: number): { undo: () => void; redo: () => void } {
     const before = [...this.cells];
     const after = replaceNibble(this.cells, offset, nibble, digit);

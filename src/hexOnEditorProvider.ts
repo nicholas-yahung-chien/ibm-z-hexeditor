@@ -88,6 +88,20 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       return;
     }
 
+    if (message.type === 'revert') {
+      void this.revertActiveDocument().catch(error => {
+        this.post(webview, { type: 'error', message: messageFromError(error) });
+      });
+      return;
+    }
+
+    if (message.type === 'reload') {
+      void this.reloadFromDisk(document, webview).catch(error => {
+        this.post(webview, { type: 'error', message: messageFromError(error) });
+      });
+      return;
+    }
+
     if (message.type === 'replaceNibble') {
       const edit = document.replaceNibble(message.offset, message.nibble, message.digit);
       this.changeEmitter.fire({
@@ -123,6 +137,33 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
   private post(webview: vscode.Webview, message: ToWebviewMessage): void {
     void webview.postMessage(message);
+  }
+
+  private async revertActiveDocument(): Promise<void> {
+    await vscode.commands.executeCommand('workbench.action.files.revert');
+  }
+
+  private async reloadFromDisk(document: HexOnDocument, webview: vscode.Webview): Promise<void> {
+    if (document.hasUnsavedChanges()) {
+      const choice = await vscode.window.showWarningMessage(
+        'Reload from disk and discard unsaved HEX ON edits?',
+        {
+          modal: true,
+          detail: 'The editor will reread the file bytes from disk. Any unsaved hex changes in this editor will be discarded.',
+        },
+        'Reload From Disk',
+      );
+
+      if (choice !== 'Reload From Disk') {
+        return;
+      }
+
+      await this.revertActiveDocument();
+      return;
+    }
+
+    await document.revert();
+    this.post(webview, { type: 'snapshot', snapshot: document.snapshot() });
   }
 
   private async confirmSaveWithProblems(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<void> {
@@ -175,4 +216,8 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 </body>
 </html>`;
   }
+}
+
+function messageFromError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

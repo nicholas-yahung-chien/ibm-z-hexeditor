@@ -57,10 +57,25 @@ export default function App() {
           </div>
           <div className="hint-row">{EDITING_HINT}</div>
         </div>
-        <button className="toolbar-button" type="button" onClick={() => vscode.postMessage({ type: 'save' })}>
-          <span className="codicon codicon-save" aria-hidden="true" />
-          <span>Save</span>
-        </button>
+        <div className="toolbar-actions" aria-label="File actions">
+          <button className="toolbar-button toolbar-button-secondary" type="button" onClick={() => vscode.postMessage({ type: 'reload' })}>
+            <span className="codicon codicon-refresh" aria-hidden="true" />
+            <span>Reload</span>
+          </button>
+          <button
+            className="toolbar-button toolbar-button-secondary"
+            type="button"
+            disabled={!snapshot?.dirty}
+            onClick={() => vscode.postMessage({ type: 'revert' })}
+          >
+            <span className="codicon codicon-discard" aria-hidden="true" />
+            <span>Revert</span>
+          </button>
+          <button className="toolbar-button" type="button" onClick={() => vscode.postMessage({ type: 'save' })}>
+            <span className="codicon codicon-save" aria-hidden="true" />
+            <span>Save</span>
+          </button>
+        </div>
       </header>
 
       {snapshot ? (

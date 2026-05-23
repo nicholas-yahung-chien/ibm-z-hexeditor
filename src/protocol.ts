@@ -45,4 +45,6 @@ export type FromWebviewMessage =
   | { type: 'replaceNibble'; offset: number; nibble: HexNibble; digit: number }
   | { type: 'insertByte'; offset: number; value?: number }
   | { type: 'deleteByte'; offset: number }
+  | { type: 'revert' }
+  | { type: 'reload' }
   | { type: 'save' };
