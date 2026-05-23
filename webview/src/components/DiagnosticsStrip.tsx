@@ -5,7 +5,7 @@ import { countDiagnosticProblems, countDiagnosticWarnings, DIAGNOSTIC_KIND_LABEL
 
 interface Props {
   result: AnalysisResult | null;
-  onJump: (offset: number) => void;
+  onJump: (event: DiagnosticEvent) => void;
 }
 
 function eventLabel(event: DiagnosticEvent): string {
@@ -16,6 +16,8 @@ function eventLabel(event: DiagnosticEvent): string {
 
 export function DiagnosticsStrip({ result, onJump }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [activeKind, setActiveKind] = useState<DiagnosticKind | 'all'>('all');
+  const [activeEventKey, setActiveEventKey] = useState<string | null>(null);
 
   const details = useMemo(() => {
     if (!result) {
@@ -39,7 +41,32 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
   const dbcsPairCount = result.counts.DBCS + result.counts.DBCS_AMBIGUOUS;
   const warningCount = countDiagnosticWarnings(result);
   const jumpKinds = new Set<DiagnosticKind>([...PROBLEM_KINDS, ...WARNING_KINDS]);
-  const jumpGroups = details.filter(item => jumpKinds.has(item.kind));
+  const jumpEvents = details
+    .filter(item => jumpKinds.has(item.kind))
+    .flatMap(item => item.events);
+  const filteredJumpEvents = activeKind === 'all'
+    ? jumpEvents
+    : jumpEvents.filter(event => event.kind === activeKind);
+  const jumpGroups = details
+    .filter(item => jumpKinds.has(item.kind))
+    .filter(item => activeKind === 'all' || item.kind === activeKind);
+  const activeIndex = filteredJumpEvents.findIndex(event => eventKey(event) === activeEventKey);
+
+  const navigateTo = (event: DiagnosticEvent) => {
+    setActiveEventKey(eventKey(event));
+    onJump(event);
+  };
+
+  const navigateRelative = (delta: number) => {
+    if (filteredJumpEvents.length === 0) {
+      return;
+    }
+
+    const currentIndex = filteredJumpEvents.findIndex(event => eventKey(event) === activeEventKey);
+    const startIndex = currentIndex >= 0 ? currentIndex : (delta > 0 ? -1 : 0);
+    const nextIndex = (startIndex + delta + filteredJumpEvents.length) % filteredJumpEvents.length;
+    navigateTo(filteredJumpEvents[nextIndex]);
+  };
 
   return (
     <section className={problemCount > 0 ? 'diagnostics diagnostics-problem' : 'diagnostics'}>
@@ -58,19 +85,69 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
 
       {expanded ? (
         <div className="diagnostics-detail">
+          <div className="diagnostics-nav" aria-label="Diagnostic navigation">
+            <button
+              className="diagnostic-nav-button"
+              type="button"
+              disabled={filteredJumpEvents.length === 0}
+              onClick={() => navigateRelative(-1)}
+            >
+              <span className="codicon codicon-arrow-up" aria-hidden="true" />
+              <span>Previous</span>
+            </button>
+            <button
+              className="diagnostic-nav-button"
+              type="button"
+              disabled={filteredJumpEvents.length === 0}
+              onClick={() => navigateRelative(1)}
+            >
+              <span>Next</span>
+              <span className="codicon codicon-arrow-down" aria-hidden="true" />
+            </button>
+            <span className="diagnostic-nav-position">
+              {filteredJumpEvents.length > 0
+                ? `${activeIndex >= 0 ? activeIndex + 1 : '-'} / ${filteredJumpEvents.length}`
+                : '0 / 0'}
+            </span>
+            {activeKind !== 'all' ? (
+              <button
+                className="diagnostic-filter-clear"
+                type="button"
+                onClick={() => {
+                  setActiveKind('all');
+                  setActiveEventKey(null);
+                }}
+              >
+                Clear filter
+              </button>
+            ) : null}
+          </div>
+
           <div className="diagnostics-counts" aria-label="Diagnostic category counts">
             {details.map(item => (
-              <span
+              <button
+                type="button"
+                disabled={!jumpKinds.has(item.kind)}
+                onClick={() => {
+                  if (!jumpKinds.has(item.kind)) {
+                    return;
+                  }
+                  setExpanded(true);
+                  setActiveKind(current => current === item.kind ? 'all' : item.kind);
+                  setActiveEventKey(null);
+                }}
                 className={[
                   'diagnostic-pill',
                   PROBLEM_KINDS.has(item.kind) ? 'diagnostic-pill-problem' : '',
                   WARNING_KINDS.has(item.kind) ? 'diagnostic-pill-warning' : '',
+                  jumpKinds.has(item.kind) ? 'diagnostic-pill-filterable' : '',
+                  activeKind === item.kind ? 'diagnostic-pill-active' : '',
                 ].filter(Boolean).join(' ')}
                 key={item.kind}
               >
                 <span>{DIAGNOSTIC_KIND_LABELS[item.kind]}</span>
                 <strong>{item.count.toLocaleString()}</strong>
-              </span>
+              </button>
             ))}
           </div>
 
@@ -82,11 +159,14 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
                   <div className="diagnostic-location-list">
                     {item.events.slice(0, 12).map((event, index) => (
                       <button
-                        className="diagnostic-location"
+                        className={[
+                          'diagnostic-location',
+                          activeEventKey === eventKey(event) ? 'diagnostic-location-active' : '',
+                        ].filter(Boolean).join(' ')}
                         type="button"
                         key={`${event.kind}-${event.offset}-${event.bytesHex}-${index}`}
                         title={event.message}
-                        onClick={() => onJump(event.offset)}
+                        onClick={() => navigateTo(event)}
                       >
                         {eventLabel(event)}
                       </button>
@@ -103,4 +183,8 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
       ) : null}
     </section>
   );
+}
+
+function eventKey(event: DiagnosticEvent): string {
+  return `${event.kind}:${event.offset}:${event.length}:${event.bytesHex}`;
 }

@@ -8,6 +8,7 @@ const EDITING_HINT = 'Arrows move, 0-9/A-F edits, Ins inserts 00, Del/Backspace 
 
 interface JumpTarget {
   offset: number;
+  length: number;
   token: number;
 }
 
@@ -82,7 +83,11 @@ export default function App() {
         <>
           <DiagnosticsStrip
             result={snapshot.diagnostics}
-            onJump={offset => setJumpTarget(current => ({ offset, token: (current?.token ?? 0) + 1 }))}
+            onJump={event => setJumpTarget(current => ({
+              offset: event.offset,
+              length: event.length,
+              token: (current?.token ?? 0) + 1,
+            }))}
           />
           <HexGrid snapshot={snapshot} jumpTarget={jumpTarget} />
         </>

@@ -13,6 +13,7 @@ interface Props {
 
 interface JumpTarget {
   offset: number;
+  length: number;
   token: number;
 }
 
@@ -121,6 +122,10 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
       return { line, cells, preview };
     });
   }, [snapshot]);
+  const selectedStart = jumpTarget && snapshot.cells.length > 0
+    ? Math.max(0, Math.min(jumpTarget.offset, snapshot.cells.length - 1))
+    : null;
+  const selectedLength = jumpTarget ? Math.max(1, jumpTarget.length) : 0;
 
   const move = useCallback((direction: 'left' | 'right' | 'up' | 'down') => {
     setCursor(current => {
@@ -253,12 +258,16 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
                     const colStart = Math.max(entry.byteOffset, rowStart) - rowStart;
                     const span = Math.max(1, Math.min(entryEnd, rowEnd) - Math.max(entry.byteOffset, rowStart));
                     const activePreview = cursor.offset >= entry.byteOffset && cursor.offset < entryEnd;
+                    const selectedPreview = selectedStart !== null
+                      ? rangesOverlap(entry.byteOffset, entry.byteLength, selectedStart, selectedLength)
+                      : false;
                     return (
                       <span
                         className={[
                           'preview',
                           `preview-${entry.kind}`,
                           activePreview ? 'preview-active' : '',
+                          selectedPreview ? 'preview-diagnostic-selected' : '',
                         ].filter(Boolean).join(' ')}
                         key={`p-${entry.byteOffset}`}
                         style={{ gridColumn: `${colStart + 1} / span ${span}` }}
@@ -271,6 +280,9 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
                   {row.cells.map((cell, index) => {
                     const absoluteOffset = group.line.startOffset + row.rowOffset + index;
                     const active = cursor.offset === absoluteOffset;
+                    const selected = selectedStart !== null
+                      ? offsetInRange(absoluteOffset, selectedStart, selectedLength)
+                      : false;
                     return (
                       <button
                         type="button"
@@ -278,6 +290,7 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
                           'nibble',
                           'nibble-high',
                           active && cursor.nibble === 'high' ? 'nibble-caret' : '',
+                          selected ? 'nibble-diagnostic-selected' : '',
                           cellClass(cell),
                         ].filter(Boolean).join(' ')}
                         style={{ gridColumn: index + 1 }}
@@ -296,6 +309,9 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
                   {row.cells.map((cell, index) => {
                     const absoluteOffset = group.line.startOffset + row.rowOffset + index;
                     const active = cursor.offset === absoluteOffset;
+                    const selected = selectedStart !== null
+                      ? offsetInRange(absoluteOffset, selectedStart, selectedLength)
+                      : false;
                     return (
                       <button
                         type="button"
@@ -303,6 +319,7 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
                           'nibble',
                           'nibble-low',
                           active && cursor.nibble === 'low' ? 'nibble-caret' : '',
+                          selected ? 'nibble-diagnostic-selected' : '',
                           cellClass(cell),
                         ].filter(Boolean).join(' ')}
                         style={{ gridColumn: index + 1 }}
@@ -325,4 +342,12 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
       })}
     </main>
   );
+}
+
+function offsetInRange(offset: number, start: number, length: number): boolean {
+  return offset >= start && offset < start + length;
+}
+
+function rangesOverlap(startA: number, lengthA: number, startB: number, lengthB: number): boolean {
+  return startA < startB + lengthB && startB < startA + lengthA;
 }
