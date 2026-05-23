@@ -1,5 +1,5 @@
 :root {
-  --cell-size: 1.45rem;
+  --cell-size: 1.36rem;
   --record-gap: 0.7rem;
   --accent: var(--vscode-terminal-ansiGreen);
   --accent-soft: color-mix(in srgb, var(--accent) 28%, transparent);
@@ -19,6 +19,11 @@ body {
 }
 
 button {
+  font: inherit;
+}
+
+.nibble,
+.toolbar-button {
   font: inherit;
 }
 
@@ -127,7 +132,7 @@ h1 {
 .byte-grid {
   display: grid;
   grid-template-rows: 1.35rem 1.25rem 1.25rem;
-  column-gap: 0.18rem;
+  column-gap: 0;
   align-items: center;
   max-width: 100%;
 }
@@ -155,12 +160,15 @@ h1 {
   width: var(--cell-size);
   height: 1.25rem;
   border: 0;
-  border-radius: 2px;
+  border-radius: 0;
+  appearance: none;
   color: var(--accent);
   background: transparent;
   text-align: center;
   cursor: text;
   padding: 0;
+  line-height: 1.25rem;
+  outline: none;
 }
 
 .nibble-high {
@@ -172,21 +180,21 @@ h1 {
 }
 
 .nibble:hover {
-  background: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .nibble-caret {
   color: var(--vscode-editorCursor-foreground);
-  background: var(--vscode-editor-selectionBackground);
+  background: color-mix(in srgb, var(--vscode-editor-selectionBackground) 72%, transparent);
   box-shadow: inset 0 -2px 0 var(--vscode-editorCursor-foreground);
 }
 
 .cell-problem {
-  background: color-mix(in srgb, var(--problem) 32%, transparent);
+  background: color-mix(in srgb, var(--problem) 30%, transparent);
 }
 
 .cell-warning {
-  background: color-mix(in srgb, var(--warning) 32%, transparent);
+  background: color-mix(in srgb, var(--warning) 30%, transparent);
 }
 
 .empty-state {
@@ -208,7 +216,7 @@ h1 {
 
 @media (max-width: 720px) {
   :root {
-    --cell-size: 1.25rem;
+    --cell-size: 1.2rem;
   }
 
   .top-bar,
