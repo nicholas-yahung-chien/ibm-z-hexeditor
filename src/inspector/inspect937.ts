@@ -5,6 +5,7 @@ export type DiagnosticKind =
   | 'SI'
   | 'SBCS'
   | 'DBCS'
+  | 'DBCS_AMBIGUOUS'
   | 'MISSING_SO'
   | 'MISSING_SI'
   | 'MISSING_SI_AT_EOF'
@@ -158,12 +159,17 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
       const glyph = i + 1 < data.length ? decodeDbcsPair(b1, data[i + 1]) : null;
       if (glyph !== null) {
         const sbcsRun = strongSbcsRunLength(data, i, 4);
-        if (sbcsRun >= 2) {
-          events.push(makeEvent('AMBIGUOUS', data, i, 2, ord, glyph,
-            'Valid DBCS pair, but bytes also look like SBCS run. Keeping DBCS (explicit mode active).'));
-        } else {
-          events.push(makeEvent('DBCS', data, i, 2, ord, glyph, ''));
-        }
+        events.push(makeEvent(
+          sbcsRun >= 2 ? 'DBCS_AMBIGUOUS' : 'DBCS',
+          data,
+          i,
+          2,
+          ord,
+          glyph,
+          sbcsRun >= 2
+            ? 'Valid explicit DBCS pair, but bytes also look like an SBCS run.'
+            : '',
+        ));
         i += 2; ord += 2;
         continue;
       }
@@ -221,7 +227,7 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
   }
 
   const counts: Record<DiagnosticKind, number> = {
-    SO: 0, SI: 0, SBCS: 0, DBCS: 0,
+    SO: 0, SI: 0, SBCS: 0, DBCS: 0, DBCS_AMBIGUOUS: 0,
     MISSING_SO: 0, MISSING_SI: 0, MISSING_SI_AT_EOF: 0,
     AMBIGUOUS: 0, INVALID_OR_UNKNOWN: 0,
   };
@@ -240,4 +246,4 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
 export const PROBLEM_KINDS = new Set<DiagnosticKind>([
   'MISSING_SO', 'MISSING_SI', 'MISSING_SI_AT_EOF', 'INVALID_OR_UNKNOWN',
 ]);
-export const WARNING_KINDS = new Set<DiagnosticKind>(['AMBIGUOUS']);
+export const WARNING_KINDS = new Set<DiagnosticKind>(['AMBIGUOUS', 'DBCS_AMBIGUOUS']);

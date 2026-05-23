@@ -45,5 +45,6 @@ describe('byte-first model', () => {
     expect(snapshot.diagnostics?.counts.MISSING_SO).toBe(0);
     expect(snapshot.diagnostics?.counts.MISSING_SI).toBe(0);
     expect(snapshot.diagnostics?.counts.INVALID_OR_UNKNOWN).toBe(0);
+    expect((snapshot.diagnostics?.counts.DBCS ?? 0) + (snapshot.diagnostics?.counts.DBCS_AMBIGUOUS ?? 0)).toBe(2);
   });
 });

@@ -19,4 +19,12 @@ describe('IBM-937 codec', () => {
     expect(result.hasProblems).toBe(true);
     expect(result.counts.MISSING_SI_AT_EOF).toBe(1);
   });
+
+  it('counts explicit ambiguous DBCS bytes as DBCS pairs', () => {
+    const result = inspectIbm937(Uint8Array.from([SO, 0x5a, 0x61, 0x5d, 0x7c, SI]));
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS + result.counts.DBCS_AMBIGUOUS).toBe(2);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(2);
+  });
 });
