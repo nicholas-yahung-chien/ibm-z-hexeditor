@@ -1,48 +1,11 @@
 import { useMemo, useState } from 'react';
 import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspect937';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspect937';
+import { countDiagnosticProblems, countDiagnosticWarnings, DIAGNOSTIC_KIND_LABELS, DIAGNOSTIC_KIND_ORDER } from '../../../src/diagnosticsSummary';
 
 interface Props {
   result: AnalysisResult | null;
   onJump: (offset: number) => void;
-}
-
-const KIND_LABELS: Record<DiagnosticKind, string> = {
-  SO: 'SO',
-  SI: 'SI',
-  SBCS: 'SBCS',
-  DBCS: 'DBCS',
-  DBCS_AMBIGUOUS: 'DBCS ambiguous',
-  MISSING_SO: 'Missing SO',
-  MISSING_SI: 'Missing SI',
-  MISSING_SI_AT_EOF: 'Missing SI at EOF',
-  UNMATCHED_SO: 'Unmatched SO',
-  UNMATCHED_SI: 'Unmatched SI',
-  AMBIGUOUS: 'Ambiguous',
-  INVALID_OR_UNKNOWN: 'Invalid or unknown',
-};
-
-const KIND_ORDER: DiagnosticKind[] = [
-  'MISSING_SO',
-  'MISSING_SI',
-  'MISSING_SI_AT_EOF',
-  'UNMATCHED_SO',
-  'UNMATCHED_SI',
-  'INVALID_OR_UNKNOWN',
-  'DBCS_AMBIGUOUS',
-  'AMBIGUOUS',
-  'SO',
-  'SI',
-  'DBCS',
-  'SBCS',
-];
-
-function countProblems(result: AnalysisResult): number {
-  let count = 0;
-  for (const kind of PROBLEM_KINDS) {
-    count += result.counts[kind] ?? 0;
-  }
-  return count;
 }
 
 function eventLabel(event: DiagnosticEvent): string {
@@ -59,7 +22,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
       return [];
     }
 
-    return KIND_ORDER
+    return DIAGNOSTIC_KIND_ORDER
       .map(kind => ({
         kind,
         count: result.counts[kind] ?? 0,
@@ -72,9 +35,9 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
     return null;
   }
 
-  const problemCount = countProblems(result);
+  const problemCount = countDiagnosticProblems(result);
   const dbcsPairCount = result.counts.DBCS + result.counts.DBCS_AMBIGUOUS;
-  const warningCount = (result.counts.AMBIGUOUS ?? 0) + (result.counts.DBCS_AMBIGUOUS ?? 0);
+  const warningCount = countDiagnosticWarnings(result);
   const jumpKinds = new Set<DiagnosticKind>([...PROBLEM_KINDS, ...WARNING_KINDS]);
   const jumpGroups = details.filter(item => jumpKinds.has(item.kind));
 
@@ -105,7 +68,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
                 ].filter(Boolean).join(' ')}
                 key={item.kind}
               >
-                <span>{KIND_LABELS[item.kind]}</span>
+                <span>{DIAGNOSTIC_KIND_LABELS[item.kind]}</span>
                 <strong>{item.count.toLocaleString()}</strong>
               </span>
             ))}
@@ -115,7 +78,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
             <div className="diagnostics-locations">
               {jumpGroups.map(item => (
                 <div className="diagnostic-location-group" key={`loc-${item.kind}`}>
-                  <div className="diagnostic-location-title">{KIND_LABELS[item.kind]}</div>
+                  <div className="diagnostic-location-title">{DIAGNOSTIC_KIND_LABELS[item.kind]}</div>
                   <div className="diagnostic-location-list">
                     {item.events.slice(0, 12).map((event, index) => (
                       <button

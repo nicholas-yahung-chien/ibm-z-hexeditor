@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { countDiagnosticProblems, summarizeProblemCounts } from './diagnosticsSummary';
 import { HexOnDocument } from './hexOnDocument';
 import type { FromWebviewMessage, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
@@ -37,6 +38,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   }
 
   async saveCustomDocument(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<void> {
+    await this.confirmSaveWithProblems(document, cancellation);
     await document.save(cancellation);
     const column = document.sourceViewColumn ?? vscode.ViewColumn.Active;
     await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', {
@@ -50,6 +52,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken,
   ): Promise<void> {
+    await this.confirmSaveWithProblems(document, cancellation);
     await document.writeTo(destination, cancellation);
   }
 
@@ -120,6 +123,34 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
   private post(webview: vscode.Webview, message: ToWebviewMessage): void {
     void webview.postMessage(message);
+  }
+
+  private async confirmSaveWithProblems(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<void> {
+    if (cancellation.isCancellationRequested) {
+      throw new vscode.CancellationError();
+    }
+
+    const diagnostics = document.snapshot().diagnostics;
+    const problemCount = countDiagnosticProblems(diagnostics);
+    if (problemCount === 0) {
+      return;
+    }
+
+    const summary = summarizeProblemCounts(diagnostics);
+    const choice = await vscode.window.showWarningMessage(
+      `Save ${problemCount} DBCS issue(s) to disk?`,
+      {
+        modal: true,
+        detail: summary
+          ? `Diagnostics currently reports: ${summary}. Saving will write the current raw bytes exactly as shown in the HEX ON editor.`
+          : 'Saving will write the current raw bytes exactly as shown in the HEX ON editor.',
+      },
+      'Save Anyway',
+    );
+
+    if (choice !== 'Save Anyway' || cancellation.isCancellationRequested) {
+      throw new vscode.CancellationError();
+    }
   }
 
   private html(webview: vscode.Webview): string {
