@@ -21,7 +21,7 @@ The current MVP is focused on IBM EBCDIC and UTF-8 workflows. IBM-037, IBM-500, 
 
 ## Screenshots
 
-Screenshots are planned for the MVP release package. The capture list and filenames are tracked in [docs/screenshots.md](docs/screenshots.md).
+Screenshots are planned for the MVP release package. The capture list, filenames, and manual fixture setup are tracked in [docs/screenshots.md](docs/screenshots.md). Marketplace-ready listing copy is tracked in [docs/marketplace.md](docs/marketplace.md).
 
 ## Installation
 
@@ -81,6 +81,7 @@ If you manually enter an IBM-style code page id that is not yet supported, the e
 - [Acceptance checklist](docs/acceptance-checklist.md)
 - [Icon design notes](docs/icon-design.md)
 - [Localization plan](docs/i18n.md)
+- [Marketplace listing draft](docs/marketplace.md)
 - [Screenshot plan](docs/screenshots.md)
 - [Change log](CHANGELOG.md)
 - [Roadmap](docs/roadmap.md)

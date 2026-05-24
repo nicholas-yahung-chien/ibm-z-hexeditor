@@ -437,3 +437,16 @@ Expected:
 - [ ] Confirm no manual acceptance files are tracked.
 - [ ] Confirm only intentional source, docs, or fixture changes remain.
 - [ ] Remove `.tmp` if desired.
+
+## 16. Release Documentation
+
+1. Review [screenshots.md](screenshots.md).
+2. Capture screenshots from copied fixture files.
+3. Review [marketplace.md](marketplace.md).
+
+Expected:
+
+- [ ] Screenshot list covers encoding selection, standard editing, diagnostics, SBCS preview, Condense Mode, unsupported IBM encoding warning, and save confirmation.
+- [ ] Screenshot files do not expose customer data or personal workspace details.
+- [ ] Marketplace copy describes installation, supported code pages, diagnostics behavior, and known unsupported IBM code-page fallback behavior.
+- [ ] Product naming, icon usage, legal notices, and generated mapping table attribution are ready for product-team review.
