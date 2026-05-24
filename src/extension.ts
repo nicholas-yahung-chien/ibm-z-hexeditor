@@ -164,7 +164,6 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
     : {
       label: 'UTF-8',
       description: COMMON_ENCODING_DESCRIPTIONS.utf8,
-      detail: 'Default when VS Code has no text encoding to report.',
       value: 'utf8',
     };
 
@@ -179,7 +178,6 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       .map(profile => ({
         label: profile.label,
         description: IBM_DBCS_ENCODING_DESCRIPTIONS[profile.id] ?? 'IBM EBCDIC DBCS with SO/SI diagnostics',
-        detail: 'Enables SO/SI and DBCS diagnostics.',
         value: profile.id,
       })),
     ...(normalized !== 'utf8'
@@ -203,7 +201,6 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
     {
       label: 'Enter another encoding...',
       description: 'Custom VS Code encoding id',
-      detail: 'Examples: cp950, big5hkscs, shiftjis, gbk.',
       value: '__custom__',
     },
   ];

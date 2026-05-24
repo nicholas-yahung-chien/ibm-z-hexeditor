@@ -71,7 +71,7 @@ export default function App() {
               aria-expanded="false"
               onClick={() => setHeaderCollapsed(false)}
             >
-              <span className="codicon codicon-chevron-down" aria-hidden="true" />
+              <SvgIcon name="chevron-down" />
             </button>
             <div className="collapsed-header-meta">
               <strong>{fileLabel}</strong>
@@ -83,7 +83,7 @@ export default function App() {
           <>
             <div>
               <div className="title-row">
-                <span className="codicon codicon-symbol-key" aria-hidden="true" />
+                <SvgIcon name="hex" />
                 <h1>{fileLabel}</h1>
               </div>
               <div className="meta-row">
@@ -103,7 +103,7 @@ export default function App() {
                 aria-expanded="true"
                 onClick={() => setHeaderCollapsed(true)}
               >
-                <span className="codicon codicon-chevron-up" aria-hidden="true" />
+                <SvgIcon name="chevron-up" />
               </button>
               <button
                 className="icon-button icon-button-secondary"
@@ -112,7 +112,7 @@ export default function App() {
                 aria-label="Reload"
                 onClick={() => vscode.postMessage({ type: 'reload' })}
               >
-                <span className="codicon codicon-refresh" aria-hidden="true" />
+                <SvgIcon name="refresh" />
               </button>
               <button
                 className="icon-button icon-button-secondary"
@@ -122,7 +122,7 @@ export default function App() {
                 disabled={!snapshot?.dirty}
                 onClick={() => vscode.postMessage({ type: 'revert' })}
               >
-                <span className="codicon codicon-discard" aria-hidden="true" />
+                <SvgIcon name="revert" />
               </button>
               <button
                 className="icon-button icon-button-primary"
@@ -131,7 +131,7 @@ export default function App() {
                 aria-label="Save"
                 onClick={() => vscode.postMessage({ type: 'save' })}
               >
-                <span className="codicon codicon-save" aria-hidden="true" />
+                <SvgIcon name="save" />
               </button>
             </div>
           </>
@@ -159,5 +159,42 @@ export default function App() {
         <main className="empty-state">{status}</main>
       )}
     </div>
+  );
+}
+
+type SvgIconName = 'chevron-down' | 'chevron-up' | 'hex' | 'refresh' | 'revert' | 'save';
+
+function SvgIcon({ name }: { name: SvgIconName }) {
+  return (
+    <svg className="svg-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      {name === 'chevron-down' ? <path d="M6 9l6 6 6-6" /> : null}
+      {name === 'chevron-up' ? <path d="M6 15l6-6 6 6" /> : null}
+      {name === 'hex' ? (
+        <>
+          <path d="M7 4h10l5 8-5 8H7l-5-8 5-8z" />
+          <path d="M8 9v6M16 9v6M10 12h4" />
+        </>
+      ) : null}
+      {name === 'refresh' ? (
+        <>
+          <path d="M20 6v5h-5" />
+          <path d="M4 18v-5h5" />
+          <path d="M18.5 9A7 7 0 0 0 6 7.5L4 10" />
+          <path d="M5.5 15A7 7 0 0 0 18 16.5l2-2.5" />
+        </>
+      ) : null}
+      {name === 'revert' ? (
+        <>
+          <path d="M9 7H4v5" />
+          <path d="M5 12a7 7 0 1 0 2-5" />
+        </>
+      ) : null}
+      {name === 'save' ? (
+        <>
+          <path d="M5 4h12l2 2v14H5V4z" />
+          <path d="M8 4v6h8V4M8 20v-6h8v6" />
+        </>
+      ) : null}
+    </svg>
   );
 }
