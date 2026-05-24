@@ -56,10 +56,6 @@ button {
   background: var(--vscode-sideBar-background);
 }
 
-.condense-mode .top-bar {
-  padding: 0.55rem 0;
-}
-
 .top-bar > div {
   min-width: 0;
 }
