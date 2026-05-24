@@ -10,7 +10,10 @@ The editor opens the current file in a custom webview, edits the file's raw byte
 - Source bytes: local file bytes read directly from disk
 - File-content encoding preview: UTF-8 or IBM-937 in the first byte-first milestone
 - Editing surface: read-only character row plus editable high/low nibble rows
+- Raw byte editing: replace nibbles, insert bytes, delete bytes
+- IBM-937 diagnostics: SO/SI structure checks and conservative DBCS ambiguity warnings
 - Save behavior: write the edited raw bytes back to the file, then reopen it in the default text editor
+- Condense Mode: optional denser grid layout for fixed-format files
 
 ## File Encoding Flow
 
@@ -31,6 +34,17 @@ VS Code exposes text documents to extensions as decoded Unicode strings, while t
 
 The IBM-937 path is intended for opening existing EBCDIC byte streams directly, including files where SO/SI structure needs inspection or repair.
 
+## Usage
+
+See [docs/user-guide.md](docs/user-guide.md) for the current MVP workflow, keyboard editing behavior, save/reload/revert behavior, and Condense Mode setting.
+
+For IBM-937 SO/SI and DBCS rules, see [docs/diagnostics.md](docs/diagnostics.md).
+
+## Settings
+
+- `ibmZHexEditor.maxFileSizeKb`: maximum local file size for the MVP custom editor.
+- `ibmZHexEditor.condenseMode`: enable a denser grid with narrower byte cells and hidden offsets.
+
 ## Development
 
 ```sh
@@ -40,3 +54,11 @@ npm test
 ```
 
 Run the extension from VS Code's Extension Development Host after compiling.
+
+Useful verification commands:
+
+```sh
+npm run type-check
+npm test
+npm run compile
+```
