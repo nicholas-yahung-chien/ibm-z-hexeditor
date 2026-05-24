@@ -79,6 +79,10 @@ export function isSupportedIbmCodePageEncoding(encoding: string): boolean {
   return isIbmDbcsEncoding(encoding) || isIbmSbcsEncoding(encoding);
 }
 
+export function looksLikeIbmCodePageEncoding(encoding: string): boolean {
+  return /^(?:ibm|cp)-?\d+$/i.test(encoding);
+}
+
 export function normalizeIbmCodePageEncoding(encoding: string): string {
   const lower = encoding.toLowerCase();
   const dbcsMatch = lower.match(/^(?:ibm|cp)-?(930|933|935|937|939|1364|1371|1388|1390|1399)$/);

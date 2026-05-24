@@ -5,7 +5,12 @@ import {
   getDocumentEncoding,
   normalizeEncoding,
 } from './encoding';
-import { getIbmDbcsProfiles, getIbmSbcsProfiles } from './codePages';
+import {
+  getIbmDbcsProfiles,
+  getIbmSbcsProfiles,
+  isSupportedIbmCodePageEncoding,
+  looksLikeIbmCodePageEncoding,
+} from './codePages';
 import { SessionRegistry } from './sessionRegistry';
 import { encodingDescriptions, extensionText } from './i18n';
 
@@ -194,11 +199,7 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
   }
 
   const encoding = picked.value === '__custom__'
-    ? normalizeEncoding(await vscode.window.showInputBox({
-      title: extensionText.inputEncodingTitle(),
-      prompt: extensionText.inputEncodingPrompt(),
-      value: normalized,
-    }))
+    ? await pickCustomEncoding(normalized)
     : picked.value;
 
   if (!encoding) {
@@ -210,4 +211,30 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
 
 function encodingDescription(encoding: string): string | undefined {
   return encodingDescriptions[encoding];
+}
+
+async function pickCustomEncoding(currentEncoding: string): Promise<string | undefined> {
+  const encoding = normalizeEncoding(await vscode.window.showInputBox({
+    title: extensionText.inputEncodingTitle(),
+    prompt: extensionText.inputEncodingPrompt(),
+    value: currentEncoding,
+  }));
+
+  if (!encoding) {
+    return undefined;
+  }
+
+  if (looksLikeIbmCodePageEncoding(encoding) && !isSupportedIbmCodePageEncoding(encoding)) {
+    const choice = await vscode.window.showWarningMessage(
+      extensionText.unsupportedIbmEncodingWarning(encoding),
+      { modal: true },
+      extensionText.useAnyway(),
+    );
+
+    if (choice !== extensionText.useAnyway()) {
+      return undefined;
+    }
+  }
+
+  return encoding;
 }

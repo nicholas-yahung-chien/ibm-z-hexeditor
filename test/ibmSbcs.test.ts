@@ -6,6 +6,7 @@ import {
   getIbmSbcsProfiles,
   isIbmSbcsEncoding,
   isSupportedIbmCodePageEncoding,
+  looksLikeIbmCodePageEncoding,
   normalizeIbmCodePageEncoding,
 } from '../src/codePages';
 import { decodeFromIbm37, encodeToIbm37, IBM37_PROFILE } from '../src/codec/ibm37';
@@ -26,6 +27,10 @@ describe('IBM EBCDIC SBCS code page profiles', () => {
     expect(isIbmSbcsEncoding('ibm1140')).toBe(true);
     expect(isSupportedIbmCodePageEncoding('cp037')).toBe(true);
     expect(isSupportedIbmCodePageEncoding('ibm937')).toBe(true);
+    expect(isSupportedIbmCodePageEncoding('cp273')).toBe(false);
+    expect(looksLikeIbmCodePageEncoding('cp273')).toBe(true);
+    expect(looksLikeIbmCodePageEncoding('ibm-1141')).toBe(true);
+    expect(looksLikeIbmCodePageEncoding('shiftjis')).toBe(false);
   });
 
   it.each([

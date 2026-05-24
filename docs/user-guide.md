@@ -34,6 +34,8 @@ The editor is byte-first:
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 enable SO/SI and DBCS diagnostics;
 - save writes the edited raw bytes back to disk without converting through Unicode text.
 
+If you choose `Enter another encoding...` and enter an IBM-style code page id that is not yet supported, such as `cp273`, the extension warns that HEX ON can still edit raw bytes but preview, row splitting, and diagnostics will use generic fallback behavior.
+
 The MVP has focused validation for:
 
 - `ibm937`

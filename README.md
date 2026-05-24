@@ -63,6 +63,8 @@ Open this repository in VS Code and press `F5` to launch an Extension Developmen
 
 Choose one of the supported IBM EBCDIC SBCS or DBCS encodings when the file bytes use that code page, even if VS Code previously displayed the file through another text encoding.
 
+If you manually enter an IBM-style code page id that is not yet supported, the extension warns before opening. Raw byte editing still works, but preview, row splitting, and diagnostics fall back to generic behavior.
+
 ## Settings
 
 - `ibmZHexEditor.maxFileSizeKb`: maximum local file size, in KB, that can be opened in the HEX ON editor.

@@ -23,6 +23,8 @@ export const extensionText = {
   encodingPickerPlaceholder: () => vscode.l10n.t('Select the actual file-content encoding used to decode raw bytes for preview and diagnostics'),
   inputEncodingTitle: () => vscode.l10n.t('Actual File-Content Encoding'),
   inputEncodingPrompt: () => vscode.l10n.t('Enter the encoding of the bytes on disk, using a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.'),
+  unsupportedIbmEncodingWarning: (encoding: string) => vscode.l10n.t('IBM code page {0} is not yet supported for code-page-aware preview. HEX ON will still edit raw bytes, but the preview, row splitting, and diagnostics will use generic fallback behavior.', encoding),
+  useAnyway: () => vscode.l10n.t('Use Anyway'),
 
   saveCanceled: () => vscode.l10n.t('Save canceled'),
   saveFailed: (message: string) => vscode.l10n.t('Save failed: {0}', message),

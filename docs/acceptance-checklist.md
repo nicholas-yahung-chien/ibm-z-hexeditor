@@ -229,6 +229,20 @@ Expected:
 
 ## 6. DBCS Ambiguous Exclusion Settings
 
+## 6A. Unsupported IBM Encoding Warning
+
+1. Open any copied fixture in VS Code.
+2. Run `IBM Z Hex Editor: Open HEX ON`.
+3. Choose `Enter another encoding...`.
+4. Enter `cp273`.
+
+Expected:
+
+- [ ] A warning explains that `cp273` is not yet supported for code-page-aware preview.
+- [ ] The warning says raw byte editing can still continue with generic fallback behavior.
+- [ ] Canceling the warning keeps the HEX ON editor from opening with the unsupported IBM encoding.
+- [ ] Choosing `Use Anyway` opens the HEX ON editor with the chosen encoding id.
+
 Use the copied IBM-937 fixture.
 
 1. Open VS Code user settings JSON.
