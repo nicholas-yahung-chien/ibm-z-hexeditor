@@ -17,12 +17,28 @@
       "outputFile": "ibm933Tables.ts"
     },
     {
+      "id": "ibm1364",
+      "label": "IBM-1364",
+      "sourceName": "ibm-1364_P110-2007.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1364_P110-2007.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1364Tables.ts"
+    },
+    {
       "id": "ibm935",
       "label": "IBM-935",
       "sourceName": "ibm-935_P110-1999.ucm",
       "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm",
       "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
       "outputFile": "ibm935Tables.ts"
+    },
+    {
+      "id": "ibm1388",
+      "label": "IBM-1388",
+      "sourceName": "ibm-1388_P100-2024.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1388_P100-2024.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1388Tables.ts"
     },
     {
       "id": "ibm1371",
@@ -49,6 +65,22 @@
       "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
       "baseProfile": "ibm930",
       "outputFile": "ibm939Tables.ts"
+    },
+    {
+      "id": "ibm1390",
+      "label": "IBM-1390",
+      "sourceName": "ibm-1390_P110-2003.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1390_P110-2003.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1390Tables.ts"
+    },
+    {
+      "id": "ibm1399",
+      "label": "IBM-1399",
+      "sourceName": "ibm-1399_P110-2003.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1399_P110-2003.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1399Tables.ts"
     }
   ]
 }

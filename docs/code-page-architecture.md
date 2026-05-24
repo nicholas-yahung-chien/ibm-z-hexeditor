@@ -72,12 +72,14 @@ Enabled profiles:
 - `IBM-937` for Traditional Chinese EBCDIC DBCS;
 - `IBM-939` for Japanese Latin-Kanji EBCDIC DBCS.
 
-Future candidates:
+Planned second batch:
 
 - `IBM-1364` for extended Korean with full Hangul;
 - `IBM-1371` for extended Traditional Chinese;
 - `IBM-1388` for Simplified Chinese GB 18030 host;
 - `IBM-1390` and `IBM-1399` for extended Japanese variants.
+
+These profiles should be implemented together after IBM-933 and IBM-935 pass manual validation. Treat the batch as an extension of the generated-table flow rather than as new architecture work.
 
 ## Diagnostics Assumptions To Verify
 

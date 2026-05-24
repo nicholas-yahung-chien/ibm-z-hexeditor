@@ -5,9 +5,10 @@ This roadmap captures the current direction after the IBM-937 MVP.
 ## Near Term
 
 1. Keep regression coverage stable across IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 fixtures.
-2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md).
-3. Capture the screenshots listed in [screenshots.md](screenshots.md).
-4. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
+2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md), including IBM-933 and IBM-935.
+3. Add the second IBM EBCDIC DBCS extension batch in one pass after IBM-933 and IBM-935 are manually validated: IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399.
+4. Capture the screenshots listed in [screenshots.md](screenshots.md).
+5. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
 
 ## Multi-Code-Page EBCDIC DBCS Support
 
@@ -28,9 +29,18 @@ Enabled profiles:
 - `IBM-937`: Traditional Chinese, current MVP baseline.
 - `IBM-939`: Japanese Latin-Kanji host mixed, generated from ICU `.ucm` over IBM-930.
 
+Planned second batch:
+
+- `IBM-1364`: Korean host mixed extended, including full Hangul coverage.
+- `IBM-1371`: Traditional Chinese host mixed with euro extensions.
+- `IBM-1388`: Simplified Chinese GB 18030 host with UDCs and Uygur extension.
+- `IBM-1390`: Extended Japanese Katakana-Kanji host mixed for JIS X0213.
+- `IBM-1399`: Extended Japanese Latin-Kanji host mixed for JIS X0213.
+
+Implement these together after IBM-933 and IBM-935 validation proves that the generated-table profile flow is stable across non-Japanese DBCS languages. The batch should use the same pattern as IBM-933 and IBM-935: manifest entry, generated table, profile module, registry entry, fixture, codec tests, fixture diagnostics tests, acceptance checklist updates, and user documentation updates.
+
 Open questions:
 
-- reliable table source and generation workflow for each code page, now tracked in [mapping-table-sources.md](mapping-table-sources.md);
 - whether all target code pages use the same SO/SI structure assumptions;
 - how to classify Private Use Area and vendor-specific mappings for ambiguity diagnostics;
 - whether each language needs different noise-reduction rules for source-like files.

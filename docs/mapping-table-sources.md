@@ -24,13 +24,11 @@ Before vendoring generated tables into a product build, confirm licensing with t
 | IBM-935 | Simplified Chinese host mixed | [`ibm-935_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm) | Enabled generated Simplified Chinese profile. |
 | IBM-937 | Traditional Chinese host mixed | [`ibm-937_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-937_P110-1999.ucm) | Current MVP baseline should eventually be generated from the same workflow. ICU declares `<icu:base> "ibm-1371_P100-1999"`. |
 | IBM-939 | Japanese Latin-Kanji host mixed | [`ibm-939_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-939_P120-1999.ucm) | The ICU file declares `<icu:base> "ibm-930_P120-1999"`, so the generator must load and overlay the base table. |
-
-Additional IBM DBCS profiles to consider later:
-
-- IBM-1364 for extended Korean with full Hangul.
-- IBM-1371 for extended Traditional Chinese.
-- IBM-1388 for Simplified Chinese GB 18030 host.
-- IBM-1390 and IBM-1399 for extended Japanese JIS X0213 variants.
+| IBM-1364 | Korean host mixed extended | [`ibm-1364_P110-2007.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1364_P110-2007.ucm) | Planned second-batch Korean profile with full Hangul coverage. IBM documentation may refer to the ODBC converter as `ibm-1364_P110-1997`; the pinned ICU file is `P110-2007`. |
+| IBM-1371 | Traditional Chinese host mixed extended | [`ibm-1371_P100-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1371_P100-1999.ucm) | Planned second-batch Traditional Chinese profile and base source for IBM-937. |
+| IBM-1388 | Simplified Chinese GB 18030 host | [`ibm-1388_P100-2024.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1388_P100-2024.ucm) | Planned second-batch Simplified Chinese profile. IBM documentation may refer to the ODBC converter as `ibm-1388_P103-2001`; the pinned ICU file is `P100-2024`. |
+| IBM-1390 | Extended Japanese Katakana-Kanji host mixed | [`ibm-1390_P110-2003.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1390_P110-2003.ucm) | Planned second-batch JIS X0213 Japanese profile. |
+| IBM-1399 | Extended Japanese Latin-Kanji host mixed | [`ibm-1399_P110-2003.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1399_P110-2003.ucm) | Planned second-batch JIS X0213 Japanese profile. |
 
 ## Prototype Inspection Results
 
@@ -43,7 +41,11 @@ The prototype script `scripts/inspect-ucm-mapping.mjs` reads local or remote `.u
 | `ibm-935_P110-1999.ucm` | `EBCDIC_STATEFUL` | 236 | 9,358 | none |
 | `ibm-937_P110-1999.ucm` | `EBCDIC_STATEFUL` | 246 | 20,269 | `ibm-1371_P100-1999` |
 | `ibm-939_P120-1999.ucm` | `EBCDIC_STATEFUL` | 335 | 11,680 | `ibm-930_P120-1999` |
+| `ibm-1364_P110-2007.ucm` | `EBCDIC_STATEFUL` | 230 | 19,557 | none |
 | `ibm-1371_P100-1999.ucm` | `EBCDIC_STATEFUL` | 247 | 20,270 | none |
+| `ibm-1388_P100-2024.ucm` | `EBCDIC_STATEFUL` | 236 | 32,804 | none |
+| `ibm-1390_P110-2003.ucm` | `EBCDIC_STATEFUL` | 237 | 22,109 | none |
+| `ibm-1399_P110-2003.ucm` | `EBCDIC_STATEFUL` | 237 | 22,109 | `ibm-1390_P110-2003` |
 
 Counts are not final generated-table counts. The generator still needs canonical reverse-map selection, fallback handling, Private Use Area handling, and base-table overlay support.
 
@@ -72,6 +74,7 @@ Common commands:
 node scripts/generate-ucm-tables.mjs --profile ibm939 --dry-run
 node scripts/generate-ucm-tables.mjs --all --dry-run
 node scripts/generate-ucm-tables.mjs --profile ibm930 --profile ibm933 --profile ibm935 --profile ibm939 --out-dir src/codec/generated
+node scripts/generate-ucm-tables.mjs --profile ibm1364 --profile ibm1371 --profile ibm1388 --profile ibm1390 --profile ibm1399 --dry-run
 ```
 
 By default, the generator keeps only canonical `|0` mappings and skips fallback mappings. Use `--include-fallback` only after deciding how fallback rows should behave for preview and reverse encoding.
@@ -83,9 +86,13 @@ Dry-run generated-table counts from ICU commit `177fbc931d8f7d929c077c2b2254b79a
 | IBM-930 | `ibm-930_P120-1999.ucm` | 226 | 11,635 |
 | IBM-933 | `ibm-933_P110-1995.ucm` | 215 | 10,757 |
 | IBM-935 | `ibm-935_P110-1999.ucm` | 163 | 9,356 |
+| IBM-1364 | `ibm-1364_P110-2007.ucm` | 215 | 19,551 |
 | IBM-1371 | `ibm-1371_P100-1999.ucm` | 162 | 20,075 |
 | IBM-937 | `ibm-1371_P100-1999.ucm` + `ibm-937_P110-1999.ucm` | 162 | 20,075 |
 | IBM-939 | `ibm-930_P120-1999.ucm` + `ibm-939_P120-1999.ucm` | 229 | 11,635 |
+| IBM-1388 | `ibm-1388_P100-2024.ucm` | 163 | 32,667 |
+| IBM-1390 | `ibm-1390_P110-2003.ucm` | 227 | 22,076 |
+| IBM-1399 | `ibm-1399_P110-2003.ucm` | 227 | 22,076 |
 
 ## Validation Plan
 
