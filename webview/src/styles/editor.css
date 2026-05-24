@@ -98,18 +98,36 @@ h1 {
 .icon-button {
   display: inline-grid;
   place-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
-  border: 1px solid transparent;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--vscode-button-border, var(--vscode-editorWidget-border));
   border-radius: 3px;
-  color: var(--vscode-descriptionForeground);
-  background: transparent;
+  color: var(--vscode-button-secondaryForeground);
+  background: var(--vscode-button-secondaryBackground);
   cursor: pointer;
+  padding: 0;
 }
 
 .icon-button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.icon-button-primary {
   color: var(--vscode-button-foreground);
-  background: var(--vscode-toolbar-hoverBackground, var(--vscode-button-secondaryBackground));
+  background: var(--vscode-button-background);
+}
+
+.icon-button-primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.icon-button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+
+.icon-button:disabled:hover {
+  background: var(--vscode-button-secondaryBackground);
 }
 
 .collapsed-header-meta {

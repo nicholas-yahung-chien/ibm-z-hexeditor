@@ -289,14 +289,16 @@ Disable Condense Mode afterward and confirm the standard layout returns.
 ## 13. Header Collapse And Ruler
 
 1. Open a copied fixture in HEX ON.
-2. Click the `Hide header` button.
-3. Click the compact `Show header` button.
+2. Hover the header icon buttons and confirm tooltips appear.
+3. Click the `Hide header` icon button.
+4. Click the compact `Show header` icon button.
 4. Enable `ibmZHexEditor.showRuler` in Settings.
 5. Reopen or observe the active HEX ON editor.
 
 Expected:
 
-- [ ] The `Hide header` and `Show header` controls are visible without hovering.
+- [ ] Header action controls are icon-first and show text hints on hover.
+- [ ] The `Hide header` and `Show header` controls are discoverable as icon buttons.
 - [ ] Header collapse hides the full title/meta/action area and increases usable grid height.
 - [ ] Compact header still shows file name, encoding/status, and an expand control.
 - [ ] Expanding restores the full header and Save/Reload/Revert actions.

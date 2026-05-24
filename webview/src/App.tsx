@@ -64,7 +64,7 @@ export default function App() {
         {headerCollapsed ? (
           <>
             <button
-              className="toolbar-button toolbar-button-secondary header-toggle"
+              className="icon-button icon-button-secondary header-toggle"
               type="button"
               title="Show header"
               aria-label="Show header"
@@ -72,7 +72,6 @@ export default function App() {
               onClick={() => setHeaderCollapsed(false)}
             >
               <span className="codicon codicon-chevron-down" aria-hidden="true" />
-              <span>Show header</span>
             </button>
             <div className="collapsed-header-meta">
               <strong>{fileLabel}</strong>
@@ -97,7 +96,7 @@ export default function App() {
             </div>
             <div className="toolbar-actions" aria-label="File actions">
               <button
-                className="toolbar-button toolbar-button-secondary header-toggle"
+                className="icon-button icon-button-secondary header-toggle"
                 type="button"
                 title="Hide header"
                 aria-label="Hide header"
@@ -105,24 +104,34 @@ export default function App() {
                 onClick={() => setHeaderCollapsed(true)}
               >
                 <span className="codicon codicon-chevron-up" aria-hidden="true" />
-                <span>Hide header</span>
-              </button>
-              <button className="toolbar-button toolbar-button-secondary" type="button" onClick={() => vscode.postMessage({ type: 'reload' })}>
-                <span className="codicon codicon-refresh" aria-hidden="true" />
-                <span>Reload</span>
               </button>
               <button
-                className="toolbar-button toolbar-button-secondary"
+                className="icon-button icon-button-secondary"
                 type="button"
+                title="Reload"
+                aria-label="Reload"
+                onClick={() => vscode.postMessage({ type: 'reload' })}
+              >
+                <span className="codicon codicon-refresh" aria-hidden="true" />
+              </button>
+              <button
+                className="icon-button icon-button-secondary"
+                type="button"
+                title="Revert"
+                aria-label="Revert"
                 disabled={!snapshot?.dirty}
                 onClick={() => vscode.postMessage({ type: 'revert' })}
               >
                 <span className="codicon codicon-discard" aria-hidden="true" />
-                <span>Revert</span>
               </button>
-              <button className="toolbar-button" type="button" onClick={() => vscode.postMessage({ type: 'save' })}>
+              <button
+                className="icon-button icon-button-primary"
+                type="button"
+                title="Save"
+                aria-label="Save"
+                onClick={() => vscode.postMessage({ type: 'save' })}
+              >
                 <span className="codicon codicon-save" aria-hidden="true" />
-                <span>Save</span>
               </button>
             </div>
           </>
