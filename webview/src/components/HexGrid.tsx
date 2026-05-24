@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ByteCell, EditorSnapshot, HexNibble, PreviewEntry } from '../../../src/protocol';
-import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspect937';
+import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspectIbmDbcs';
 import { vscode } from '../vscode';
 
 const MIN_BYTES_PER_ROW = 8;

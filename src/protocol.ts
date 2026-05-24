@@ -1,4 +1,4 @@
-import type { AnalysisResult } from './inspector/inspect937';
+import type { AnalysisResult } from './inspector/inspectIbmDbcs';
 
 export type HexNibble = 'high' | 'low';
 

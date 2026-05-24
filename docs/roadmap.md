@@ -15,7 +15,7 @@ The editor is already byte-first, so support for additional IBM EBCDIC code page
 
 Planned direction:
 
-- extract the IBM-937-specific codec and inspector into reusable IBM DBCS profile APIs;
+- continue extracting IBM-937-specific codec and inspector behavior into reusable IBM DBCS profile APIs documented in [code-page-architecture.md](code-page-architecture.md);
 - represent each code page as a profile with SBCS mapping, DBCS mapping, SO/SI behavior, and ambiguity rules;
 - keep IBM-937 as the reference implementation and regression baseline;
 - add encoding picker entries only after a code page profile has reliable tables and tests.

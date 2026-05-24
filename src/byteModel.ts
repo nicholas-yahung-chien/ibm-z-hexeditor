@@ -1,5 +1,7 @@
-import { decodeDbcsPair, decodeSbcsByte, SI, SO } from './codec/ibm937';
-import { inspectIbm937 } from './inspector/inspect937';
+import { getIbmDbcsProfile } from './codePages';
+import { decodeIbmDbcsPair, decodeIbmDbcsSbcsByte, type IbmDbcsCodePageProfile } from './codec/ibmDbcs';
+import { inspectIbmDbcs } from './inspector/inspectIbmDbcs';
+import type { AnalysisResult } from './inspector/inspectIbmDbcs';
 import type { ByteCell, EditorSnapshot, PreviewEntry, RecordLine } from './protocol';
 
 export function cellsFromBytes(bytes: Uint8Array): ByteCell[] {
@@ -94,7 +96,8 @@ export function makeSnapshot(args: {
 }): EditorSnapshot {
   const bytes = bytesFromCells(args.cells);
   const lines = buildLines(bytes, args.fileEncoding);
-  const diagnostics = args.fileEncoding === 'ibm937' ? inspectIbm937(bytes) : null;
+  const profile = getIbmDbcsProfile(args.fileEncoding);
+  const diagnostics = profile ? inspectIbmDbcs(profile, bytes) : null;
   const preview = previewBytes(bytes, args.fileEncoding);
   const annotated = annotateCells(args.cells, diagnostics);
 
@@ -111,8 +114,9 @@ export function makeSnapshot(args: {
 }
 
 export function previewBytes(bytes: Uint8Array, encoding: string): PreviewEntry[] {
-  if (encoding === 'ibm937') {
-    return previewIbm937(bytes);
+  const profile = getIbmDbcsProfile(encoding);
+  if (profile) {
+    return previewIbmDbcs(profile, bytes);
   }
   if (encoding === 'utf8' || encoding === 'utf8bom') {
     return previewUtf8(bytes);
@@ -157,21 +161,21 @@ function previewUtf8(bytes: Uint8Array): PreviewEntry[] {
   return entries;
 }
 
-function previewIbm937(bytes: Uint8Array): PreviewEntry[] {
+function previewIbmDbcs(profile: IbmDbcsCodePageProfile, bytes: Uint8Array): PreviewEntry[] {
   const entries: PreviewEntry[] = [];
   let inDbcs = false;
   let i = 0;
 
   while (i < bytes.length) {
     const byte = bytes[i];
-    if (byte === SO) {
+    if (byte === profile.so) {
       entries.push({ byteOffset: i, byteLength: 1, text: '>', kind: 'so' });
       inDbcs = true;
       i++;
       continue;
     }
 
-    if (byte === SI) {
+    if (byte === profile.si) {
       entries.push({ byteOffset: i, byteLength: 1, text: '<', kind: 'si' });
       inDbcs = false;
       i++;
@@ -183,7 +187,7 @@ function previewIbm937(bytes: Uint8Array): PreviewEntry[] {
         entries.push({
           byteOffset: i,
           byteLength: 2,
-          text: decodeDbcsPair(byte, bytes[i + 1]) ?? '?',
+          text: decodeIbmDbcsPair(profile, byte, bytes[i + 1]) ?? '?',
           kind: 'dbcs',
         });
         i += 2;
@@ -194,7 +198,7 @@ function previewIbm937(bytes: Uint8Array): PreviewEntry[] {
       continue;
     }
 
-    const text = decodeSbcsByte(byte);
+    const text = decodeIbmDbcsSbcsByte(profile, byte);
     entries.push({
       byteOffset: i,
       byteLength: 1,
@@ -225,7 +229,7 @@ function hasUtf8Continuation(bytes: Uint8Array, offset: number, width: number): 
   return true;
 }
 
-function annotateCells(cells: readonly ByteCell[], diagnostics: ReturnType<typeof inspectIbm937> | null): ByteCell[] {
+function annotateCells(cells: readonly ByteCell[], diagnostics: AnalysisResult | null): ByteCell[] {
   const annotated: ByteCell[] = cells.map(cell => ({ ...cell, diagnostic: undefined }));
   if (!diagnostics) {
     return annotated;
@@ -244,8 +248,9 @@ function annotateCells(cells: readonly ByteCell[], diagnostics: ReturnType<typeo
 }
 
 function newlineSetForEncoding(encoding: string): Set<number> {
-  if (encoding === 'ibm937') {
-    return new Set([0x15]);
+  const profile = getIbmDbcsProfile(encoding);
+  if (profile) {
+    return new Set(profile.newlineBytes);
   }
   return new Set([0x0a]);
 }

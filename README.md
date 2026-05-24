@@ -70,6 +70,7 @@ Choose `IBM-937` when the file bytes are IBM-937, even if VS Code previously dis
 
 - [User guide](docs/user-guide.md)
 - [IBM-937 diagnostics rules](docs/diagnostics.md)
+- [Code page architecture](docs/code-page-architecture.md)
 - [Acceptance checklist](docs/acceptance-checklist.md)
 - [Icon design notes](docs/icon-design.md)
 - [Screenshot plan](docs/screenshots.md)

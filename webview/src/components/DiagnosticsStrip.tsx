@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspect937';
-import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspect937';
+import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspectIbmDbcs';
+import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspectIbmDbcs';
 import { DIAGNOSTIC_KIND_LABELS, DIAGNOSTIC_KIND_ORDER, getDiagnosticHeaderCounts } from '../../../src/diagnosticsSummary';
 
 interface Props {

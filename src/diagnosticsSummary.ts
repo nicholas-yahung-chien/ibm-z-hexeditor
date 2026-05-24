@@ -1,5 +1,5 @@
-import type { AnalysisResult, DiagnosticKind } from './inspector/inspect937';
-import { PROBLEM_KINDS, WARNING_KINDS } from './inspector/inspect937';
+import type { AnalysisResult, DiagnosticKind } from './inspector/inspectIbmDbcs';
+import { PROBLEM_KINDS, WARNING_KINDS } from './inspector/inspectIbmDbcs';
 
 export const DIAGNOSTIC_KIND_LABELS: Record<DiagnosticKind, string> = {
   SO: 'SO',
