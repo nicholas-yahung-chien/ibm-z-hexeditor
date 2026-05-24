@@ -111,50 +111,61 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
   const normalized = normalizeEncoding(currentEncoding);
   const currentItem = currentEncoding
     ? {
-      label: `Use VS Code encoding: ${normalized}`,
-      description: `${normalized} from the current TextDocument`,
-      detail: 'Preview raw file bytes with the encoding VS Code reports for the current text document.',
+      label: `Use VS Code-reported encoding: ${normalized}`,
+      description: 'Reference only; confirm this is the actual file-content encoding',
+      detail: 'HEX ON reads raw bytes from disk. Use this only if the file bytes are actually encoded this way.',
       value: normalized,
     }
     : {
       label: 'UTF-8',
-      description: 'Default when the active tab is not a TextDocument',
-      detail: 'Preview raw file bytes as UTF-8.',
+      description: 'Default file-content encoding when VS Code has no text encoding to report',
+      detail: 'HEX ON reads raw bytes from disk and previews those bytes as UTF-8.',
       value: 'utf8',
     };
 
   const items = [
+    {
+      label: '$(info) Choose the actual file-content encoding',
+      kind: vscode.QuickPickItemKind.Separator,
+    },
     currentItem,
     ...(normalized !== 'ibm937'
       ? [{
         label: 'IBM-937',
-        description: 'Preview raw bytes as IBM-937/EBCDIC and inspect SO/SI structure',
+        description: 'Use when the file bytes are IBM-937/EBCDIC; enables SO/SI diagnostics',
+        detail: 'Choose this even if VS Code currently displayed the file as UTF-8 but the bytes are actually IBM-937.',
         value: 'ibm937',
       }]
       : []),
     ...(normalized !== 'utf8'
       ? [{
         label: 'UTF-8',
-        description: 'Preview raw bytes as UTF-8',
+        description: 'Use when the file bytes are actually UTF-8',
         value: 'utf8',
       }]
       : []),
+    {
+      label: '$(list-selection) Other common content encodings',
+      kind: vscode.QuickPickItemKind.Separator,
+    },
     ...COMMON_SOURCE_ENCODINGS
       .filter(encoding => encoding !== normalized && encoding !== 'utf8')
       .map(encoding => ({
         label: encoding,
-        description: 'Preview raw bytes using this VS Code encoding id',
+        description: 'Interpret raw file bytes using this VS Code encoding id',
         value: encoding,
       })),
     {
       label: 'Enter another encoding...',
-      description: 'Use a VS Code encoding id such as cp950, big5hkscs, shiftjis',
+      description: 'Enter the actual file-content encoding id',
+      detail: 'Examples: cp950, big5hkscs, shiftjis, gbk.',
       value: '__custom__',
     },
   ];
 
   const picked = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select the file content encoding for the read-only preview',
+    title: 'IBM Z HEX ON Editor',
+    placeHolder: 'Select the actual file-content encoding used to decode raw bytes for preview and diagnostics',
     matchOnDescription: true,
     matchOnDetail: true,
   });
@@ -165,8 +176,8 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
 
   const encoding = picked.value === '__custom__'
     ? normalizeEncoding(await vscode.window.showInputBox({
-      title: 'Source file encoding',
-      prompt: 'Enter a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.',
+      title: 'Actual File-Content Encoding',
+      prompt: 'Enter the encoding of the bytes on disk, using a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.',
       value: normalized,
     }))
     : picked.value;
