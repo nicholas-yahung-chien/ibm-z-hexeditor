@@ -371,7 +371,7 @@ function ColumnRuler({ columnCount, bytesPerRow }: { columnCount: number; bytesP
         <div className="ruler-row" key={`ruler-${row.start}`}>
           <span className="offset ruler-offset" aria-hidden="true" />
           <div
-            className="byte-grid ruler-grid"
+            className="ruler-grid"
             style={{ gridTemplateColumns: `repeat(${row.marks.length}, var(--cell-size))` }}
           >
             {row.marks.map((mark, index) => (
