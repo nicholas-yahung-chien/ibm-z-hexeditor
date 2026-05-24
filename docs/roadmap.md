@@ -29,7 +29,7 @@ Initial candidate profiles:
 
 Open questions:
 
-- reliable table source and generation workflow for each code page;
+- reliable table source and generation workflow for each code page, now tracked in [mapping-table-sources.md](mapping-table-sources.md);
 - whether all target code pages use the same SO/SI structure assumptions;
 - how to classify Private Use Area and vendor-specific mappings for ambiguity diagnostics;
 - whether each language needs different noise-reduction rules for source-like files.

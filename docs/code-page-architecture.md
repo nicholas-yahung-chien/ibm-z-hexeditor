@@ -32,7 +32,7 @@ Existing IBM-937 public helper names are intentionally preserved so current test
 
 ## Adding A New IBM DBCS Code Page
 
-Add a new profile only after reliable mapping tables and fixture bytes are available.
+Add a new profile only after reliable mapping tables and fixture bytes are available. The current source strategy is documented in [mapping-table-sources.md](mapping-table-sources.md).
 
 Recommended steps:
 

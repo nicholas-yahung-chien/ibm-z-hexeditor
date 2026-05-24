@@ -1,0 +1,89 @@
+# Mapping Table Sources
+
+This note records the source strategy for adding IBM EBCDIC DBCS code pages after the IBM-937 MVP.
+
+## Recommended Source
+
+Use ICU `.ucm` mapping files from the Unicode ICU repository as the primary source for generated tables.
+
+Reasons:
+
+- ICU documents `.ucm` as its text mapping-table format and states that ICU ships mapping files under `icu/source/data/mappings`.
+- ICU `.ucm` headers identify mixed host code pages with `EBCDIC_STATEFUL`.
+- The ICU state table for `EBCDIC_STATEFUL` explicitly models SO/SI state shifts.
+- IBM documents the target z/OS DBCS code pages with the same converter names used by ICU.
+
+Before vendoring generated tables into a product build, confirm licensing with the owning product/legal team. The ICU files include Unicode license references and IBM copyright notices. Generated files should preserve source URLs, source file names, and the ICU commit or release used to generate them.
+
+## Initial Candidate Files
+
+| Code page | Language/variant | ICU source file | Notes |
+| --- | --- | --- | --- |
+| IBM-930 | Japanese Katakana-Kanji host mixed | [`ibm-930_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/ibm-930_P120-1999.ucm) | Candidate Japanese profile and likely base for IBM-939. |
+| IBM-933 | Korean host mixed | [`ibm-933_P110-1995.ucm`](https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/ibm-933_P110-1995.ucm) | Candidate Korean profile. |
+| IBM-935 | Simplified Chinese host mixed | [`ibm-935_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/ibm-935_P110-1999.ucm) | Candidate Simplified Chinese profile. |
+| IBM-937 | Traditional Chinese host mixed | [`ibm-937_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/ibm-937_P110-1999.ucm) | Current MVP baseline should eventually be generated from the same workflow. ICU declares `<icu:base> "ibm-1371_P100-1999"`. |
+| IBM-939 | Japanese Latin-Kanji host mixed | [`ibm-939_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/main/icu4c/source/data/mappings/ibm-939_P120-1999.ucm) | The ICU file declares `<icu:base> "ibm-930_P120-1999"`, so the generator must load and overlay the base table. |
+
+Additional IBM DBCS profiles to consider later:
+
+- IBM-1364 for extended Korean with full Hangul.
+- IBM-1371 for extended Traditional Chinese.
+- IBM-1388 for Simplified Chinese GB 18030 host.
+- IBM-1390 and IBM-1399 for extended Japanese JIS X0213 variants.
+
+## Prototype Inspection Results
+
+The prototype script `scripts/inspect-ucm-mapping.mjs` reads local or remote `.ucm` files and reports mapping-entry counts. Early checks against ICU `main` showed that the initial files are parseable into one-byte and two-byte mappings.
+
+| File | UCM class | One-byte mappings | Two-byte mappings | Base |
+| --- | --- | ---: | ---: | --- |
+| `ibm-930_P120-1999.ucm` | `EBCDIC_STATEFUL` | 335 | 11,680 | none |
+| `ibm-933_P110-1995.ucm` | `EBCDIC_STATEFUL` | 279 | 10,763 | none |
+| `ibm-935_P110-1999.ucm` | `EBCDIC_STATEFUL` | 236 | 9,358 | none |
+| `ibm-937_P110-1999.ucm` | `EBCDIC_STATEFUL` | 246 | 20,269 | `ibm-1371_P100-1999` |
+| `ibm-939_P120-1999.ucm` | `EBCDIC_STATEFUL` | 335 | 11,680 | `ibm-930_P120-1999` |
+| `ibm-1371_P100-1999.ucm` | `EBCDIC_STATEFUL` | 247 | 20,270 | none |
+
+Counts are not final generated-table counts. The generator still needs canonical reverse-map selection, fallback handling, Private Use Area handling, and base-table overlay support.
+
+## Generation Plan
+
+Add a generator that reads ICU `.ucm` files and emits TypeScript mapping tables used by `IbmDbcsProfile`.
+
+Recommended steps:
+
+1. Record each source file in a manifest with code page id, ICU URL, source revision, and base file if any.
+2. Parse the `.ucm` header and require `uconv_class` to be `EBCDIC_STATEFUL` for these profiles.
+3. Parse `CHARMAP` rows into byte sequences and Unicode code points.
+4. Split one-byte rows into `sbcsToUnicode` and `unicodeToSbcs`.
+5. Split two-byte rows into `dbcsToUnicode` and `unicodeToDbcs`.
+6. Preserve only canonical roundtrip mappings first. Treat fallback mappings as an explicit follow-up decision.
+7. Resolve `<icu:base>` by loading the base source first and overlaying the delta file.
+8. Preserve Private Use Area mappings for preview, but keep the current diagnostics rule that PUA mappings do not create DBCS ambiguous warnings.
+9. Generate compact tables plus a source banner containing the source file name, URL, and revision.
+10. Add fixtures and roundtrip tests before enabling a code page in the picker.
+
+## Validation Plan
+
+For each new profile:
+
+- verify that known language samples decode correctly;
+- verify Unicode-to-byte and byte-to-Unicode roundtrips for representative SBCS and DBCS characters;
+- verify SO/SI diagnostics with valid DBCS spans, missing SO, missing SI, odd DBCS byte counts, and inserted/deleted bytes;
+- verify that source-like SBCS filler data does not create noisy DBCS ambiguous warnings;
+- compare selected samples with ICU output where a local ICU converter is available.
+
+## Open Questions
+
+- Which Japanese profile should be first: IBM-930, IBM-939, or both together because IBM-939 depends on IBM-930?
+- Should IBM-937 be regenerated together with IBM-1371 so the existing hand-curated table can be retired safely?
+- Should fallback mappings be included for preview only, reverse encoding, both, or neither?
+- Do any target profiles need profile-specific ambiguity suppression beyond the current PUA and obvious-SBCS rules?
+- Should generated tables be committed directly, or should the repository commit only the generator plus a pinned source manifest?
+
+## Source References
+
+- [ICU conversion data documentation](https://unicode-org.github.io/icu/userguide/conversion/data.html)
+- [IBM z/OS DBCS code page requirements](https://www.ibm.com/docs/en/idr/11.4.0?topic=source-code-page-requirements)
+- [Unicode ICU repository](https://github.com/unicode-org/icu)
