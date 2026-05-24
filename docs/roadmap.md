@@ -5,9 +5,8 @@ This roadmap captures the current direction after the IBM-937 MVP.
 ## Near Term
 
 1. Keep IBM-937 regression coverage stable.
-2. Add a repeatable `.vsix` packaging flow.
-3. Run a full Extension Development Host acceptance pass.
-4. Add screenshots and release notes for the current MVP.
+2. Run a full Extension Development Host and VSIX install acceptance pass.
+3. Add screenshots and release notes for the current MVP.
 
 ## Multi-Code-Page EBCDIC DBCS Support
 
@@ -34,6 +33,26 @@ Open questions:
 - how to classify Private Use Area and vendor-specific mappings for ambiguity diagnostics;
 - whether each language needs different noise-reduction rules for source-like files.
 
+## Localization
+
+Localization should be planned late in the MVP cycle, after the main editor workflows and diagnostics wording have stabilized. Deferring this avoids repeatedly updating translations while the feature surface is still changing.
+
+Initial target languages:
+
+- English
+- Traditional Chinese
+- Simplified Chinese
+- Japanese
+- Korean
+- German
+
+Planned direction:
+
+- move extension contribution strings into VS Code localization files;
+- move webview UI strings into a small message catalog;
+- keep diagnostics category identifiers stable and translate only labels, descriptions, prompts, and help text;
+- add a final localization pass before a public release candidate.
+
 ## Packaging
 
-The repository should add a package script using `@vscode/vsce` so testers can install a local `.vsix` without running from the Extension Development Host.
+The repository provides `npm run package:vsix`, which builds the extension and writes `dist/ibm-z-hex-on-editor.vsix` for local installation testing.

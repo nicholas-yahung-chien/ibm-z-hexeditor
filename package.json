@@ -74,10 +74,12 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
     "clean": "node scripts/clean.mjs",
     "compile": "npm run clean && npm run build:extension && npm run build:webview",
     "build:extension": "node scripts/build-extension.mjs",
     "build:webview": "vite build --config vite.config.mjs",
+    "package:vsix": "vsce package --out dist/ibm-z-hex-on-editor.vsix",
     "watch": "npm-run-all --parallel watch:extension watch:webview",
     "watch:extension": "node scripts/build-extension.mjs --watch",
     "watch:webview": "vite build --watch --config vite.config.mjs",
@@ -95,6 +97,7 @@
     "@types/react-dom": "^18.3.7",
     "@types/vscode": "^1.100.0",
     "@vitejs/plugin-react": "^4.5.0",
+    "@vscode/vsce": "^3.9.1",
     "esbuild": "^0.25.5",
     "jsdom": "^26.1.0",
     "npm-run-all": "^4.1.5",

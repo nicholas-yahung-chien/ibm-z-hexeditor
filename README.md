@@ -53,6 +53,7 @@ For planned work, including additional IBM EBCDIC DBCS code pages, see [docs/roa
 npm install
 npm run compile
 npm test
+npm run package:vsix
 ```
 
 Run the extension from VS Code's Extension Development Host after compiling.
@@ -63,4 +64,5 @@ Useful verification commands:
 npm run type-check
 npm test
 npm run compile
+npm run package:vsix
 ```
