@@ -120,10 +120,6 @@ h1 {
   pointer-events: none;
 }
 
-.title-row .svg-icon {
-  color: var(--accent);
-}
-
 .icon-button:hover {
   background: var(--vscode-button-secondaryHoverBackground);
 }

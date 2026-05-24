@@ -83,7 +83,6 @@ export default function App() {
           <>
             <div>
               <div className="title-row">
-                <SvgIcon name="hex" />
                 <h1>{fileLabel}</h1>
               </div>
               <div className="meta-row">
@@ -162,19 +161,13 @@ export default function App() {
   );
 }
 
-type SvgIconName = 'chevron-down' | 'chevron-up' | 'hex' | 'refresh' | 'revert' | 'save';
+type SvgIconName = 'chevron-down' | 'chevron-up' | 'refresh' | 'revert' | 'save';
 
 function SvgIcon({ name }: { name: SvgIconName }) {
   return (
     <svg className="svg-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       {name === 'chevron-down' ? <path d="M6 9l6 6 6-6" /> : null}
       {name === 'chevron-up' ? <path d="M6 15l6-6 6 6" /> : null}
-      {name === 'hex' ? (
-        <>
-          <path d="M7 4h10l5 8-5 8H7l-5-8 5-8z" />
-          <path d="M8 9v6M16 9v6M10 12h4" />
-        </>
-      ) : null}
       {name === 'refresh' ? (
         <>
           <path d="M20 6v5h-5" />
@@ -185,8 +178,9 @@ function SvgIcon({ name }: { name: SvgIconName }) {
       ) : null}
       {name === 'revert' ? (
         <>
-          <path d="M9 7H4v5" />
-          <path d="M5 12a7 7 0 1 0 2-5" />
+          <path d="M9 5l-6 6 6 6" />
+          <path d="M3 11h10a7 7 0 0 1 7 7" />
+          <path d="M20 18v1" />
         </>
       ) : null}
       {name === 'save' ? (
