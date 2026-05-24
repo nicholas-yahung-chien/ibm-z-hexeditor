@@ -125,7 +125,7 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
 
   const items = [
     {
-      label: '$(info) Choose the actual file-content encoding',
+      label: 'Choose the actual file-content encoding',
       kind: vscode.QuickPickItemKind.Separator,
     },
     currentItem,
@@ -145,7 +145,7 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       }]
       : []),
     {
-      label: '$(list-selection) Other common content encodings',
+      label: 'Other common content encodings',
       kind: vscode.QuickPickItemKind.Separator,
     },
     ...COMMON_SOURCE_ENCODINGS
