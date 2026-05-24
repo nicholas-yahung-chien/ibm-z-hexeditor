@@ -140,10 +140,6 @@ h1 {
   font-size: 0.82rem;
 }
 
-.condense-mode .diagnostics {
-  padding: 0.3rem 0;
-}
-
 .diagnostics-problem {
   background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--problem));
 }
@@ -170,10 +166,6 @@ h1 {
   display: grid;
   gap: 0.55rem;
   padding: 0.15rem 0 0.35rem 1.55rem;
-}
-
-.condense-mode .diagnostics-detail {
-  padding-left: 0;
 }
 
 .diagnostics-nav {
