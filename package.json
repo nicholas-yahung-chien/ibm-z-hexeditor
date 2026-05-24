@@ -6,6 +6,10 @@
   "publisher": "nicholas-yahung-chien",
   "license": "MIT",
   "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#0D0D0F",
+    "theme": "dark"
+  },
   "keywords": [
     "IBM Z",
     "z/OS",

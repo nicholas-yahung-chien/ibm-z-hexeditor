@@ -6,7 +6,8 @@ This roadmap captures the current direction after the IBM-937 MVP.
 
 1. Keep IBM-937 regression coverage stable.
 2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md).
-3. Add screenshots and release notes for the current MVP.
+3. Capture the screenshots listed in [screenshots.md](screenshots.md).
+4. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
 
 ## Multi-Code-Page EBCDIC DBCS Support
 

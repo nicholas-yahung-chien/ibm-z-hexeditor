@@ -1,5 +1,7 @@
 # IBM Z HEX ON Editor
 
+![IBM Z HEX ON Editor icon](images/icon.png)
+
 IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
 The current MVP is focused on IBM-937 and UTF-8 workflows. IBM-937 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
@@ -14,6 +16,10 @@ The current MVP is focused on IBM-937 and UTF-8 workflows. IBM-937 files get SO/
 - Jump from diagnostics to the exact byte location.
 - Save edited bytes back to disk, then return to the default VS Code editor.
 - Enable Condense Mode to show more bytes per row.
+
+## Screenshots
+
+Screenshots are planned for the MVP release package. The capture list and filenames are tracked in [docs/screenshots.md](docs/screenshots.md).
 
 ## Installation
 
@@ -66,6 +72,8 @@ Choose `IBM-937` when the file bytes are IBM-937, even if VS Code previously dis
 - [IBM-937 diagnostics rules](docs/diagnostics.md)
 - [Acceptance checklist](docs/acceptance-checklist.md)
 - [Icon design notes](docs/icon-design.md)
+- [Screenshot plan](docs/screenshots.md)
+- [Change log](CHANGELOG.md)
 - [Roadmap](docs/roadmap.md)
 
 ## Current Limits
