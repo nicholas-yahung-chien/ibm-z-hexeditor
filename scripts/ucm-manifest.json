@@ -1,0 +1,55 @@
+{
+  "profiles": [
+    {
+      "id": "ibm930",
+      "label": "IBM-930",
+      "sourceName": "ibm-930_P120-1999.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-930_P120-1999.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm930Tables.ts"
+    },
+    {
+      "id": "ibm933",
+      "label": "IBM-933",
+      "sourceName": "ibm-933_P110-1995.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-933_P110-1995.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm933Tables.ts"
+    },
+    {
+      "id": "ibm935",
+      "label": "IBM-935",
+      "sourceName": "ibm-935_P110-1999.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm935Tables.ts"
+    },
+    {
+      "id": "ibm1371",
+      "label": "IBM-1371",
+      "sourceName": "ibm-1371_P100-1999.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1371_P100-1999.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1371Tables.ts"
+    },
+    {
+      "id": "ibm937",
+      "label": "IBM-937",
+      "sourceName": "ibm-937_P110-1999.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-937_P110-1999.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "baseProfile": "ibm1371",
+      "outputFile": "ibm937Tables.ts"
+    },
+    {
+      "id": "ibm939",
+      "label": "IBM-939",
+      "sourceName": "ibm-939_P120-1999.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-939_P120-1999.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "baseProfile": "ibm930",
+      "outputFile": "ibm939Tables.ts"
+    }
+  ]
+}
+

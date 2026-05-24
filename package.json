@@ -93,6 +93,7 @@
     "compile": "npm run clean && npm run build:extension && npm run build:webview",
     "build:extension": "node scripts/build-extension.mjs",
     "build:webview": "vite build --config vite.config.mjs",
+    "generate:code-pages": "node scripts/generate-ucm-tables.mjs",
     "package:vsix": "vsce package --out dist/ibm-z-hex-on-editor.vsix",
     "watch": "npm-run-all --parallel watch:extension watch:webview",
     "watch:extension": "node scripts/build-extension.mjs --watch",

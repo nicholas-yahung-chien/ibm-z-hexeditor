@@ -36,9 +36,10 @@ Add a new profile only after reliable mapping tables and fixture bytes are avail
 
 Recommended steps:
 
-1. Add generated mapping tables under `src/codec/`.
-2. Add a profile module, for example `src/codec/ibm939.ts`.
-3. Export a profile object with:
+1. Run `node scripts/generate-ucm-tables.mjs --profile <id> --dry-run` and confirm the source chain and counts.
+2. Add generated mapping tables under `src/codec/` or `src/codec/generated/`.
+3. Add a profile module, for example `src/codec/ibm939.ts`.
+4. Export a profile object with:
    - `id`
    - `label`
    - `so`
@@ -50,12 +51,12 @@ Recommended steps:
    - `newlineBytes`
    - `replacementByte`
    - `replacementText`
-4. Register the profile in `src/codePages.ts`.
-5. Add encoding picker entries only after tests pass.
-6. Add codec roundtrip tests.
-7. Add SO/SI diagnostics tests.
-8. Add at least one fixture regression test.
-9. Update user documentation and diagnostics notes.
+5. Register the profile in `src/codePages.ts`.
+6. Add encoding picker entries only after tests pass.
+7. Add codec roundtrip tests.
+8. Add SO/SI diagnostics tests.
+9. Add at least one fixture regression test.
+10. Update user documentation and diagnostics notes.
 
 ## Candidate Profiles
 
