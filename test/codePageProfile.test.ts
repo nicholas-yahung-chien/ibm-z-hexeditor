@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { getIbmDbcsProfile, getIbmDbcsProfiles, isIbmDbcsEncoding, normalizeIbmDbcsEncoding } from '../src/codePages';
 import { IBM930_PROFILE } from '../src/codec/ibm930';
+import { IBM933_PROFILE } from '../src/codec/ibm933';
+import { IBM935_PROFILE } from '../src/codec/ibm935';
 import { IBM937_PROFILE, SI, SO } from '../src/codec/ibm937';
 import { IBM939_PROFILE } from '../src/codec/ibm939';
 import { inspectIbmDbcs } from '../src/inspector/inspectIbmDbcs';
@@ -14,12 +16,16 @@ describe('IBM DBCS code page profiles', () => {
     expect(isIbmDbcsEncoding('utf8')).toBe(false);
   });
 
-  it('registers generated Japanese IBM DBCS profiles', () => {
-    expect(getIbmDbcsProfiles().map(profile => profile.id)).toEqual(['ibm930', 'ibm937', 'ibm939']);
+  it('registers generated IBM DBCS profiles', () => {
+    expect(getIbmDbcsProfiles().map(profile => profile.id)).toEqual(['ibm930', 'ibm933', 'ibm935', 'ibm937', 'ibm939']);
     expect(getIbmDbcsProfile('ibm930')).toBe(IBM930_PROFILE);
     expect(getIbmDbcsProfile('IBM-930')).toBe(IBM930_PROFILE);
+    expect(getIbmDbcsProfile('ibm933')).toBe(IBM933_PROFILE);
+    expect(getIbmDbcsProfile('cp935')).toBe(IBM935_PROFILE);
     expect(getIbmDbcsProfile('ibm939')).toBe(IBM939_PROFILE);
     expect(normalizeIbmDbcsEncoding('IBM-930')).toBe('ibm930');
+    expect(normalizeIbmDbcsEncoding('IBM-933')).toBe('ibm933');
+    expect(normalizeIbmDbcsEncoding('CP-935')).toBe('ibm935');
     expect(normalizeIbmDbcsEncoding('cp939')).toBe('ibm939');
   });
 

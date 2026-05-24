@@ -28,13 +28,15 @@ The editor is byte-first:
 
 - hex rows always show the raw file bytes;
 - the read-only character preview is decoded from those bytes using the selected encoding;
-- IBM-930, IBM-937, and IBM-939 enable SO/SI and DBCS diagnostics;
+- IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 enable SO/SI and DBCS diagnostics;
 - save writes the edited raw bytes back to disk without converting through Unicode text.
 
 The MVP has focused validation for:
 
 - `ibm937`
 - `ibm930`
+- `ibm933`
+- `ibm935`
 - `ibm939`
 - `utf8`
 - common VS Code encoding ids such as `cp950`, `big5hkscs`, `shiftjis`, and `gbk`
@@ -116,4 +118,4 @@ The `bytes` value accepts `40 40`, `0x40 0x40`, or `4040`. Invalid entries are i
 
 - The extension currently supports local files only.
 - Files larger than `ibmZHexEditor.maxFileSizeKb` are blocked by the MVP size guard.
-- IBM-930, IBM-937, and IBM-939 have SO/SI DBCS diagnostics. Other encodings are preview/edit flows only.
+- IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 have SO/SI DBCS diagnostics. Other encodings are preview/edit flows only.

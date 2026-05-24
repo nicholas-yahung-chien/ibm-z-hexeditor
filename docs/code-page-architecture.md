@@ -12,7 +12,7 @@ The editor remains byte-first:
 
 ## Current Shape
 
-IBM-930, IBM-937, and IBM-939 are represented as profiles:
+IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 are represented as profiles:
 
 - `src/codec/ibmDbcs.ts`
   - generic IBM DBCS profile interface;
@@ -21,10 +21,10 @@ IBM-930, IBM-937, and IBM-939 are represented as profiles:
 - `src/codec/ibm937.ts`
   - `IBM937_PROFILE`;
   - compatibility wrappers such as `encodeToIbm937`, `decodeFromIbm937`, and `decodeDbcsPair`.
-- `src/codec/ibm930.ts` and `src/codec/ibm939.ts`
-  - generated-table backed Japanese profile modules.
+- `src/codec/ibm930.ts`, `src/codec/ibm933.ts`, `src/codec/ibm935.ts`, and `src/codec/ibm939.ts`
+  - generated-table backed Japanese, Korean, and Simplified Chinese profile modules.
 - `src/codec/generated/`
-  - generated ICU `.ucm` mapping tables for IBM-930 and IBM-939.
+  - generated ICU `.ucm` mapping tables for IBM-930, IBM-933, IBM-935, and IBM-939.
 - `src/inspector/inspectIbmDbcs.ts`
   - generic SO/SI diagnostics traversal for IBM EBCDIC DBCS profiles.
 - `src/inspector/inspect937.ts`
@@ -67,13 +67,17 @@ Recommended steps:
 Enabled profiles:
 
 - `IBM-930` for Japanese Katakana-Kanji EBCDIC DBCS;
+- `IBM-933` for Korean EBCDIC DBCS;
+- `IBM-935` for Simplified Chinese EBCDIC DBCS;
 - `IBM-937` for Traditional Chinese EBCDIC DBCS;
 - `IBM-939` for Japanese Latin-Kanji EBCDIC DBCS.
 
-Initial remaining candidates:
+Future candidates:
 
-- `IBM-933` for Korean EBCDIC DBCS;
-- `IBM-935` for Simplified Chinese EBCDIC DBCS.
+- `IBM-1364` for extended Korean with full Hangul;
+- `IBM-1371` for extended Traditional Chinese;
+- `IBM-1388` for Simplified Chinese GB 18030 host;
+- `IBM-1390` and `IBM-1399` for extended Japanese variants.
 
 ## Diagnostics Assumptions To Verify
 
@@ -101,8 +105,7 @@ Planned shape:
 
 Keep parsing and validation outside the inspector. The inspector should receive normalized pair keys such as `0x4040` and `0x5C5C`.
 
-## Non-Goals For The IBM-930/939 Step
+## Non-Goals For The Current Generated-Table Step
 
 - Do not replace the existing IBM-937 table yet.
-- Do not enable IBM-933 or IBM-935 until fixtures and tests are added.
 - Do not broaden diagnostics heuristics beyond the generic IBM DBCS rules until real language-specific samples justify it.

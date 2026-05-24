@@ -43,6 +43,8 @@ Do not edit committed fixtures directly during manual acceptance. Copy them firs
 New-Item -ItemType Directory -Force .tmp\manual | Out-Null
 Copy-Item test\fixtures\SOAIPB1.ibm937.cpy .tmp\manual\SOAIPB1.acceptance.ibm937.cpy -Force
 Copy-Item test\fixtures\SOAIPB1.ibm930.cpy .tmp\manual\SOAIPB1.acceptance.ibm930.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm933.cpy .tmp\manual\SOAIPB1.acceptance.ibm933.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm935.cpy .tmp\manual\SOAIPB1.acceptance.ibm935.cpy -Force
 Copy-Item test\fixtures\SOAIPB1.ibm939.cpy .tmp\manual\SOAIPB1.acceptance.ibm939.cpy -Force
 ```
 
@@ -50,6 +52,8 @@ Expected:
 
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm937.cpy` exists.
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm930.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm933.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm935.cpy` exists.
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm939.cpy` exists.
 - [ ] `git status --short` remains clean before manual editing begins.
 
@@ -89,6 +93,30 @@ Expected:
 - [ ] Diagnostics summary shows `SO/SI structure valid`.
 - [ ] Diagnostics summary shows `4 DBCS pair(s)`.
 - [ ] The explicit DBCS preview text is `日本語文`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-933
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm933.cpy` as IBM-933.
+
+Expected:
+
+- [ ] Header shows `ibm933`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `한국어문`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-935
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm935.cpy` as IBM-935.
+
+Expected:
+
+- [ ] Header shows `ibm935`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `中文测试`.
 - [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
 
 ### IBM-939

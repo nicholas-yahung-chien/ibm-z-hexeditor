@@ -19,9 +19,9 @@ Before vendoring generated tables into a product build, confirm licensing with t
 
 | Code page | Language/variant | ICU source file | Notes |
 | --- | --- | --- | --- |
-| IBM-930 | Japanese Katakana-Kanji host mixed | [`ibm-930_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-930_P120-1999.ucm) | Candidate Japanese profile and likely base for IBM-939. |
-| IBM-933 | Korean host mixed | [`ibm-933_P110-1995.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-933_P110-1995.ucm) | Candidate Korean profile. |
-| IBM-935 | Simplified Chinese host mixed | [`ibm-935_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm) | Candidate Simplified Chinese profile. |
+| IBM-930 | Japanese Katakana-Kanji host mixed | [`ibm-930_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-930_P120-1999.ucm) | Enabled generated profile and likely base for IBM-939. |
+| IBM-933 | Korean host mixed | [`ibm-933_P110-1995.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-933_P110-1995.ucm) | Enabled generated Korean profile. |
+| IBM-935 | Simplified Chinese host mixed | [`ibm-935_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm) | Enabled generated Simplified Chinese profile. |
 | IBM-937 | Traditional Chinese host mixed | [`ibm-937_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-937_P110-1999.ucm) | Current MVP baseline should eventually be generated from the same workflow. ICU declares `<icu:base> "ibm-1371_P100-1999"`. |
 | IBM-939 | Japanese Latin-Kanji host mixed | [`ibm-939_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-939_P120-1999.ucm) | The ICU file declares `<icu:base> "ibm-930_P120-1999"`, so the generator must load and overlay the base table. |
 
@@ -71,7 +71,7 @@ Common commands:
 ```sh
 node scripts/generate-ucm-tables.mjs --profile ibm939 --dry-run
 node scripts/generate-ucm-tables.mjs --all --dry-run
-node scripts/generate-ucm-tables.mjs --profile ibm930 --out-dir src/codec/generated
+node scripts/generate-ucm-tables.mjs --profile ibm930 --profile ibm933 --profile ibm935 --profile ibm939 --out-dir src/codec/generated
 ```
 
 By default, the generator keeps only canonical `|0` mappings and skips fallback mappings. Use `--include-fallback` only after deciding how fallback rows should behave for preview and reverse encoding.
@@ -99,7 +99,6 @@ For each new profile:
 
 ## Open Questions
 
-- Which Japanese profile should be first: IBM-930, IBM-939, or both together because IBM-939 depends on IBM-930?
 - Should IBM-937 be regenerated together with IBM-1371 so the existing hand-curated table can be retired safely?
 - Should fallback mappings be included for preview only, reverse encoding, both, or neither?
 - Do any target profiles need profile-specific ambiguity suppression beyond the current PUA and obvious-SBCS rules?
