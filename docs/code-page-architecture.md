@@ -88,6 +88,19 @@ The current generic inspector assumes:
 
 Before enabling a new code page, verify these assumptions against real sample data for that language and code page. If needed, extend the profile interface with profile-specific predicates rather than adding code-page branches inside the inspector.
 
+## Planned Configurable Ambiguity Rules
+
+`DBCS_AMBIGUOUS` exclusions should become user-configurable without making the inspector depend directly on VS Code APIs.
+
+Planned shape:
+
+1. Extension code reads settings and produces an effective exclusion set.
+2. If custom exclusions are enabled for the first time, extension code writes the default rules into user settings JSON.
+3. The byte model passes the effective exclusion set into `inspectIbmDbcs`.
+4. The inspector applies the set while deciding whether a valid DBCS pair in SBCS mode should emit `DBCS_AMBIGUOUS`.
+
+Keep parsing and validation outside the inspector. The inspector should receive normalized pair keys such as `0x4040` and `0x5C5C`.
+
 ## Non-Goals For The IBM-930/939 Step
 
 - Do not replace the existing IBM-937 table yet.

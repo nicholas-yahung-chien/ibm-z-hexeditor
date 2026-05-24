@@ -50,6 +50,8 @@ To avoid noisy false positives in COBOL and other source-like files, the current
 - both bytes are symbolic SBCS bytes rather than letters or digits;
 - the pair is not an obvious SBCS filler pair such as `0x40 0x40` spaces or repeated `0x5C 0x5C` asterisks.
 
+The current exclusion list is built in. A planned setting will allow users to enable custom `DBCS_AMBIGUOUS` exclusions from VS Code user settings JSON. When first enabled, the extension should seed the user settings JSON with the default exclusions so users can modify them directly.
+
 Examples:
 
 - `0x5A 0x61` can be `!/` as SBCS and `U+6E2C` as DBCS, so it can be reported as `DBCS_AMBIGUOUS` when found in SBCS mode.

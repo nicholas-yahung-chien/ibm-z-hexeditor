@@ -5,9 +5,10 @@ This roadmap captures the current direction after the IBM-937 MVP.
 ## Near Term
 
 1. Keep IBM-937 regression coverage stable while adding fixtures for IBM-930 and IBM-939.
-2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md).
-3. Capture the screenshots listed in [screenshots.md](screenshots.md).
-4. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
+2. Add user-configurable `DBCS_AMBIGUOUS` exclusion rules for repeated or known-safe SBCS byte pairs.
+3. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md).
+4. Capture the screenshots listed in [screenshots.md](screenshots.md).
+5. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
 
 ## Multi-Code-Page EBCDIC DBCS Support
 
@@ -34,6 +35,25 @@ Open questions:
 - whether all target code pages use the same SO/SI structure assumptions;
 - how to classify Private Use Area and vendor-specific mappings for ambiguity diagnostics;
 - whether each language needs different noise-reduction rules for source-like files.
+
+## User-Configurable Diagnostics
+
+Planned direction:
+
+- add a setting such as `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`;
+- add a setting such as `ibmZHexEditor.dbcsAmbiguousExclusions` that stores byte-pair rules in user settings JSON;
+- when the user first enables custom exclusions, seed the user settings JSON with the built-in defaults, such as `40 40` and `5C 5C`, so they can edit or add rules directly;
+- support a clear JSON shape, for example:
+
+```json
+[
+  { "bytes": "40 40", "label": "EBCDIC spaces" },
+  { "bytes": "5C 5C", "label": "COBOL repeated asterisks" }
+]
+```
+
+- validate rules before applying them, ignore invalid entries with a warning, and keep built-in exclusions available when custom exclusions are disabled;
+- pass the effective exclusion set into the generic IBM DBCS inspector rather than hard-coding byte pairs inside the diagnostic traversal.
 
 ## Localization
 
