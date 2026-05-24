@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspectIbmDbcs';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspectIbmDbcs';
 import { DIAGNOSTIC_KIND_LABELS, DIAGNOSTIC_KIND_ORDER, getDiagnosticHeaderCounts } from '../../../src/diagnosticsSummary';
+import { t } from '../i18n';
 
 interface Props {
   result: AnalysisResult | null;
@@ -76,14 +77,14 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
       >
         <span className={`codicon ${expanded ? 'codicon-chevron-down' : 'codicon-chevron-right'}`} aria-hidden="true" />
         <span className={`codicon ${problemCount > 0 ? 'codicon-warning' : 'codicon-pass'}`} aria-hidden="true" />
-        <span>{problemCount > 0 ? `${problemCount} DBCS issue(s)` : 'SO/SI structure valid'}</span>
-        <span>{dbcsPairCount} DBCS pair(s)</span>
-        <span>{warningCount} warning(s)</span>
+        <span>{problemCount > 0 ? t('diagnosticsIssueCount', { count: problemCount }) : t('diagnosticsStructureValid')}</span>
+        <span>{t('diagnosticsPairCount', { count: dbcsPairCount })}</span>
+        <span>{t('diagnosticsWarningCount', { count: warningCount })}</span>
       </button>
 
       {expanded ? (
         <div className="diagnostics-detail">
-          <div className="diagnostics-nav" aria-label="Diagnostic navigation">
+          <div className="diagnostics-nav" aria-label={t('diagnosticNavigation')}>
             <button
               className="diagnostic-nav-button"
               type="button"
@@ -91,7 +92,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
               onClick={() => navigateRelative(-1)}
             >
               <span className="codicon codicon-arrow-up" aria-hidden="true" />
-              <span>Previous</span>
+              <span>{t('previous')}</span>
             </button>
             <button
               className="diagnostic-nav-button"
@@ -99,13 +100,15 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
               disabled={filteredJumpEvents.length === 0}
               onClick={() => navigateRelative(1)}
             >
-              <span>Next</span>
+              <span>{t('next')}</span>
               <span className="codicon codicon-arrow-down" aria-hidden="true" />
             </button>
             <span className="diagnostic-nav-position">
               {filteredJumpEvents.length > 0
-                ? `${activeIndex >= 0 ? activeIndex + 1 : '-'} / ${filteredJumpEvents.length}`
-                : '0 / 0'}
+                ? activeIndex >= 0
+                  ? t('diagnosticsPosition', { current: activeIndex + 1, total: filteredJumpEvents.length })
+                  : t('diagnosticsInactivePosition', { total: filteredJumpEvents.length })
+                : t('diagnosticsEmptyPosition')}
             </span>
             {activeKind !== 'all' ? (
               <button
@@ -116,12 +119,12 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
                   setActiveEventKey(null);
                 }}
               >
-                Clear filter
+                {t('clearFilter')}
               </button>
             ) : null}
           </div>
 
-          <div className="diagnostics-counts" aria-label="Diagnostic category counts">
+          <div className="diagnostics-counts" aria-label={t('diagnosticCategoryCounts')}>
             {details.map(item => (
               <button
                 type="button"
@@ -170,7 +173,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
                       </button>
                     ))}
                     {item.events.length > 12 ? (
-                      <span className="diagnostic-more">+{item.events.length - 12} more</span>
+                      <span className="diagnostic-more">{t('diagnosticsMore', { count: item.events.length - 12 })}</span>
                     ) : null}
                   </div>
                 </div>

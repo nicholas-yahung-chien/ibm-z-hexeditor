@@ -1,0 +1,15 @@
+{
+  "extension.displayName": "IBM Z HEX ON Editor",
+  "extension.description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM EBCDIC DBCS preview and SO/SI diagnostics.",
+  "command.openHexOn.title": "IBM Z Hex Editor: Open HEX ON",
+  "command.openHexOn.category": "IBM Z Hex Editor",
+  "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",
+  "configuration.title": "IBM Z HEX ON Editor",
+  "configuration.maxFileSizeKb.description": "Maximum local file size, in KB, that can be opened in the HEX ON editor.",
+  "configuration.condenseMode.description": "Show a denser HEX ON grid with narrower byte cells, hidden offsets, and no grid edge padding.",
+  "configuration.showRuler.description": "Show a column ruler above the HEX ON byte grid.",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "Use custom byte-pair exclusions for DBCS ambiguous diagnostics. When first enabled, default exclusions are written to user settings JSON for editing.",
+  "configuration.dbcsAmbiguousExclusions.description": "Custom byte-pair exclusions for DBCS ambiguous diagnostics. Each rule excludes a valid DBCS pair from DBCS_AMBIGUOUS warnings while in SBCS mode.",
+  "configuration.dbcsAmbiguousExclusions.bytes.description": "Two-byte pair to exclude. Accepted formats include \"40 40\", \"0x40 0x40\", and \"4040\".",
+  "configuration.dbcsAmbiguousExclusions.label.description": "Optional note describing why this pair is excluded."
+}

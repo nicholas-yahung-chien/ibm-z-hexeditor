@@ -1,7 +1,7 @@
 {
   "name": "ibm-z-hex-on-editor",
-  "displayName": "IBM Z HEX ON Editor",
-  "description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM EBCDIC DBCS preview and SO/SI diagnostics.",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
   "version": "0.1.0",
   "publisher": "nicholas-yahung-chien",
   "license": "MIT",
@@ -47,8 +47,8 @@
     "commands": [
       {
         "command": "ibmZHexEditor.openHexOn",
-        "title": "IBM Z Hex Editor: Open HEX ON",
-        "category": "IBM Z Hex Editor"
+        "title": "%command.openHexOn.title%",
+        "category": "%command.openHexOn.category%"
       }
     ],
     "menus": {
@@ -70,7 +70,7 @@
     "customEditors": [
       {
         "viewType": "ibmZHexEditor.hexOn",
-        "displayName": "IBM Z HEX ON Editor",
+        "displayName": "%customEditor.hexOn.displayName%",
         "selector": [
           {
             "filenamePattern": "*"
@@ -80,33 +80,33 @@
       }
     ],
     "configuration": {
-      "title": "IBM Z HEX ON Editor",
+      "title": "%configuration.title%",
       "properties": {
         "ibmZHexEditor.maxFileSizeKb": {
           "type": "number",
           "default": 1024,
           "minimum": 1,
-          "description": "Maximum local file size, in KB, that can be opened in the HEX ON editor."
+          "description": "%configuration.maxFileSizeKb.description%"
         },
         "ibmZHexEditor.condenseMode": {
           "type": "boolean",
           "default": false,
-          "description": "Show a denser HEX ON grid with narrower byte cells, hidden offsets, and no grid edge padding."
+          "description": "%configuration.condenseMode.description%"
         },
         "ibmZHexEditor.showRuler": {
           "type": "boolean",
           "default": false,
-          "description": "Show a column ruler above the HEX ON byte grid."
+          "description": "%configuration.showRuler.description%"
         },
         "ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": {
           "type": "boolean",
           "default": false,
-          "description": "Use custom byte-pair exclusions for DBCS ambiguous diagnostics. When first enabled, default exclusions are written to user settings JSON for editing."
+          "description": "%configuration.dbcsAmbiguousExclusionsEnabled.description%"
         },
         "ibmZHexEditor.dbcsAmbiguousExclusions": {
           "type": "array",
           "default": [],
-          "description": "Custom byte-pair exclusions for DBCS ambiguous diagnostics. Each rule excludes a valid DBCS pair from DBCS_AMBIGUOUS warnings while in SBCS mode.",
+          "description": "%configuration.dbcsAmbiguousExclusions.description%",
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -114,11 +114,11 @@
             "properties": {
               "bytes": {
                 "type": "string",
-                "description": "Two-byte pair to exclude. Accepted formats include \"40 40\", \"0x40 0x40\", and \"4040\"."
+                "description": "%configuration.dbcsAmbiguousExclusions.bytes.description%"
               },
               "label": {
                 "type": "string",
-                "description": "Optional note describing why this pair is excluded."
+                "description": "%configuration.dbcsAmbiguousExclusions.label.description%"
               }
             }
           }

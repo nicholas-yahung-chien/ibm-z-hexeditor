@@ -77,6 +77,7 @@ Choose one of the supported IBM EBCDIC DBCS encodings when the file bytes use th
 - [Code page architecture](docs/code-page-architecture.md)
 - [Acceptance checklist](docs/acceptance-checklist.md)
 - [Icon design notes](docs/icon-design.md)
+- [Localization plan](docs/i18n.md)
 - [Screenshot plan](docs/screenshots.md)
 - [Change log](CHANGELOG.md)
 - [Roadmap](docs/roadmap.md)
@@ -86,7 +87,7 @@ Choose one of the supported IBM EBCDIC DBCS encodings when the file bytes use th
 - Local files only.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics. Other encodings are currently preview/edit flows.
 - Additional IBM EBCDIC DBCS code pages can be added through the generated-table workflow after fixtures and tests are available.
-- Localization is planned near the end of the MVP cycle after UI text and diagnostics wording settle.
+- Localization infrastructure is in place with English baseline strings; translated catalogs are planned after UI text and diagnostics wording settle.
 
 ## Development Verification
 

@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import type { EditorSnapshot, EditorViewSettings, ToWebviewMessage } from '../../src/protocol';
 import { HexGrid } from './components/HexGrid';
 import { DiagnosticsStrip } from './components/DiagnosticsStrip';
+import { t } from './i18n';
 import { vscode } from './vscode';
-
-const EDITING_HINT = 'Arrows move, 0-9/A-F edits, Ins inserts 00, Del/Backspace deletes, Ctrl+S saves';
 
 interface JumpTarget {
   offset: number;
@@ -15,7 +14,7 @@ interface JumpTarget {
 export default function App() {
   const [snapshot, setSnapshot] = useState<EditorSnapshot | null>(null);
   const [viewSettings, setViewSettings] = useState<EditorViewSettings>({ condenseMode: false, showRuler: false });
-  const [status, setStatus] = useState('Waiting for editor data...');
+  const [status, setStatus] = useState(t('waitingForEditorData'));
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
   const [headerCollapsed, setHeaderCollapsed] = useState(false);
 
@@ -24,7 +23,7 @@ export default function App() {
       const message = event.data;
       if (message.type === 'init' || message.type === 'snapshot' || message.type === 'saved') {
         setSnapshot(message.snapshot);
-        setStatus(message.type === 'saved' ? 'Saved' : message.snapshot.dirty ? 'Modified' : 'Ready');
+        setStatus(message.type === 'saved' ? t('saved') : message.snapshot.dirty ? t('modified') : t('ready'));
       }
 
       if (message.type === 'error') {
@@ -47,7 +46,7 @@ export default function App() {
 
   const fileLabel = useMemo(() => {
     if (!snapshot) {
-      return 'IBM Z HEX ON Editor';
+      return t('appTitle');
     }
     return snapshot.fileName.replace(/^.*[\\/]/, '');
   }, [snapshot]);
@@ -66,8 +65,8 @@ export default function App() {
             <button
               className="icon-button icon-button-secondary header-toggle"
               type="button"
-              title="Show header"
-              aria-label="Show header"
+              title={t('showHeader')}
+              aria-label={t('showHeader')}
               aria-expanded="false"
               onClick={() => setHeaderCollapsed(false)}
             >
@@ -75,7 +74,7 @@ export default function App() {
             </button>
             <div className="collapsed-header-meta">
               <strong>{fileLabel}</strong>
-              <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
+              <span>{snapshot?.fileEncoding ?? t('encodingFallback')}</span>
               <span>{status}</span>
             </div>
           </>
@@ -86,19 +85,19 @@ export default function App() {
                 <h1>{fileLabel}</h1>
               </div>
               <div className="meta-row">
-                <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
-                <span>raw bytes</span>
-                <span>{snapshot ? `${snapshot.cells.length.toLocaleString()} bytes` : 'loading'}</span>
+                <span>{snapshot?.fileEncoding ?? t('encodingFallback')}</span>
+                <span>{t('rawBytes')}</span>
+                <span>{snapshot ? t('bytes', { count: snapshot.cells.length.toLocaleString() }) : t('loading')}</span>
                 <span>{status}</span>
               </div>
-              <div className="hint-row">{EDITING_HINT}</div>
+              <div className="hint-row">{t('editingHint')}</div>
             </div>
-            <div className="toolbar-actions" aria-label="File actions">
+            <div className="toolbar-actions" aria-label={t('fileActions')}>
               <button
                 className="icon-button icon-button-secondary header-toggle"
                 type="button"
-                title="Hide header"
-                aria-label="Hide header"
+                title={t('hideHeader')}
+                aria-label={t('hideHeader')}
                 aria-expanded="true"
                 onClick={() => setHeaderCollapsed(true)}
               >
@@ -107,8 +106,8 @@ export default function App() {
               <button
                 className="icon-button icon-button-secondary"
                 type="button"
-                title="Reload"
-                aria-label="Reload"
+                title={t('reload')}
+                aria-label={t('reload')}
                 onClick={() => vscode.postMessage({ type: 'reload' })}
               >
                 <SvgIcon name="refresh" />
@@ -116,8 +115,8 @@ export default function App() {
               <button
                 className="icon-button icon-button-secondary"
                 type="button"
-                title="Revert"
-                aria-label="Revert"
+                title={t('revert')}
+                aria-label={t('revert')}
                 disabled={!snapshot?.dirty}
                 onClick={() => vscode.postMessage({ type: 'revert' })}
               >
@@ -126,8 +125,8 @@ export default function App() {
               <button
                 className="icon-button icon-button-primary"
                 type="button"
-                title="Save"
-                aria-label="Save"
+                title={t('save')}
+                aria-label={t('save')}
                 onClick={() => vscode.postMessage({ type: 'save' })}
               >
                 <SvgIcon name="save" />

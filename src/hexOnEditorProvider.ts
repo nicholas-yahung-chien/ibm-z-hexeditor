@@ -6,6 +6,7 @@ import {
   readDiagnosticsSettings,
   seedDefaultDbcsAmbiguousExclusionsIfNeeded,
 } from './settings';
+import { extensionText } from './i18n';
 import type { EditorViewSettings, FromWebviewMessage, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
@@ -73,11 +74,11 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       problemCount = await this.confirmSaveWithProblems(document, cancellation);
       await document.save(cancellation);
     } catch (error) {
-      this.postStatus(webview, isCancellationError(error) ? 'Save canceled' : `Save failed: ${messageFromError(error)}`);
+      this.postStatus(webview, isCancellationError(error) ? extensionText.saveCanceled() : extensionText.saveFailed(messageFromError(error)));
       throw error;
     }
 
-    this.postStatus(webview, problemCount > 0 ? `Saved with ${problemCount} DBCS issue(s)` : 'Saved');
+    this.postStatus(webview, problemCount > 0 ? extensionText.savedWithProblems(problemCount) : extensionText.saved());
     const column = document.sourceViewColumn ?? vscode.ViewColumn.Active;
     try {
       await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', {
@@ -85,7 +86,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
         preview: false,
       });
     } catch (error) {
-      this.postStatus(webview, `Saved, but failed to reopen default editor: ${messageFromError(error)}`);
+      this.postStatus(webview, extensionText.savedButReopenFailed(messageFromError(error)));
     }
   }
 
@@ -98,9 +99,9 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     try {
       const problemCount = await this.confirmSaveWithProblems(document, cancellation);
       await document.writeTo(destination, cancellation);
-      this.postStatus(webview, problemCount > 0 ? `Saved with ${problemCount} DBCS issue(s)` : 'Saved');
+      this.postStatus(webview, problemCount > 0 ? extensionText.savedWithProblems(problemCount) : extensionText.saved());
     } catch (error) {
-      this.postStatus(webview, isCancellationError(error) ? 'Save canceled' : `Save failed: ${messageFromError(error)}`);
+      this.postStatus(webview, isCancellationError(error) ? extensionText.saveCanceled() : extensionText.saveFailed(messageFromError(error)));
       throw error;
     }
   }
@@ -134,9 +135,9 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }
 
     if (message.type === 'save') {
-      this.postStatus(webview, 'Saving...');
+      this.postStatus(webview, extensionText.saving());
       void Promise.resolve(vscode.commands.executeCommand('workbench.action.files.save')).catch((error: unknown) => {
-        this.post(webview, { type: 'error', message: `Save failed: ${messageFromError(error)}` });
+        this.post(webview, { type: 'error', message: extensionText.saveFailed(messageFromError(error)) });
       });
       return;
     }
@@ -159,7 +160,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       const edit = document.replaceNibble(message.offset, message.nibble, message.digit);
       this.changeEmitter.fire({
         document,
-        label: 'Replace hex nibble',
+        label: extensionText.replaceNibbleEditLabel(),
         undo: edit.undo,
         redo: edit.redo,
       });
@@ -170,7 +171,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       const edit = document.insertByte(message.offset, message.value);
       this.changeEmitter.fire({
         document,
-        label: 'Insert byte',
+        label: extensionText.insertByteEditLabel(),
         undo: edit.undo,
         redo: edit.redo,
       });
@@ -181,7 +182,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       const edit = document.deleteByte(message.offset);
       this.changeEmitter.fire({
         document,
-        label: 'Delete byte',
+        label: extensionText.deleteByteEditLabel(),
         undo: edit.undo,
         redo: edit.redo,
       });
@@ -221,7 +222,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       return;
     }
 
-    const message = `Ignoring invalid DBCS ambiguous exclusion rule(s): ${invalidRules.join('; ')}`;
+    const message = extensionText.invalidDbcsExclusionsWarning(invalidRules.join('; '));
     if (message === this.lastInvalidDiagnosticsSettingsWarning) {
       return;
     }
@@ -237,15 +238,15 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private async reloadFromDisk(document: HexOnDocument, webview: vscode.Webview): Promise<void> {
     if (document.hasUnsavedChanges()) {
       const choice = await vscode.window.showWarningMessage(
-        'Reload from disk and discard unsaved HEX ON edits?',
+        extensionText.reloadDiscardPrompt(),
         {
           modal: true,
-          detail: 'The editor will reread the file bytes from disk. Any unsaved hex changes in this editor will be discarded.',
+          detail: extensionText.reloadDiscardDetail(),
         },
-        'Reload From Disk',
+        extensionText.reloadFromDisk(),
       );
 
-      if (choice !== 'Reload From Disk') {
+      if (choice !== extensionText.reloadFromDisk()) {
         return;
       }
 
@@ -270,17 +271,15 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
     const summary = summarizeProblemCounts(diagnostics);
     const choice = await vscode.window.showWarningMessage(
-      `Save ${problemCount} DBCS issue(s) to disk?`,
+      extensionText.saveProblemsPrompt(problemCount),
       {
         modal: true,
-        detail: summary
-          ? `Diagnostics currently reports: ${summary}. Saving will write the current raw bytes exactly as shown in the HEX ON editor.`
-          : 'Saving will write the current raw bytes exactly as shown in the HEX ON editor.',
+        detail: extensionText.saveProblemsDetail(summary),
       },
-      'Save Anyway',
+      extensionText.saveAnyway(),
     );
 
-    if (choice !== 'Save Anyway' || cancellation.isCancellationRequested) {
+    if (choice !== extensionText.saveAnyway() || cancellation.isCancellationRequested) {
       throw new vscode.CancellationError();
     }
 

@@ -64,7 +64,7 @@ Implemented direction:
 
 ## Localization
 
-Localization should be planned late in the MVP cycle, after the main editor workflows and diagnostics wording have stabilized. Deferring this avoids repeatedly updating translations while the feature surface is still changing.
+Localization should stay near the end of the MVP cycle, after the main editor workflows and diagnostics wording have stabilized. The baseline lookup structure is now in place, but translated catalogs should be added after the remaining UX copy is stable.
 
 Initial target languages:
 
@@ -75,12 +75,20 @@ Initial target languages:
 - Korean
 - German
 
+Implemented foundation:
+
+- extension contribution strings are routed through `package.nls.json`;
+- extension host prompts and status text are routed through `src/i18n.ts` and `vscode.l10n.t(...)`;
+- webview UI strings are routed through `webview/src/i18n.ts`;
+- diagnostics category identifiers remain stable.
+
 Planned direction:
 
-- move extension contribution strings into VS Code localization files;
-- move webview UI strings into a small message catalog;
-- keep diagnostics category identifiers stable and translate only labels, descriptions, prompts, and help text;
-- add a final localization pass before a public release candidate.
+- add translated `package.nls.*.json` files;
+- add VS Code localization bundles for extension host strings;
+- pass the active locale into the webview and load locale-specific webview catalogs;
+- translate only labels, descriptions, prompts, and help text, not internal diagnostic identifiers;
+- add a final localization review before a public release candidate.
 
 ## Packaging
 

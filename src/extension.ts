@@ -7,6 +7,7 @@ import {
 } from './encoding';
 import { getIbmDbcsProfiles } from './codePages';
 import { SessionRegistry } from './sessionRegistry';
+import { encodingDescriptions, extensionText } from './i18n';
 
 interface EncodingQuickPickItem extends vscode.QuickPickItem {
   value?: string;
@@ -18,45 +19,6 @@ interface ActiveResource {
   document?: vscode.TextDocument;
   dirty: boolean;
 }
-
-const IBM_DBCS_ENCODING_DESCRIPTIONS: Record<string, string> = {
-  ibm930: 'Japanese Katakana-Kanji EBCDIC DBCS / 日本語',
-  ibm933: 'Korean EBCDIC DBCS / 한국어',
-  ibm935: 'Simplified Chinese EBCDIC DBCS / 简体中文',
-  ibm937: 'Traditional Chinese EBCDIC DBCS / 繁體中文',
-  ibm939: 'Japanese Latin-Kanji EBCDIC DBCS / 日本語',
-  ibm1364: 'Extended Korean EBCDIC DBCS / 한국어',
-  ibm1371: 'Extended Traditional Chinese EBCDIC DBCS / 繁體中文',
-  ibm1388: 'Simplified Chinese GB 18030 Host DBCS / 简体中文',
-  ibm1390: 'Extended Japanese Katakana-Kanji EBCDIC DBCS / 日本語',
-  ibm1399: 'Extended Japanese Latin-Kanji EBCDIC DBCS / 日本語',
-};
-
-const COMMON_ENCODING_DESCRIPTIONS: Record<string, string> = {
-  utf8: 'Unicode UTF-8 text',
-  utf8bom: 'Unicode UTF-8 with BOM',
-  utf16le: 'Unicode UTF-16 little endian',
-  utf16be: 'Unicode UTF-16 big endian',
-  cp950: 'Traditional Chinese Big5 / 繁體中文',
-  big5hkscs: 'Traditional Chinese Big5-HKSCS / 繁體中文',
-  shiftjis: 'Japanese Shift JIS / 日本語',
-  eucjp: 'Japanese EUC-JP / 日本語',
-  euckr: 'Korean EUC-KR / 한국어',
-  gbk: 'Simplified Chinese GBK / 简体中文',
-  gb18030: 'Simplified Chinese GB 18030 / 简体中文',
-  windows1252: 'Western European Windows-1252',
-  windows1250: 'Central European Windows-1250',
-  windows1251: 'Cyrillic Windows-1251',
-  windows1253: 'Greek Windows-1253',
-  windows1254: 'Turkish Windows-1254',
-  windows1255: 'Hebrew Windows-1255',
-  windows1256: 'Arabic Windows-1256',
-  windows1257: 'Baltic Windows-1257',
-  windows1258: 'Vietnamese Windows-1258 / Tiếng Việt',
-  iso88591: 'Western European ISO-8859-1',
-  iso88592: 'Central European ISO-8859-2',
-  iso88595: 'Cyrillic ISO-8859-5',
-};
 
 export function activate(context: vscode.ExtensionContext): void {
   const sessions = new SessionRegistry();
@@ -77,24 +39,24 @@ export function deactivate(): void {}
 async function openHexOn(sessions: SessionRegistry): Promise<void> {
   const active = getActiveResource();
   if (!active) {
-    void vscode.window.showWarningMessage('Open a local file before starting HEX ON editing.');
+    void vscode.window.showWarningMessage(extensionText.openLocalFileWarning());
     return;
   }
 
   if (active.uri.scheme !== 'file') {
-    void vscode.window.showWarningMessage('HEX ON editing currently supports local files only.');
+    void vscode.window.showWarningMessage(extensionText.localFilesOnlyWarning());
     return;
   }
 
   const maxKb = vscode.workspace.getConfiguration('ibmZHexEditor').get<number>('maxFileSizeKb', 1024);
   const stat = await vscode.workspace.fs.stat(active.uri);
   if (stat.size > maxKb * 1024) {
-    void vscode.window.showWarningMessage(`This MVP opens files up to ${maxKb} KB.`);
+    void vscode.window.showWarningMessage(extensionText.fileSizeLimitWarning(maxKb));
     return;
   }
 
   if (active.dirty && !(await saveActiveResource(active))) {
-    void vscode.window.showWarningMessage('Please save the current file before opening HEX ON editing.');
+    void vscode.window.showWarningMessage(extensionText.saveBeforeOpenWarning());
     return;
   }
 
@@ -156,20 +118,20 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
   const currentDescription = encodingDescription(normalized);
   const currentItem: EncodingQuickPickItem = currentEncoding
     ? {
-      label: `Use VS Code-reported encoding: ${normalized}`,
-      description: currentDescription ? `Reference only: ${currentDescription}` : 'Reference only',
-      detail: 'Use only when the bytes on disk are actually encoded this way.',
+      label: extensionText.currentEncodingLabel(normalized),
+      description: currentDescription ? extensionText.referenceOnlyDescription(currentDescription) : extensionText.referenceOnly(),
+      detail: extensionText.currentEncodingDetail(),
       value: normalized,
     }
     : {
-      label: 'UTF-8',
-      description: COMMON_ENCODING_DESCRIPTIONS.utf8,
+      label: extensionText.utf8Label(),
+      description: encodingDescriptions.utf8,
       value: 'utf8',
     };
 
   const items: EncodingQuickPickItem[] = [
     {
-      label: 'Choose the actual file-content encoding',
+      label: extensionText.actualEncodingSeparator(),
       kind: vscode.QuickPickItemKind.Separator,
     },
     currentItem,
@@ -177,37 +139,37 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       .filter(profile => profile.id !== normalized)
       .map(profile => ({
         label: profile.label,
-        description: IBM_DBCS_ENCODING_DESCRIPTIONS[profile.id] ?? 'IBM EBCDIC DBCS with SO/SI diagnostics',
+        description: encodingDescriptions[profile.id] ?? extensionText.ibmDbcsDescription(),
         value: profile.id,
       })),
     ...(normalized !== 'utf8'
       ? [{
-        label: 'UTF-8',
-        description: COMMON_ENCODING_DESCRIPTIONS.utf8,
+        label: extensionText.utf8Label(),
+        description: encodingDescriptions.utf8,
         value: 'utf8',
       }]
       : []),
     {
-      label: 'Other common content encodings',
+      label: extensionText.otherEncodingsSeparator(),
       kind: vscode.QuickPickItemKind.Separator,
     },
     ...COMMON_SOURCE_ENCODINGS
       .filter(encoding => encoding !== normalized && encoding !== 'utf8')
       .map(encoding => ({
         label: encoding,
-        description: COMMON_ENCODING_DESCRIPTIONS[encoding] ?? 'VS Code text encoding',
+        description: encodingDescriptions[encoding] ?? extensionText.vscodeTextEncodingDescription(),
         value: encoding,
       })),
     {
-      label: 'Enter another encoding...',
-      description: 'Custom VS Code encoding id',
+      label: extensionText.customEncodingLabel(),
+      description: extensionText.customEncodingDescription(),
       value: '__custom__',
     },
   ];
 
   const picked = await vscode.window.showQuickPick(items, {
-    title: 'IBM Z HEX ON Editor',
-    placeHolder: 'Select the actual file-content encoding used to decode raw bytes for preview and diagnostics',
+    title: extensionText.encodingPickerTitle(),
+    placeHolder: extensionText.encodingPickerPlaceholder(),
     matchOnDescription: true,
     matchOnDetail: true,
   });
@@ -222,8 +184,8 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
 
   const encoding = picked.value === '__custom__'
     ? normalizeEncoding(await vscode.window.showInputBox({
-      title: 'Actual File-Content Encoding',
-      prompt: 'Enter the encoding of the bytes on disk, using a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.',
+      title: extensionText.inputEncodingTitle(),
+      prompt: extensionText.inputEncodingPrompt(),
       value: normalized,
     }))
     : picked.value;
@@ -236,5 +198,5 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
 }
 
 function encodingDescription(encoding: string): string | undefined {
-  return IBM_DBCS_ENCODING_DESCRIPTIONS[encoding] ?? COMMON_ENCODING_DESCRIPTIONS[encoding];
+  return encodingDescriptions[encoding];
 }

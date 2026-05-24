@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ByteCell, EditorSnapshot, HexNibble, PreviewEntry } from '../../../src/protocol';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspectIbmDbcs';
+import { t } from '../i18n';
 import { vscode } from '../vscode';
 
 const MIN_BYTES_PER_ROW = 8;
@@ -227,7 +228,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       tabIndex={0}
       ref={gridRef}
       onKeyDown={onKeyDown}
-      aria-label={`${snapshot.fileEncoding} hex editor grid`}
+      aria-label={t('hexGridLabel', { encoding: snapshot.fileEncoding })}
     >
       {showRuler && rulerColumnCount > 0 ? (
         <ColumnRuler columnCount={rulerColumnCount} bytesPerRow={bytesPerRow} />
@@ -366,7 +367,7 @@ function ColumnRuler({ columnCount, bytesPerRow }: { columnCount: number; bytesP
   }
 
   return (
-    <div className="ruler-group" aria-label={`Column ruler, 1 to ${columnCount}`}>
+    <div className="ruler-group" aria-label={t('columnRulerLabel', { count: columnCount })}>
       {rows.map(row => (
         <div className="ruler-row" key={`ruler-${row.start}`}>
           <span className="offset ruler-offset" aria-hidden="true" />
