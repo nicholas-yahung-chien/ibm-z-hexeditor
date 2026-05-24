@@ -79,8 +79,46 @@ function strongSbcsByte(b: number): boolean {
   }
 }
 
-function isPaddingPair(data: Uint8Array, offset: number): boolean {
-  return data[offset] === 0x40 && data[offset + 1] === 0x40;
+function isSbcsAlphanumeric(b: number): boolean {
+  return (
+    (b >= 0xF0 && b <= 0xF9) ||
+    (b >= 0xC1 && b <= 0xC9) ||
+    (b >= 0xD1 && b <= 0xD9) ||
+    (b >= 0xE2 && b <= 0xE9) ||
+    (b >= 0x81 && b <= 0x89) ||
+    (b >= 0x91 && b <= 0x99) ||
+    (b >= 0xA2 && b <= 0xA9)
+  );
+}
+
+function isSymbolicSbcsPair(data: Uint8Array, offset: number): boolean {
+  return !isSbcsAlphanumeric(data[offset]) && !isSbcsAlphanumeric(data[offset + 1]);
+}
+
+function isObviousSbcsPair(data: Uint8Array, offset: number): boolean {
+  const b1 = data[offset];
+  const b2 = data[offset + 1];
+  return (
+    // EBCDIC space padding.
+    (b1 === 0x40 && b2 === 0x40) ||
+    // COBOL comment/filler runs are commonly made of asterisks. In IBM-937,
+    // 0x5C 0x5C is technically a valid DBCS pair, but reporting every "**"
+    // as ambiguous drowns out the SO/SI structure signal.
+    (b1 === 0x5C && b2 === 0x5C)
+  );
+}
+
+function isPrivateUseCodePoint(cp: number): boolean {
+  return (
+    (cp >= 0xE000 && cp <= 0xF8FF) ||
+    (cp >= 0xF0000 && cp <= 0xFFFFD) ||
+    (cp >= 0x100000 && cp <= 0x10FFFD)
+  );
+}
+
+function isNormalDbcsGlyph(glyph: string): boolean {
+  const cp = glyph.codePointAt(0);
+  return cp !== undefined && !isPrivateUseCodePoint(cp);
 }
 
 function toHex(data: Uint8Array, offset: number, length: number): string {
@@ -179,7 +217,7 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
     const glyph = i + 1 < data.length ? decodeDbcsPair(b1, data[i + 1]) : null;
     if (glyph !== null) {
       const pairLooksSbcs = strongSbcsByte(b1) && strongSbcsByte(data[i + 1]);
-      if (pairLooksSbcs && !isPaddingPair(data, i)) {
+      if (pairLooksSbcs && isSymbolicSbcsPair(data, i) && !isObviousSbcsPair(data, i) && isNormalDbcsGlyph(glyph)) {
         events.push(makeEvent('DBCS_AMBIGUOUS', data, i, 2, ord, glyph,
           'Byte pair is valid DBCS, but the current SBCS mode also permits both bytes as SBCS characters.'));
         i += 2; ord += 2;

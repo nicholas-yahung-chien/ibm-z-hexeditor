@@ -43,6 +43,30 @@ describe('IBM-937 codec', () => {
     expect(result.counts.SBCS).toBe(4);
   });
 
+  it('does not report repeated COBOL comment asterisks as DBCS ambiguous', () => {
+    const result = inspectIbm937(Uint8Array.from([0x5c, 0x5c, 0x5c, 0x5c, 0x5c, 0x5c]));
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+    expect(result.counts.SBCS).toBe(6);
+  });
+
+  it('does not report private-use DBCS mappings as normal DBCS ambiguous candidates', () => {
+    const result = inspectIbm937(Uint8Array.from([0xd3, 0xc9]));
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+    expect(result.counts.SBCS).toBe(2);
+  });
+
+  it('does not report alphanumeric SBCS text pairs as DBCS ambiguous', () => {
+    const result = inspectIbm937(Uint8Array.from([0x4d, 0xc3]));
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+    expect(result.counts.SBCS).toBe(2);
+  });
+
   it('reports an unmatched SI as an SO/SI structure problem', () => {
     const result = inspectIbm937(Uint8Array.from([0x5a, 0x61, 0x5d, 0x7c, SI]));
 

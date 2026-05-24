@@ -38,7 +38,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
   }
 
   const problemCount = countDiagnosticProblems(result);
-  const dbcsPairCount = result.counts.DBCS + result.counts.DBCS_AMBIGUOUS;
+  const dbcsPairCount = result.counts.DBCS;
   const warningCount = countDiagnosticWarnings(result);
   const jumpKinds = new Set<DiagnosticKind>([...PROBLEM_KINDS, ...WARNING_KINDS]);
   const jumpEvents = details
