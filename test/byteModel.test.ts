@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { cellsFromBytes, deleteByte, insertByte, makeSnapshot, previewBytes, replaceNibble } from '../src/byteModel';
+import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, previewBytes, replaceNibble } from '../src/byteModel';
 import { encodeToIbm937, SO, SI } from '../src/codec/ibm937';
 
 describe('byte-first model', () => {
@@ -55,5 +55,85 @@ describe('byte-first model', () => {
     expect(snapshot.diagnostics?.counts.MISSING_SI).toBe(0);
     expect(snapshot.diagnostics?.counts.INVALID_OR_UNKNOWN).toBe(0);
     expect((snapshot.diagnostics?.counts.DBCS ?? 0) + (snapshot.diagnostics?.counts.DBCS_AMBIGUOUS ?? 0)).toBe(2);
+  });
+
+  it('updates SO/SI diagnostics when SO is deleted and reinserted', () => {
+    const bytes = encodeToIbm937('測試');
+    const cells = cellsFromBytes(bytes);
+    const soOffset = bytes.indexOf(SO);
+    const withoutSo = deleteByte(cells, soOffset);
+    const broken = makeSnapshot({
+      uri: 'inline',
+      fileName: 'inline.cpy',
+      fileEncoding: 'ibm937',
+      cells: withoutSo,
+      dirty: true,
+    });
+
+    expect(bytes[soOffset]).toBe(SO);
+    expect(broken.diagnostics?.hasProblems).toBe(true);
+    expect(broken.diagnostics?.counts.UNMATCHED_SI).toBe(1);
+    expect(bytesFromCells(withoutSo)).toEqual(Uint8Array.from(Array.from(bytes).filter((_, index) => index !== soOffset)));
+
+    const repaired = makeSnapshot({
+      uri: 'inline',
+      fileName: 'inline.cpy',
+      fileEncoding: 'ibm937',
+      cells: insertByte(withoutSo, soOffset, SO),
+      dirty: true,
+    });
+
+    expect(repaired.diagnostics?.hasProblems).toBe(false);
+    expect(repaired.diagnostics?.counts.DBCS_AMBIGUOUS).toBe(2);
+    expect(repaired.preview.map(entry => entry.text)).toEqual(['>', '測', '試', '<']);
+  });
+
+  it('updates SO/SI diagnostics when SI is deleted and reinserted', () => {
+    const bytes = encodeToIbm937('測試');
+    const cells = cellsFromBytes(bytes);
+    const siOffset = bytes.indexOf(SI);
+    const withoutSi = deleteByte(cells, siOffset);
+    const broken = makeSnapshot({
+      uri: 'inline',
+      fileName: 'inline.cpy',
+      fileEncoding: 'ibm937',
+      cells: withoutSi,
+      dirty: true,
+    });
+
+    expect(bytes[siOffset]).toBe(SI);
+    expect(broken.diagnostics?.hasProblems).toBe(true);
+    expect(broken.diagnostics?.counts.MISSING_SI_AT_EOF).toBe(1);
+
+    const repaired = makeSnapshot({
+      uri: 'inline',
+      fileName: 'inline.cpy',
+      fileEncoding: 'ibm937',
+      cells: insertByte(withoutSi, siOffset, SI),
+      dirty: true,
+    });
+
+    expect(repaired.diagnostics?.hasProblems).toBe(false);
+    expect(repaired.diagnostics?.counts.DBCS_AMBIGUOUS).toBe(2);
+    expect(bytesFromCells(repaired.cells)).toEqual(bytes);
+  });
+
+  it('flags DBCS corruption when a byte is inserted inside a pair', () => {
+    const bytes = encodeToIbm937('測試');
+    const cells = cellsFromBytes(bytes);
+    const insertedInsideFirstPair = insertByte(cells, 2, 0x00);
+    const snapshot = makeSnapshot({
+      uri: 'inline',
+      fileName: 'inline.cpy',
+      fileEncoding: 'ibm937',
+      cells: insertedInsideFirstPair,
+      dirty: true,
+    });
+
+    expect(bytes[0]).toBe(SO);
+    expect(snapshot.diagnostics?.hasProblems).toBe(true);
+    expect(snapshot.diagnostics?.counts.MISSING_SI).toBeGreaterThan(0);
+    expect(snapshot.diagnostics?.counts.UNMATCHED_SI).toBe(1);
+    expect(snapshot.preview.some(entry => entry.kind === 'dbcs' && entry.text === '?')).toBe(true);
   });
 });
