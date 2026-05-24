@@ -339,13 +339,20 @@ h1 {
   box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
 }
 
+.ruler-group {
+  display: grid;
+  gap: 0;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+}
+
 .ruler-row {
   display: grid;
   grid-template-columns: 5.5rem minmax(0, max-content);
   align-items: start;
   gap: 0.8rem;
   max-width: max-content;
-  padding-block: 0 0.25rem;
+  padding-block: 0;
   color: var(--vscode-descriptionForeground);
   user-select: none;
 }
@@ -353,7 +360,7 @@ h1 {
 .condense-mode .ruler-row {
   grid-template-columns: minmax(0, max-content);
   gap: 0;
-  padding-block: 0.15rem 0.2rem;
+  padding-block: 0;
 }
 
 .ruler-offset {
@@ -362,7 +369,6 @@ h1 {
 
 .ruler-grid {
   grid-template-rows: 1.25rem;
-  border-bottom: 1px solid var(--vscode-editorWidget-border);
 }
 
 .condense-mode .ruler-grid {

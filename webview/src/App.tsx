@@ -64,7 +64,7 @@ export default function App() {
         {headerCollapsed ? (
           <>
             <button
-              className="icon-button header-toggle"
+              className="toolbar-button toolbar-button-secondary header-toggle"
               type="button"
               title="Show header"
               aria-label="Show header"
@@ -72,6 +72,7 @@ export default function App() {
               onClick={() => setHeaderCollapsed(false)}
             >
               <span className="codicon codicon-chevron-down" aria-hidden="true" />
+              <span>Show header</span>
             </button>
             <div className="collapsed-header-meta">
               <strong>{fileLabel}</strong>
@@ -96,7 +97,7 @@ export default function App() {
             </div>
             <div className="toolbar-actions" aria-label="File actions">
               <button
-                className="icon-button header-toggle"
+                className="toolbar-button toolbar-button-secondary header-toggle"
                 type="button"
                 title="Hide header"
                 aria-label="Hide header"
@@ -104,6 +105,7 @@ export default function App() {
                 onClick={() => setHeaderCollapsed(true)}
               >
                 <span className="codicon codicon-chevron-up" aria-hidden="true" />
+                <span>Hide header</span>
               </button>
               <button className="toolbar-button toolbar-button-secondary" type="button" onClick={() => vscode.postMessage({ type: 'reload' })}>
                 <span className="codicon codicon-refresh" aria-hidden="true" />

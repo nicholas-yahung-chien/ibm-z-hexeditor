@@ -230,7 +230,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       aria-label={`${snapshot.fileEncoding} hex editor grid`}
     >
       {showRuler && rulerColumnCount > 0 ? (
-        <ColumnRuler columnCount={rulerColumnCount} />
+        <ColumnRuler columnCount={rulerColumnCount} bytesPerRow={bytesPerRow} />
       ) : null}
       {groups.map(group => {
         const rows = [];
@@ -354,33 +354,46 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
   );
 }
 
-function ColumnRuler({ columnCount }: { columnCount: number }) {
-  const columns = Array.from({ length: columnCount }, (_, index) => {
-    const column = index + 1;
-    if (column % 10 === 0) {
-      return String(Math.floor(column / 10) % 10);
-    }
-    if (column % 5 === 0) {
-      return '+';
-    }
-    return '-';
-  });
+function ColumnRuler({ columnCount, bytesPerRow }: { columnCount: number; bytesPerRow: number }) {
+  const chunkSize = Math.max(MIN_BYTES_PER_ROW, bytesPerRow);
+  const rows = [];
+  for (let start = 0; start < columnCount; start += chunkSize) {
+    const length = Math.min(chunkSize, columnCount - start);
+    rows.push({
+      start,
+      marks: Array.from({ length }, (_, index) => rulerMark(start + index + 1)),
+    });
+  }
 
   return (
-    <div className="ruler-row" aria-label={`Column ruler, 1 to ${columnCount}`}>
-      <span className="offset ruler-offset" aria-hidden="true" />
-      <div
-        className="byte-grid ruler-grid"
-        style={{ gridTemplateColumns: `repeat(${columnCount}, var(--cell-size))` }}
-      >
-        {columns.map((mark, index) => (
-          <span className="ruler-mark" key={`r-${index + 1}`} style={{ gridColumn: index + 1 }}>
-            {mark}
-          </span>
-        ))}
-      </div>
+    <div className="ruler-group" aria-label={`Column ruler, 1 to ${columnCount}`}>
+      {rows.map(row => (
+        <div className="ruler-row" key={`ruler-${row.start}`}>
+          <span className="offset ruler-offset" aria-hidden="true" />
+          <div
+            className="byte-grid ruler-grid"
+            style={{ gridTemplateColumns: `repeat(${row.marks.length}, var(--cell-size))` }}
+          >
+            {row.marks.map((mark, index) => (
+              <span className="ruler-mark" key={`r-${row.start + index + 1}`} style={{ gridColumn: index + 1 }}>
+                {mark}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
+}
+
+function rulerMark(column: number): string {
+  if (column % 10 === 0) {
+    return String(Math.floor(column / 10) % 10);
+  }
+  if (column % 5 === 0) {
+    return '+';
+  }
+  return '-';
 }
 
 function offsetInRange(offset: number, start: number, length: number): boolean {
