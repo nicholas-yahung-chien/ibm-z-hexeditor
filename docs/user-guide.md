@@ -22,6 +22,8 @@ Then in VS Code, run `Extensions: Install from VSIX...` and choose `dist/ibm-z-h
 
 The encoding picker may show the encoding reported by VS Code for the current text document. Treat that as a reference only. If the file bytes are actually IBM EBCDIC DBCS, choose the matching IBM code page even when VS Code displayed the file as UTF-8 or another encoding.
 
+Encoding choices include a short language or encoding-family description, such as `Korean EBCDIC DBCS / 한국어` or `Traditional Chinese Big5 / 繁體中文`, to make the actual bytes-on-disk choice easier to distinguish.
+
 ## Encoding Choices
 
 The editor is byte-first:
@@ -53,6 +55,8 @@ Each byte is shown as two editable hex nibbles:
 The character row above the hex nibbles is read-only. It shows the decoded preview for the selected file-content encoding.
 
 When a byte belongs to a multi-byte preview character, the preview character spans the corresponding byte cells.
+
+The header can be collapsed from the editor toolbar to give the byte grid more vertical space. Collapsing the header keeps a compact file/status row and an expand control available.
 
 ## Keyboard Editing
 
@@ -97,6 +101,12 @@ The setting `ibmZHexEditor.condenseMode` enables a denser editor view:
 - header and diagnostics details keep internal padding for readability.
 
 This mode is intended for wide fixed-format files where showing more bytes per row matters more than row labels.
+
+## Column Ruler
+
+The setting `ibmZHexEditor.showRuler` displays a column ruler above the byte grid. The ruler marks every fifth byte column with `+` and every tenth byte column with a digit, for example `----+----1----+----2`.
+
+The ruler uses the current file's longest logical line up to 100 byte columns, and aligns to the same byte cell width as the grid.
 
 ## DBCS Ambiguous Exclusions
 

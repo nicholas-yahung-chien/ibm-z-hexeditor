@@ -14,9 +14,10 @@ interface JumpTarget {
 
 export default function App() {
   const [snapshot, setSnapshot] = useState<EditorSnapshot | null>(null);
-  const [viewSettings, setViewSettings] = useState<EditorViewSettings>({ condenseMode: false });
+  const [viewSettings, setViewSettings] = useState<EditorViewSettings>({ condenseMode: false, showRuler: false });
   const [status, setStatus] = useState('Waiting for editor data...');
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
+  const [headerCollapsed, setHeaderCollapsed] = useState(false);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent<ToWebviewMessage>) => {
@@ -52,40 +53,78 @@ export default function App() {
   }, [snapshot]);
 
   return (
-    <div className={['app-shell', viewSettings.condenseMode ? 'condense-mode' : ''].filter(Boolean).join(' ')}>
-      <header className="top-bar">
-        <div>
-          <div className="title-row">
-            <span className="codicon codicon-symbol-key" aria-hidden="true" />
-            <h1>{fileLabel}</h1>
-          </div>
-          <div className="meta-row">
-            <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
-            <span>raw bytes</span>
-            <span>{snapshot ? `${snapshot.cells.length.toLocaleString()} bytes` : 'loading'}</span>
-            <span>{status}</span>
-          </div>
-          <div className="hint-row">{EDITING_HINT}</div>
-        </div>
-        <div className="toolbar-actions" aria-label="File actions">
-          <button className="toolbar-button toolbar-button-secondary" type="button" onClick={() => vscode.postMessage({ type: 'reload' })}>
-            <span className="codicon codicon-refresh" aria-hidden="true" />
-            <span>Reload</span>
-          </button>
-          <button
-            className="toolbar-button toolbar-button-secondary"
-            type="button"
-            disabled={!snapshot?.dirty}
-            onClick={() => vscode.postMessage({ type: 'revert' })}
-          >
-            <span className="codicon codicon-discard" aria-hidden="true" />
-            <span>Revert</span>
-          </button>
-          <button className="toolbar-button" type="button" onClick={() => vscode.postMessage({ type: 'save' })}>
-            <span className="codicon codicon-save" aria-hidden="true" />
-            <span>Save</span>
-          </button>
-        </div>
+    <div
+      className={[
+        'app-shell',
+        viewSettings.condenseMode ? 'condense-mode' : '',
+        headerCollapsed ? 'header-collapsed' : '',
+      ].filter(Boolean).join(' ')}
+    >
+      <header className={['top-bar', headerCollapsed ? 'top-bar-collapsed' : ''].filter(Boolean).join(' ')}>
+        {headerCollapsed ? (
+          <>
+            <button
+              className="icon-button header-toggle"
+              type="button"
+              title="Show header"
+              aria-label="Show header"
+              aria-expanded="false"
+              onClick={() => setHeaderCollapsed(false)}
+            >
+              <span className="codicon codicon-chevron-down" aria-hidden="true" />
+            </button>
+            <div className="collapsed-header-meta">
+              <strong>{fileLabel}</strong>
+              <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
+              <span>{status}</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <div className="title-row">
+                <span className="codicon codicon-symbol-key" aria-hidden="true" />
+                <h1>{fileLabel}</h1>
+              </div>
+              <div className="meta-row">
+                <span>{snapshot?.fileEncoding ?? 'encoding'}</span>
+                <span>raw bytes</span>
+                <span>{snapshot ? `${snapshot.cells.length.toLocaleString()} bytes` : 'loading'}</span>
+                <span>{status}</span>
+              </div>
+              <div className="hint-row">{EDITING_HINT}</div>
+            </div>
+            <div className="toolbar-actions" aria-label="File actions">
+              <button
+                className="icon-button header-toggle"
+                type="button"
+                title="Hide header"
+                aria-label="Hide header"
+                aria-expanded="true"
+                onClick={() => setHeaderCollapsed(true)}
+              >
+                <span className="codicon codicon-chevron-up" aria-hidden="true" />
+              </button>
+              <button className="toolbar-button toolbar-button-secondary" type="button" onClick={() => vscode.postMessage({ type: 'reload' })}>
+                <span className="codicon codicon-refresh" aria-hidden="true" />
+                <span>Reload</span>
+              </button>
+              <button
+                className="toolbar-button toolbar-button-secondary"
+                type="button"
+                disabled={!snapshot?.dirty}
+                onClick={() => vscode.postMessage({ type: 'revert' })}
+              >
+                <span className="codicon codicon-discard" aria-hidden="true" />
+                <span>Revert</span>
+              </button>
+              <button className="toolbar-button" type="button" onClick={() => vscode.postMessage({ type: 'save' })}>
+                <span className="codicon codicon-save" aria-hidden="true" />
+                <span>Save</span>
+              </button>
+            </div>
+          </>
+        )}
       </header>
 
       {snapshot ? (
@@ -102,6 +141,7 @@ export default function App() {
             snapshot={snapshot}
             jumpTarget={jumpTarget}
             condenseMode={viewSettings.condenseMode}
+            showRuler={viewSettings.showRuler}
           />
         </>
       ) : (

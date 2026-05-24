@@ -36,6 +36,7 @@ export interface EditorSnapshot {
 
 export interface EditorViewSettings {
   condenseMode: boolean;
+  showRuler: boolean;
 }
 
 export type ToWebviewMessage =

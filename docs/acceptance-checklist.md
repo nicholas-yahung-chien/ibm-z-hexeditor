@@ -70,6 +70,8 @@ Expected:
 - [ ] Header shows `ibm937`, `raw bytes`, and byte count.
 - [ ] The editor shows raw hex bytes, not Unicode text bytes.
 - [ ] The preview row decodes the IBM-937 content.
+- [ ] The encoding picker describes IBM DBCS choices by language, such as Korean `한국어`, Simplified Chinese `简体中文`, Traditional Chinese `繁體中文`, or Japanese `日本語`.
+- [ ] Encoding picker descriptions are short enough to scan without relying on repeated tooltip text.
 
 ## 5. IBM DBCS Code Page Baselines
 
@@ -284,7 +286,25 @@ Expected:
 
 Disable Condense Mode afterward and confirm the standard layout returns.
 
-## 13. Extension Development Host Smoke Test
+## 13. Header Collapse And Ruler
+
+1. Open a copied fixture in HEX ON.
+2. Click the header collapse button.
+3. Click the compact header expand button.
+4. Enable `ibmZHexEditor.showRuler` in Settings.
+5. Reopen or observe the active HEX ON editor.
+
+Expected:
+
+- [ ] Header collapse hides the full title/meta/action area and increases usable grid height.
+- [ ] Compact header still shows file name, encoding/status, and an expand control.
+- [ ] Expanding restores the full header and Save/Reload/Revert actions.
+- [ ] With `showRuler=false`, no ruler is shown.
+- [ ] With `showRuler=true`, the ruler appears below diagnostics and above the byte grid.
+- [ ] The ruler pattern marks fifth columns with `+` and tenth columns with digits.
+- [ ] The ruler aligns with byte cells in standard mode and Condense Mode.
+
+## 14. Extension Development Host Smoke Test
 
 From the repository root:
 
@@ -299,7 +319,7 @@ Expected:
 - [ ] No unexpected errors appear in the Extension Host log.
 - [ ] Behavior matches the VSIX installation test.
 
-## 14. Final Repository Check
+## 15. Final Repository Check
 
 - [ ] Run `git status --short`.
 - [ ] Confirm no manual acceptance files are tracked.

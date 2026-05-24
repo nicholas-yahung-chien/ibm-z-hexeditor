@@ -8,12 +8,55 @@ import {
 import { getIbmDbcsProfiles } from './codePages';
 import { SessionRegistry } from './sessionRegistry';
 
+interface EncodingQuickPickItem extends vscode.QuickPickItem {
+  value?: string;
+}
+
 interface ActiveResource {
   uri: vscode.Uri;
   viewColumn: vscode.ViewColumn | undefined;
   document?: vscode.TextDocument;
   dirty: boolean;
 }
+
+const IBM_DBCS_ENCODING_DESCRIPTIONS: Record<string, string> = {
+  ibm930: 'Japanese Katakana-Kanji EBCDIC DBCS / 日本語',
+  ibm933: 'Korean EBCDIC DBCS / 한국어',
+  ibm935: 'Simplified Chinese EBCDIC DBCS / 简体中文',
+  ibm937: 'Traditional Chinese EBCDIC DBCS / 繁體中文',
+  ibm939: 'Japanese Latin-Kanji EBCDIC DBCS / 日本語',
+  ibm1364: 'Extended Korean EBCDIC DBCS / 한국어',
+  ibm1371: 'Extended Traditional Chinese EBCDIC DBCS / 繁體中文',
+  ibm1388: 'Simplified Chinese GB 18030 Host DBCS / 简体中文',
+  ibm1390: 'Extended Japanese Katakana-Kanji EBCDIC DBCS / 日本語',
+  ibm1399: 'Extended Japanese Latin-Kanji EBCDIC DBCS / 日本語',
+};
+
+const COMMON_ENCODING_DESCRIPTIONS: Record<string, string> = {
+  utf8: 'Unicode UTF-8 text',
+  utf8bom: 'Unicode UTF-8 with BOM',
+  utf16le: 'Unicode UTF-16 little endian',
+  utf16be: 'Unicode UTF-16 big endian',
+  cp950: 'Traditional Chinese Big5 / 繁體中文',
+  big5hkscs: 'Traditional Chinese Big5-HKSCS / 繁體中文',
+  shiftjis: 'Japanese Shift JIS / 日本語',
+  eucjp: 'Japanese EUC-JP / 日本語',
+  euckr: 'Korean EUC-KR / 한국어',
+  gbk: 'Simplified Chinese GBK / 简体中文',
+  gb18030: 'Simplified Chinese GB 18030 / 简体中文',
+  windows1252: 'Western European Windows-1252',
+  windows1250: 'Central European Windows-1250',
+  windows1251: 'Cyrillic Windows-1251',
+  windows1253: 'Greek Windows-1253',
+  windows1254: 'Turkish Windows-1254',
+  windows1255: 'Hebrew Windows-1255',
+  windows1256: 'Arabic Windows-1256',
+  windows1257: 'Baltic Windows-1257',
+  windows1258: 'Vietnamese Windows-1258 / Tiếng Việt',
+  iso88591: 'Western European ISO-8859-1',
+  iso88592: 'Central European ISO-8859-2',
+  iso88595: 'Cyrillic ISO-8859-5',
+};
 
 export function activate(context: vscode.ExtensionContext): void {
   const sessions = new SessionRegistry();
@@ -110,21 +153,22 @@ async function saveActiveResource(active: ActiveResource): Promise<boolean> {
 
 async function pickFileEncoding(currentEncoding: string | undefined): Promise<string | undefined> {
   const normalized = normalizeEncoding(currentEncoding);
-  const currentItem = currentEncoding
+  const currentDescription = encodingDescription(normalized);
+  const currentItem: EncodingQuickPickItem = currentEncoding
     ? {
       label: `Use VS Code-reported encoding: ${normalized}`,
-      description: 'Reference only; confirm this is the actual file-content encoding',
-      detail: 'HEX ON reads raw bytes from disk. Use this only if the file bytes are actually encoded this way.',
+      description: currentDescription ? `Reference only: ${currentDescription}` : 'Reference only',
+      detail: 'Use only when the bytes on disk are actually encoded this way.',
       value: normalized,
     }
     : {
       label: 'UTF-8',
-      description: 'Default file-content encoding when VS Code has no text encoding to report',
-      detail: 'HEX ON reads raw bytes from disk and previews those bytes as UTF-8.',
+      description: COMMON_ENCODING_DESCRIPTIONS.utf8,
+      detail: 'Default when VS Code has no text encoding to report.',
       value: 'utf8',
     };
 
-  const items = [
+  const items: EncodingQuickPickItem[] = [
     {
       label: 'Choose the actual file-content encoding',
       kind: vscode.QuickPickItemKind.Separator,
@@ -134,14 +178,14 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       .filter(profile => profile.id !== normalized)
       .map(profile => ({
         label: profile.label,
-        description: `Use when the file bytes are ${profile.label}/EBCDIC; enables SO/SI diagnostics`,
-        detail: `Choose this even if VS Code currently displayed the file as UTF-8 but the bytes are actually ${profile.label}.`,
+        description: IBM_DBCS_ENCODING_DESCRIPTIONS[profile.id] ?? 'IBM EBCDIC DBCS with SO/SI diagnostics',
+        detail: 'Enables SO/SI and DBCS diagnostics.',
         value: profile.id,
       })),
     ...(normalized !== 'utf8'
       ? [{
         label: 'UTF-8',
-        description: 'Use when the file bytes are actually UTF-8',
+        description: COMMON_ENCODING_DESCRIPTIONS.utf8,
         value: 'utf8',
       }]
       : []),
@@ -153,12 +197,12 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       .filter(encoding => encoding !== normalized && encoding !== 'utf8')
       .map(encoding => ({
         label: encoding,
-        description: 'Interpret raw file bytes using this VS Code encoding id',
+        description: COMMON_ENCODING_DESCRIPTIONS[encoding] ?? 'VS Code text encoding',
         value: encoding,
       })),
     {
       label: 'Enter another encoding...',
-      description: 'Enter the actual file-content encoding id',
+      description: 'Custom VS Code encoding id',
       detail: 'Examples: cp950, big5hkscs, shiftjis, gbk.',
       value: '__custom__',
     },
@@ -175,6 +219,10 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
     return undefined;
   }
 
+  if (!picked.value) {
+    return undefined;
+  }
+
   const encoding = picked.value === '__custom__'
     ? normalizeEncoding(await vscode.window.showInputBox({
       title: 'Actual File-Content Encoding',
@@ -188,4 +236,8 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
   }
 
   return encoding;
+}
+
+function encodingDescription(encoding: string): string | undefined {
+  return IBM_DBCS_ENCODING_DESCRIPTIONS[encoding] ?? COMMON_ENCODING_DESCRIPTIONS[encoding];
 }

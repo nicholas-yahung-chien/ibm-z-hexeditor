@@ -5,11 +5,13 @@ import { vscode } from '../vscode';
 
 const MIN_BYTES_PER_ROW = 8;
 const FALLBACK_BYTES_PER_ROW = 16;
+const MAX_RULER_COLUMNS = 100;
 
 interface Props {
   snapshot: EditorSnapshot;
   jumpTarget: JumpTarget | null;
   condenseMode: boolean;
+  showRuler: boolean;
 }
 
 interface JumpTarget {
@@ -36,7 +38,7 @@ function cellClass(cell: ByteCell): string {
   return '';
 }
 
-export function HexGrid({ snapshot, jumpTarget, condenseMode }: Props) {
+export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props) {
   const [cursor, setCursor] = useState<Cursor>({ offset: 0, nibble: 'high' });
   const [bytesPerRow, setBytesPerRow] = useState(FALLBACK_BYTES_PER_ROW);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -123,6 +125,10 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode }: Props) {
       return { line, cells, preview };
     });
   }, [snapshot]);
+  const rulerColumnCount = useMemo(() => {
+    const longestLine = snapshot.lines.reduce((max, line) => Math.max(max, line.length), 0);
+    return Math.min(MAX_RULER_COLUMNS, longestLine);
+  }, [snapshot.lines]);
   const selectedStart = jumpTarget && snapshot.cells.length > 0
     ? Math.max(0, Math.min(jumpTarget.offset, snapshot.cells.length - 1))
     : null;
@@ -223,6 +229,9 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode }: Props) {
       onKeyDown={onKeyDown}
       aria-label={`${snapshot.fileEncoding} hex editor grid`}
     >
+      {showRuler && rulerColumnCount > 0 ? (
+        <ColumnRuler columnCount={rulerColumnCount} />
+      ) : null}
       {groups.map(group => {
         const rows = [];
         for (let rowOffset = 0; rowOffset < group.cells.length || rowOffset === 0; rowOffset += bytesPerRow) {
@@ -342,6 +351,35 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode }: Props) {
         );
       })}
     </main>
+  );
+}
+
+function ColumnRuler({ columnCount }: { columnCount: number }) {
+  const columns = Array.from({ length: columnCount }, (_, index) => {
+    const column = index + 1;
+    if (column % 10 === 0) {
+      return String(Math.floor(column / 10) % 10);
+    }
+    if (column % 5 === 0) {
+      return '+';
+    }
+    return '-';
+  });
+
+  return (
+    <div className="ruler-row" aria-label={`Column ruler, 1 to ${columnCount}`}>
+      <span className="offset ruler-offset" aria-hidden="true" />
+      <div
+        className="byte-grid ruler-grid"
+        style={{ gridTemplateColumns: `repeat(${columnCount}, var(--cell-size))` }}
+      >
+        {columns.map((mark, index) => (
+          <span className="ruler-mark" key={`r-${index + 1}`} style={{ gridColumn: index + 1 }}>
+            {mark}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 

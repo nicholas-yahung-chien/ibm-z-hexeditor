@@ -16,6 +16,7 @@ The current MVP is focused on IBM EBCDIC DBCS and UTF-8 workflows. IBM-930, IBM-
 - Jump from diagnostics to the exact byte location.
 - Save edited bytes back to disk, then return to the default VS Code editor.
 - Enable Condense Mode to show more bytes per row.
+- Collapse the header and optionally show a column ruler above the byte grid.
 
 ## Screenshots
 
@@ -65,6 +66,7 @@ Choose `IBM-930`, `IBM-933`, `IBM-935`, `IBM-937`, or `IBM-939` when the file by
 
 - `ibmZHexEditor.maxFileSizeKb`: maximum local file size, in KB, that can be opened in the HEX ON editor.
 - `ibmZHexEditor.condenseMode`: show a denser grid with narrower byte cells, hidden offsets, and no grid edge padding.
+- `ibmZHexEditor.showRuler`: show a column ruler above the byte grid.
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: use custom byte-pair exclusions for `DBCS_AMBIGUOUS` warnings.
 - `ibmZHexEditor.dbcsAmbiguousExclusions`: byte-pair rules such as `{ "bytes": "40 40", "label": "EBCDIC spaces" }`. When custom exclusions are first enabled, the extension writes the default rules to user settings JSON for editing.
 

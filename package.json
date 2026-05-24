@@ -88,6 +88,11 @@
           "default": false,
           "description": "Show a denser HEX ON grid with narrower byte cells, hidden offsets, and no grid edge padding."
         },
+        "ibmZHexEditor.showRuler": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show a column ruler above the HEX ON byte grid."
+        },
         "ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": {
           "type": "boolean",
           "default": false,

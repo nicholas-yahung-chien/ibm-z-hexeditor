@@ -22,7 +22,10 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     private readonly sessions: SessionRegistry,
   ) {
     this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
-      if (event.affectsConfiguration('ibmZHexEditor.condenseMode')) {
+      if (
+        event.affectsConfiguration('ibmZHexEditor.condenseMode') ||
+        event.affectsConfiguration('ibmZHexEditor.showRuler')
+      ) {
         for (const [document, webview] of this.webviews) {
           this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
         }
@@ -199,6 +202,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     const config = vscode.workspace.getConfiguration('ibmZHexEditor', resource);
     return {
       condenseMode: config.get<boolean>('condenseMode', false),
+      showRuler: config.get<boolean>('showRuler', false),
     };
   }
 
