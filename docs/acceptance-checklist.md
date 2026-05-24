@@ -35,18 +35,22 @@ Expected:
 - [ ] Command Palette contains `IBM Z Hex Editor: Open HEX ON`.
 - [ ] Settings UI contains `IBM Z HEX ON Editor` settings.
 
-## 3. Prepare Manual Test File
+## 3. Prepare Manual Test Files
 
-Do not edit the committed fixture directly during manual acceptance. Copy it first:
+Do not edit committed fixtures directly during manual acceptance. Copy them first:
 
 ```powershell
 New-Item -ItemType Directory -Force .tmp\manual | Out-Null
 Copy-Item test\fixtures\SOAIPB1.ibm937.cpy .tmp\manual\SOAIPB1.acceptance.ibm937.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm930.cpy .tmp\manual\SOAIPB1.acceptance.ibm930.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm939.cpy .tmp\manual\SOAIPB1.acceptance.ibm939.cpy -Force
 ```
 
 Expected:
 
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm937.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm930.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm939.cpy` exists.
 - [ ] `git status --short` remains clean before manual editing begins.
 
 ## 4. Open HEX ON
@@ -63,9 +67,11 @@ Expected:
 - [ ] The editor shows raw hex bytes, not Unicode text bytes.
 - [ ] The preview row decodes the IBM-937 content.
 
-## 5. IBM-937 Diagnostics Baseline
+## 5. IBM DBCS Code Page Baselines
 
-With the copied fixture opened as IBM-937:
+### IBM-937
+
+With `.tmp/manual/SOAIPB1.acceptance.ibm937.cpy` opened as IBM-937:
 
 - [ ] Diagnostics summary shows `SO/SI structure valid`.
 - [ ] Diagnostics summary shows `4 DBCS pair(s)`.
@@ -73,7 +79,78 @@ With the copied fixture opened as IBM-937:
 - [ ] Expanding diagnostics shows `SO 1`, `SI 1`, `DBCS 4`, and `DBCS ambiguous 27`.
 - [ ] `DBCS ambiguous` locations do not include repeated `5C 5C` COBOL comment asterisks.
 
-## 6. Diagnostics Navigation
+### IBM-930
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm930.cpy` as IBM-930.
+
+Expected:
+
+- [ ] Header shows `ibm930`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `日本語文`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-939
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm939.cpy` as IBM-939.
+
+Expected:
+
+- [ ] Header shows `ibm939`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `日本語文`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+## 6. DBCS Ambiguous Exclusion Settings
+
+Use the copied IBM-937 fixture.
+
+1. Open VS Code user settings JSON.
+2. Add `"ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": true`.
+3. Open or reload the IBM-937 file in HEX ON.
+
+Expected:
+
+- [ ] The extension writes `ibmZHexEditor.dbcsAmbiguousExclusions` into user settings JSON if it was empty.
+- [ ] The seeded settings include `40 40` and `5C 5C`.
+- [ ] With the defaults seeded, repeated `5C 5C` pairs are not reported as `DBCS ambiguous`.
+
+Then edit user settings JSON:
+
+```json
+"ibmZHexEditor.dbcsAmbiguousExclusions": [
+  { "bytes": "40 40", "label": "EBCDIC spaces" },
+  { "bytes": "5A 61", "label": "Test suppression" }
+]
+```
+
+Expected:
+
+- [ ] The active HEX ON editor updates diagnostics without requiring VS Code restart.
+- [ ] `5A 61` is no longer reported as `DBCS ambiguous` when present in SBCS mode.
+- [ ] Because `5C 5C` was removed from the custom list, repeated `5C 5C` pairs may be reported again if they are valid ambiguous candidates.
+
+Add an invalid rule:
+
+```json
+{ "bytes": "not hex", "label": "Invalid" }
+```
+
+Expected:
+
+- [ ] The extension shows a warning about the invalid rule.
+- [ ] Diagnostics continue to work.
+
+Finally set `"ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": false`.
+
+Expected:
+
+- [ ] Built-in exclusions are used again.
+- [ ] Diagnostics update without requiring VS Code restart.
+
+## 7. Diagnostics Navigation
 
 1. Expand the diagnostics panel.
 2. Click the `DBCS ambiguous` category.
@@ -89,7 +166,7 @@ Expected:
 - [ ] Previous/Next cycles through filtered diagnostics.
 - [ ] Clear filter restores all jumpable diagnostic categories.
 
-## 7. Nibble Editing
+## 8. Nibble Editing
 
 1. Move to a safe byte in the copied file.
 2. Type a hex digit `0` to `9` or `A` to `F`.
@@ -102,7 +179,7 @@ Expected:
 - [ ] Byte count does not change.
 - [ ] Preview and diagnostics update immediately.
 
-## 8. Insert And Delete
+## 9. Insert And Delete
 
 1. Press `Insert`.
 2. Confirm byte `00` is inserted at the active position.
@@ -115,7 +192,7 @@ Expected:
 - [ ] Diagnostics update immediately after both operations.
 - [ ] Layout remains aligned after byte count changes.
 
-## 9. SO/SI Problem Detection
+## 10. SO/SI Problem Detection
 
 Use the copied fixture and locate the `SO` byte before the explicit DBCS text.
 
@@ -130,7 +207,7 @@ Expected:
 - [ ] Diagnostics details show the relevant missing or unmatched SO/SI category.
 - [ ] Save prompts for confirmation when structural problems exist.
 
-## 10. Save, Reopen, Reload, Revert
+## 11. Save, Reopen, Reload, Revert
 
 ### Save
 
@@ -164,7 +241,7 @@ Expected:
 - [ ] VS Code revert flow discards unsaved HEX ON edits.
 - [ ] Header returns to `Ready`.
 
-## 11. Condense Mode
+## 12. Condense Mode
 
 1. Enable `ibmZHexEditor.condenseMode` in Settings.
 2. Reopen or observe the active HEX ON editor.
@@ -179,7 +256,7 @@ Expected:
 
 Disable Condense Mode afterward and confirm the standard layout returns.
 
-## 12. Extension Development Host Smoke Test
+## 13. Extension Development Host Smoke Test
 
 From the repository root:
 
@@ -194,7 +271,7 @@ Expected:
 - [ ] No unexpected errors appear in the Extension Host log.
 - [ ] Behavior matches the VSIX installation test.
 
-## 13. Final Repository Check
+## 14. Final Repository Check
 
 - [ ] Run `git status --short`.
 - [ ] Confirm no manual acceptance files are tracked.
