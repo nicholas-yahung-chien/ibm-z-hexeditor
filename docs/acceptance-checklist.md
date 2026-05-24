@@ -1,4 +1,4 @@
-# Acceptance Checklist
+﻿# Acceptance Checklist
 
 Use this checklist before sharing a VSIX build or cutting an MVP release candidate.
 
@@ -46,6 +46,11 @@ Copy-Item test\fixtures\SOAIPB1.ibm930.cpy .tmp\manual\SOAIPB1.acceptance.ibm930
 Copy-Item test\fixtures\SOAIPB1.ibm933.cpy .tmp\manual\SOAIPB1.acceptance.ibm933.cpy -Force
 Copy-Item test\fixtures\SOAIPB1.ibm935.cpy .tmp\manual\SOAIPB1.acceptance.ibm935.cpy -Force
 Copy-Item test\fixtures\SOAIPB1.ibm939.cpy .tmp\manual\SOAIPB1.acceptance.ibm939.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm1364.cpy .tmp\manual\SOAIPB1.acceptance.ibm1364.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm1371.cpy .tmp\manual\SOAIPB1.acceptance.ibm1371.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm1388.cpy .tmp\manual\SOAIPB1.acceptance.ibm1388.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm1390.cpy .tmp\manual\SOAIPB1.acceptance.ibm1390.cpy -Force
+Copy-Item test\fixtures\SOAIPB1.ibm1399.cpy .tmp\manual\SOAIPB1.acceptance.ibm1399.cpy -Force
 ```
 
 Expected:
@@ -55,6 +60,11 @@ Expected:
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm933.cpy` exists.
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm935.cpy` exists.
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm939.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1364.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1371.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1388.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1390.cpy` exists.
+- [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1399.cpy` exists.
 - [ ] `git status --short` remains clean before manual editing begins.
 
 ## 4. Open HEX ON
@@ -70,7 +80,7 @@ Expected:
 - [ ] Header shows `ibm937`, `raw bytes`, and byte count.
 - [ ] The editor shows raw hex bytes, not Unicode text bytes.
 - [ ] The preview row decodes the IBM-937 content.
-- [ ] The encoding picker describes IBM DBCS choices by language, such as Korean `한국어`, Simplified Chinese `简体中文`, Traditional Chinese `繁體中文`, or Japanese `日本語`.
+- [ ] The encoding picker describes IBM DBCS choices by language, such as Korean, Simplified Chinese, Traditional Chinese, and Japanese.
 - [ ] Encoding picker descriptions are short enough to scan without relying on repeated tooltip text.
 
 ## 5. IBM DBCS Code Page Baselines
@@ -94,7 +104,7 @@ Expected:
 - [ ] Header shows `ibm930`.
 - [ ] Diagnostics summary shows `SO/SI structure valid`.
 - [ ] Diagnostics summary shows `4 DBCS pair(s)`.
-- [ ] The explicit DBCS preview text is `日本語文`.
+- [ ] The explicit DBCS preview text is `?交隤?`.
 - [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
 
 ### IBM-933
@@ -106,7 +116,7 @@ Expected:
 - [ ] Header shows `ibm933`.
 - [ ] Diagnostics summary shows `SO/SI structure valid`.
 - [ ] Diagnostics summary shows `4 DBCS pair(s)`.
-- [ ] The explicit DBCS preview text is `한국어문`.
+- [ ] The explicit DBCS preview text is `?筏?渠爰`.
 - [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
 
 ### IBM-935
@@ -118,7 +128,7 @@ Expected:
 - [ ] Header shows `ibm935`.
 - [ ] Diagnostics summary shows `SO/SI structure valid`.
 - [ ] Diagnostics summary shows `4 DBCS pair(s)`.
-- [ ] The explicit DBCS preview text is `中文测试`.
+- [ ] The explicit DBCS preview text is `銝剜?瘚?`.
 - [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
 
 ### IBM-939
@@ -128,6 +138,66 @@ Open `.tmp/manual/SOAIPB1.acceptance.ibm939.cpy` as IBM-939.
 Expected:
 
 - [ ] Header shows `ibm939`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `?交隤?`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-1364
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm1364.cpy` as IBM-1364.
+
+Expected:
+
+- [ ] Header shows `ibm1364`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `한국어문`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-1371
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm1371.cpy` as IBM-1371.
+
+Expected:
+
+- [ ] Header shows `ibm1371`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `測試一下`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-1388
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm1388.cpy` as IBM-1388.
+
+Expected:
+
+- [ ] Header shows `ibm1388`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `中国汉字`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-1390
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm1390.cpy` as IBM-1390.
+
+Expected:
+
+- [ ] Header shows `ibm1390`.
+- [ ] Diagnostics summary shows `SO/SI structure valid`.
+- [ ] Diagnostics summary shows `4 DBCS pair(s)`.
+- [ ] The explicit DBCS preview text is `日本語文`.
+- [ ] Expanding diagnostics shows `SO 1`, `SI 1`, and `DBCS 4`.
+
+### IBM-1399
+
+Open `.tmp/manual/SOAIPB1.acceptance.ibm1399.cpy` as IBM-1399.
+
+Expected:
+
+- [ ] Header shows `ibm1399`.
 - [ ] Diagnostics summary shows `SO/SI structure valid`.
 - [ ] Diagnostics summary shows `4 DBCS pair(s)`.
 - [ ] The explicit DBCS preview text is `日本語文`.

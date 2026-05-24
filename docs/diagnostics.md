@@ -1,6 +1,6 @@
 # IBM EBCDIC DBCS Diagnostics
 
-This document describes the current diagnostics used by the IBM Z HEX ON Editor when the selected file-content encoding is a supported IBM EBCDIC DBCS profile such as `ibm930`, `ibm933`, `ibm935`, `ibm937`, or `ibm939`.
+This document describes the current diagnostics used by the IBM Z HEX ON Editor when the selected file-content encoding is a supported IBM EBCDIC DBCS profile such as `ibm930`, `ibm933`, `ibm935`, `ibm937`, `ibm939`, `ibm1364`, `ibm1371`, `ibm1388`, `ibm1390`, or `ibm1399`.
 
 The editor reads raw bytes from disk. Diagnostics are computed from those bytes, not from the Unicode text that VS Code may have decoded for the same file in a normal text editor.
 
@@ -91,6 +91,6 @@ When problem diagnostics are present, the extension shows a modal confirmation b
 
 ## Known Limits
 
-- Diagnostics currently exist for `ibm930`, `ibm933`, `ibm935`, `ibm937`, and `ibm939`.
+- Diagnostics currently exist for `ibm930`, `ibm933`, `ibm935`, `ibm937`, `ibm939`, `ibm1364`, `ibm1371`, `ibm1388`, `ibm1390`, and `ibm1399`.
 - The `DBCS_AMBIGUOUS` rule is intentionally conservative. It favors reducing noise in source files over reporting every possible DBCS table match.
 - IBM DBCS mapping tables can contain Private Use Area mappings. These are treated as non-normal DBCS candidates for ambiguity warnings.

@@ -4,7 +4,7 @@
 
 IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
-The current MVP is focused on IBM EBCDIC DBCS and UTF-8 workflows. IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
+The current MVP is focused on IBM EBCDIC DBCS and UTF-8 workflows. IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
 
 ## What You Can Do
 
@@ -60,7 +60,7 @@ Open this repository in VS Code and press `F5` to launch an Extension Developmen
 5. Edit bytes in the HEX ON view.
 6. Press `Ctrl+S` or click `Save`.
 
-Choose `IBM-930`, `IBM-933`, `IBM-935`, `IBM-937`, or `IBM-939` when the file bytes use one of those IBM EBCDIC DBCS encodings, even if VS Code previously displayed the file through another text encoding.
+Choose one of the supported IBM EBCDIC DBCS encodings when the file bytes use that code page, even if VS Code previously displayed the file through another text encoding.
 
 ## Settings
 
@@ -84,7 +84,7 @@ Choose `IBM-930`, `IBM-933`, `IBM-935`, `IBM-937`, or `IBM-939` when the file by
 ## Current Limits
 
 - Local files only.
-- IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 have SO/SI DBCS diagnostics. Other encodings are currently preview/edit flows.
+- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics. Other encodings are currently preview/edit flows.
 - Additional IBM EBCDIC DBCS code pages can be added through the generated-table workflow after fixtures and tests are available.
 - Localization is planned near the end of the MVP cycle after UI text and diagnostics wording settle.
 

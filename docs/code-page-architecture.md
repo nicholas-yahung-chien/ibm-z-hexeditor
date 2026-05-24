@@ -12,7 +12,7 @@ The editor remains byte-first:
 
 ## Current Shape
 
-IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 are represented as profiles:
+IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 are represented as profiles:
 
 - `src/codec/ibmDbcs.ts`
   - generic IBM DBCS profile interface;
@@ -21,10 +21,10 @@ IBM-930, IBM-933, IBM-935, IBM-937, and IBM-939 are represented as profiles:
 - `src/codec/ibm937.ts`
   - `IBM937_PROFILE`;
   - compatibility wrappers such as `encodeToIbm937`, `decodeFromIbm937`, and `decodeDbcsPair`.
-- `src/codec/ibm930.ts`, `src/codec/ibm933.ts`, `src/codec/ibm935.ts`, and `src/codec/ibm939.ts`
-  - generated-table backed Japanese, Korean, and Simplified Chinese profile modules.
+- `src/codec/ibm930.ts`, `src/codec/ibm933.ts`, `src/codec/ibm935.ts`, `src/codec/ibm939.ts`, `src/codec/ibm1364.ts`, `src/codec/ibm1371.ts`, `src/codec/ibm1388.ts`, `src/codec/ibm1390.ts`, and `src/codec/ibm1399.ts`
+  - generated-table backed Japanese, Korean, Simplified Chinese, and Traditional Chinese profile modules.
 - `src/codec/generated/`
-  - generated ICU `.ucm` mapping tables for IBM-930, IBM-933, IBM-935, and IBM-939.
+  - generated ICU `.ucm` mapping tables for IBM-930, IBM-933, IBM-935, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399.
 - `src/inspector/inspectIbmDbcs.ts`
   - generic SO/SI diagnostics traversal for IBM EBCDIC DBCS profiles.
 - `src/inspector/inspect937.ts`
@@ -70,16 +70,13 @@ Enabled profiles:
 - `IBM-933` for Korean EBCDIC DBCS;
 - `IBM-935` for Simplified Chinese EBCDIC DBCS;
 - `IBM-937` for Traditional Chinese EBCDIC DBCS;
-- `IBM-939` for Japanese Latin-Kanji EBCDIC DBCS.
-
-Planned second batch:
-
+- `IBM-939` for Japanese Latin-Kanji EBCDIC DBCS;
 - `IBM-1364` for extended Korean with full Hangul;
 - `IBM-1371` for extended Traditional Chinese;
 - `IBM-1388` for Simplified Chinese GB 18030 host;
 - `IBM-1390` and `IBM-1399` for extended Japanese variants.
 
-These profiles should be implemented together after IBM-933 and IBM-935 pass manual validation. Treat the batch as an extension of the generated-table flow rather than as new architecture work.
+The IBM-1364/1371/1388/1390/1399 batch follows the same generated-table flow as IBM-930/933/935/939: manifest entry, generated table, profile module, registry entry, fixture, codec tests, fixture diagnostics tests, acceptance checklist updates, and user documentation updates.
 
 ## Diagnostics Assumptions To Verify
 

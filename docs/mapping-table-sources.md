@@ -24,11 +24,11 @@ Before vendoring generated tables into a product build, confirm licensing with t
 | IBM-935 | Simplified Chinese host mixed | [`ibm-935_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm) | Enabled generated Simplified Chinese profile. |
 | IBM-937 | Traditional Chinese host mixed | [`ibm-937_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-937_P110-1999.ucm) | Current MVP baseline should eventually be generated from the same workflow. ICU declares `<icu:base> "ibm-1371_P100-1999"`. |
 | IBM-939 | Japanese Latin-Kanji host mixed | [`ibm-939_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-939_P120-1999.ucm) | The ICU file declares `<icu:base> "ibm-930_P120-1999"`, so the generator must load and overlay the base table. |
-| IBM-1364 | Korean host mixed extended | [`ibm-1364_P110-2007.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1364_P110-2007.ucm) | Planned second-batch Korean profile with full Hangul coverage. IBM documentation may refer to the ODBC converter as `ibm-1364_P110-1997`; the pinned ICU file is `P110-2007`. |
-| IBM-1371 | Traditional Chinese host mixed extended | [`ibm-1371_P100-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1371_P100-1999.ucm) | Planned second-batch Traditional Chinese profile and base source for IBM-937. |
-| IBM-1388 | Simplified Chinese GB 18030 host | [`ibm-1388_P100-2024.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1388_P100-2024.ucm) | Planned second-batch Simplified Chinese profile. IBM documentation may refer to the ODBC converter as `ibm-1388_P103-2001`; the pinned ICU file is `P100-2024`. |
-| IBM-1390 | Extended Japanese Katakana-Kanji host mixed | [`ibm-1390_P110-2003.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1390_P110-2003.ucm) | Planned second-batch JIS X0213 Japanese profile. |
-| IBM-1399 | Extended Japanese Latin-Kanji host mixed | [`ibm-1399_P110-2003.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1399_P110-2003.ucm) | Planned second-batch JIS X0213 Japanese profile. |
+| IBM-1364 | Korean host mixed extended | [`ibm-1364_P110-2007.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1364_P110-2007.ucm) | Enabled generated Korean profile with full Hangul coverage. IBM documentation may refer to the ODBC converter as `ibm-1364_P110-1997`; the pinned ICU file is `P110-2007`. |
+| IBM-1371 | Traditional Chinese host mixed extended | [`ibm-1371_P100-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1371_P100-1999.ucm) | Enabled generated Traditional Chinese profile and base source for IBM-937. |
+| IBM-1388 | Simplified Chinese GB 18030 host | [`ibm-1388_P100-2024.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1388_P100-2024.ucm) | Enabled generated Simplified Chinese profile. IBM documentation may refer to the ODBC converter as `ibm-1388_P103-2001`; the pinned ICU file is `P100-2024`. |
+| IBM-1390 | Extended Japanese Katakana-Kanji host mixed | [`ibm-1390_P110-2003.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1390_P110-2003.ucm) | Enabled generated JIS X0213 Japanese profile. |
+| IBM-1399 | Extended Japanese Latin-Kanji host mixed | [`ibm-1399_P110-2003.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1399_P110-2003.ucm) | Enabled generated JIS X0213 Japanese profile over IBM-1390. |
 
 ## Prototype Inspection Results
 
@@ -75,6 +75,7 @@ node scripts/generate-ucm-tables.mjs --profile ibm939 --dry-run
 node scripts/generate-ucm-tables.mjs --all --dry-run
 node scripts/generate-ucm-tables.mjs --profile ibm930 --profile ibm933 --profile ibm935 --profile ibm939 --out-dir src/codec/generated
 node scripts/generate-ucm-tables.mjs --profile ibm1364 --profile ibm1371 --profile ibm1388 --profile ibm1390 --profile ibm1399 --dry-run
+node scripts/generate-ucm-tables.mjs --profile ibm1364 --profile ibm1371 --profile ibm1388 --profile ibm1390 --profile ibm1399 --out-dir src/codec/generated
 ```
 
 By default, the generator keeps only canonical `|0` mappings and skips fallback mappings. Use `--include-fallback` only after deciding how fallback rows should behave for preview and reverse encoding.
@@ -92,7 +93,7 @@ Dry-run generated-table counts from ICU commit `177fbc931d8f7d929c077c2b2254b79a
 | IBM-939 | `ibm-930_P120-1999.ucm` + `ibm-939_P120-1999.ucm` | 229 | 11,635 |
 | IBM-1388 | `ibm-1388_P100-2024.ucm` | 163 | 32,667 |
 | IBM-1390 | `ibm-1390_P110-2003.ucm` | 227 | 22,076 |
-| IBM-1399 | `ibm-1399_P110-2003.ucm` | 227 | 22,076 |
+| IBM-1399 | `ibm-1390_P110-2003.ucm` + `ibm-1399_P110-2003.ucm` | 230 | 22,076 |
 
 ## Validation Plan
 

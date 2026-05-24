@@ -80,6 +80,7 @@
       "sourceName": "ibm-1399_P110-2003.ucm",
       "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1399_P110-2003.ucm",
       "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "baseProfile": "ibm1390",
       "outputFile": "ibm1399Tables.ts"
     }
   ]
