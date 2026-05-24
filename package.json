@@ -64,6 +64,11 @@
           "default": 1024,
           "minimum": 1,
           "description": "Maximum source file size in KB for the MVP custom editor."
+        },
+        "ibmZHexEditor.condenseMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use a denser HEX ON editor layout with narrower byte cells, hidden byte offsets, and no grid edge padding."
         }
       }
     }

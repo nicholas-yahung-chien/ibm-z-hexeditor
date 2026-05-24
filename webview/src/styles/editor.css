@@ -41,6 +41,11 @@ button {
   grid-template-rows: auto auto 1fr;
 }
 
+.app-shell.condense-mode {
+  --cell-size: 0.92rem;
+  --record-gap: 0.25rem;
+}
+
 .top-bar {
   display: flex;
   align-items: center;
@@ -49,6 +54,10 @@ button {
   padding: 0.8rem 1rem;
   border-bottom: 1px solid var(--vscode-editorWidget-border);
   background: var(--vscode-sideBar-background);
+}
+
+.condense-mode .top-bar {
+  padding: 0.55rem 0;
 }
 
 .top-bar > div {
@@ -135,6 +144,10 @@ h1 {
   font-size: 0.82rem;
 }
 
+.condense-mode .diagnostics {
+  padding: 0.3rem 0;
+}
+
 .diagnostics-problem {
   background: color-mix(in srgb, var(--vscode-editor-background) 88%, var(--problem));
 }
@@ -161,6 +174,10 @@ h1 {
   display: grid;
   gap: 0.55rem;
   padding: 0.15rem 0 0.35rem 1.55rem;
+}
+
+.condense-mode .diagnostics-detail {
+  padding-left: 0;
 }
 
 .diagnostics-nav {
@@ -286,6 +303,11 @@ h1 {
   line-height: 1.25;
 }
 
+.condense-mode .hex-grid-shell {
+  padding: 0 0 75vh;
+  scroll-padding-block-start: 0;
+}
+
 .hex-grid-shell:focus {
   box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
 }
@@ -304,11 +326,21 @@ h1 {
   max-width: max-content;
 }
 
+.condense-mode .hex-row {
+  grid-template-columns: minmax(0, max-content);
+  gap: 0;
+  min-height: 3.95rem;
+}
+
 .offset {
   color: var(--accent);
   font-weight: 700;
   padding-top: 1.52rem;
   user-select: none;
+}
+
+.condense-mode .offset {
+  display: none;
 }
 
 .byte-grid {
@@ -317,6 +349,10 @@ h1 {
   column-gap: 0;
   align-items: center;
   max-width: 100%;
+}
+
+.condense-mode .byte-grid {
+  grid-template-rows: 1.22rem 1.16rem 1.16rem;
 }
 
 .preview {
@@ -361,6 +397,11 @@ h1 {
   padding: 0;
   line-height: 1.25rem;
   outline: none;
+}
+
+.condense-mode .nibble {
+  height: 1.16rem;
+  line-height: 1.16rem;
 }
 
 .nibble-high {

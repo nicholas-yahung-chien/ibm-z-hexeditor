@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { countDiagnosticProblems, summarizeProblemCounts } from './diagnosticsSummary';
 import { HexOnDocument } from './hexOnDocument';
-import type { FromWebviewMessage, ToWebviewMessage } from './protocol';
+import type { EditorViewSettings, FromWebviewMessage, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
 export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDocument> {
@@ -9,12 +9,22 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
   private readonly changeEmitter = new vscode.EventEmitter<vscode.CustomDocumentEditEvent<HexOnDocument>>();
   readonly onDidChangeCustomDocument = this.changeEmitter.event;
-  private readonly webviews = new WeakMap<HexOnDocument, vscode.Webview>();
+  private readonly webviews = new Map<HexOnDocument, vscode.Webview>();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly sessions: SessionRegistry,
-  ) {}
+  ) {
+    this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
+      if (!event.affectsConfiguration('ibmZHexEditor.condenseMode')) {
+        return;
+      }
+
+      for (const [document, webview] of this.webviews) {
+        this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+      }
+    }));
+  }
 
   async openCustomDocument(uri: vscode.Uri): Promise<HexOnDocument> {
     return HexOnDocument.create(uri, this.sessions.take(uri));
@@ -105,6 +115,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private handleMessage(document: HexOnDocument, webview: vscode.Webview, message: FromWebviewMessage): void {
     if (message.type === 'ready') {
       this.post(webview, { type: 'init', snapshot: document.snapshot() });
+      this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
       return;
     }
 
@@ -171,6 +182,13 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     if (webview) {
       this.post(webview, { type: 'status', message });
     }
+  }
+
+  private readViewSettings(resource: vscode.Uri): EditorViewSettings {
+    const config = vscode.workspace.getConfiguration('ibmZHexEditor', resource);
+    return {
+      condenseMode: config.get<boolean>('condenseMode', false),
+    };
   }
 
   private async revertActiveDocument(): Promise<void> {

@@ -34,10 +34,15 @@ export interface EditorSnapshot {
   dirty: boolean;
 }
 
+export interface EditorViewSettings {
+  condenseMode: boolean;
+}
+
 export type ToWebviewMessage =
   | { type: 'init'; snapshot: EditorSnapshot }
   | { type: 'snapshot'; snapshot: EditorSnapshot }
   | { type: 'saved'; snapshot: EditorSnapshot }
+  | { type: 'settings'; settings: EditorViewSettings }
   | { type: 'status'; message: string }
   | { type: 'error'; message: string };
 

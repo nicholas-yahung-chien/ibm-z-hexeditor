@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { EditorSnapshot, ToWebviewMessage } from '../../src/protocol';
+import type { EditorSnapshot, EditorViewSettings, ToWebviewMessage } from '../../src/protocol';
 import { HexGrid } from './components/HexGrid';
 import { DiagnosticsStrip } from './components/DiagnosticsStrip';
 import { vscode } from './vscode';
@@ -14,6 +14,7 @@ interface JumpTarget {
 
 export default function App() {
   const [snapshot, setSnapshot] = useState<EditorSnapshot | null>(null);
+  const [viewSettings, setViewSettings] = useState<EditorViewSettings>({ condenseMode: false });
   const [status, setStatus] = useState('Waiting for editor data...');
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
 
@@ -32,6 +33,10 @@ export default function App() {
       if (message.type === 'status') {
         setStatus(message.message);
       }
+
+      if (message.type === 'settings') {
+        setViewSettings(message.settings);
+      }
     };
 
     window.addEventListener('message', handleMessage);
@@ -47,7 +52,7 @@ export default function App() {
   }, [snapshot]);
 
   return (
-    <div className="app-shell">
+    <div className={['app-shell', viewSettings.condenseMode ? 'condense-mode' : ''].filter(Boolean).join(' ')}>
       <header className="top-bar">
         <div>
           <div className="title-row">
@@ -93,7 +98,11 @@ export default function App() {
               token: (current?.token ?? 0) + 1,
             }))}
           />
-          <HexGrid snapshot={snapshot} jumpTarget={jumpTarget} />
+          <HexGrid
+            snapshot={snapshot}
+            jumpTarget={jumpTarget}
+            condenseMode={viewSettings.condenseMode}
+          />
         </>
       ) : (
         <main className="empty-state">{status}</main>

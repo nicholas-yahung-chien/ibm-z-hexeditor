@@ -9,6 +9,7 @@ const FALLBACK_BYTES_PER_ROW = 16;
 interface Props {
   snapshot: EditorSnapshot;
   jumpTarget: JumpTarget | null;
+  condenseMode: boolean;
 }
 
 interface JumpTarget {
@@ -35,7 +36,7 @@ function cellClass(cell: ByteCell): string {
   return '';
 }
 
-export function HexGrid({ snapshot, jumpTarget }: Props) {
+export function HexGrid({ snapshot, jumpTarget, condenseMode }: Props) {
   const [cursor, setCursor] = useState<Cursor>({ offset: 0, nibble: 'high' });
   const [bytesPerRow, setBytesPerRow] = useState(FALLBACK_BYTES_PER_ROW);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -93,8 +94,8 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
       const byteGridStyles = byteGrid ? window.getComputedStyle(byteGrid) : null;
 
       const cellSize = nibble?.getBoundingClientRect().width || (fontSize * 1.45);
-      const offsetWidth = offset?.getBoundingClientRect().width || (fontSize * 6);
-      const rowGap = rowStyles ? Number.parseFloat(rowStyles.columnGap) || 0 : fontSize;
+      const offsetWidth = condenseMode ? 0 : offset?.getBoundingClientRect().width || (fontSize * 6);
+      const rowGap = condenseMode ? 0 : rowStyles ? Number.parseFloat(rowStyles.columnGap) || 0 : fontSize;
       const cellGap = byteGridStyles ? Number.parseFloat(byteGridStyles.columnGap) || 0 : fontSize * 0.18;
       const sidePadding = Number.parseFloat(styles.paddingLeft) + Number.parseFloat(styles.paddingRight);
       const available = element.clientWidth - sidePadding - offsetWidth - rowGap;
@@ -109,7 +110,7 @@ export function HexGrid({ snapshot, jumpTarget }: Props) {
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [condenseMode]);
 
   const groups = useMemo(() => {
     return snapshot.lines.map(line => {
