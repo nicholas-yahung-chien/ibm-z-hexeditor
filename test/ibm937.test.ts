@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { pairKey } from '../src/dbcsAmbiguousExclusions';
 import { decodeFromIbm937, encodeToIbm937, SI, SO } from '../src/codec/ibm937';
+import { IBM937_PROFILE } from '../src/codec/ibm937';
 import { inspectIbm937 } from '../src/inspector/inspect937';
+import { inspectIbmDbcs } from '../src/inspector/inspectIbmDbcs';
 
 describe('IBM-937 codec', () => {
   it('roundtrips SBCS and DBCS text with SO/SI wrappers', () => {
@@ -49,6 +52,25 @@ describe('IBM-937 codec', () => {
     expect(result.hasProblems).toBe(false);
     expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
     expect(result.counts.SBCS).toBe(6);
+  });
+
+  it('honors custom DBCS ambiguous exclusions instead of built-in defaults', () => {
+    const result = inspectIbmDbcs(IBM937_PROFILE, Uint8Array.from([0x5c, 0x5c]), {
+      dbcsAmbiguousExclusions: new Set(),
+    });
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(1);
+  });
+
+  it('uses custom DBCS ambiguous exclusions for additional byte pairs', () => {
+    const result = inspectIbmDbcs(IBM937_PROFILE, Uint8Array.from([0x5a, 0x61]), {
+      dbcsAmbiguousExclusions: new Set([pairKey(0x5a, 0x61)]),
+    });
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+    expect(result.counts.SBCS).toBe(2);
   });
 
   it('does not report private-use DBCS mappings as normal DBCS ambiguous candidates', () => {

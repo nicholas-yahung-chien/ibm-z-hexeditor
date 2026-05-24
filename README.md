@@ -65,6 +65,8 @@ Choose `IBM-930`, `IBM-937`, or `IBM-939` when the file bytes use one of those I
 
 - `ibmZHexEditor.maxFileSizeKb`: maximum local file size, in KB, that can be opened in the HEX ON editor.
 - `ibmZHexEditor.condenseMode`: show a denser grid with narrower byte cells, hidden offsets, and no grid edge padding.
+- `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: use custom byte-pair exclusions for `DBCS_AMBIGUOUS` warnings.
+- `ibmZHexEditor.dbcsAmbiguousExclusions`: byte-pair rules such as `{ "bytes": "40 40", "label": "EBCDIC spaces" }`. When custom exclusions are first enabled, the extension writes the default rules to user settings JSON for editing.
 
 ## Documentation
 

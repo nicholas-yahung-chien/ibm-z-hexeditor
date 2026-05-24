@@ -1,4 +1,5 @@
 import { decodeIbmDbcsPair, decodeIbmDbcsSbcsByte, type IbmDbcsCodePageProfile } from '../codec/ibmDbcs';
+import { DEFAULT_DBCS_AMBIGUOUS_EXCLUSION_PAIRS, pairKey } from '../dbcsAmbiguousExclusions';
 
 export type DiagnosticKind =
   | 'SO'
@@ -32,6 +33,10 @@ export interface AnalysisResult {
   events: readonly DiagnosticEvent[];
   hasProblems: boolean;
   counts: Record<DiagnosticKind, number>;
+}
+
+export interface InspectIbmDbcsOptions {
+  dbcsAmbiguousExclusions?: ReadonlySet<number>;
 }
 
 /**
@@ -88,17 +93,14 @@ function isSymbolicSbcsPair(data: Uint8Array, offset: number): boolean {
   return !isSbcsAlphanumeric(data[offset]) && !isSbcsAlphanumeric(data[offset + 1]);
 }
 
-function isObviousSbcsPair(data: Uint8Array, offset: number): boolean {
+function isExcludedDbcsAmbiguousPair(
+  data: Uint8Array,
+  offset: number,
+  exclusions: ReadonlySet<number>,
+): boolean {
   const b1 = data[offset];
   const b2 = data[offset + 1];
-  return (
-    // EBCDIC space padding.
-    (b1 === 0x40 && b2 === 0x40) ||
-    // COBOL comment/filler runs are commonly made of asterisks. In IBM-937,
-    // 0x5C 0x5C is technically a valid DBCS pair, but reporting every "**"
-    // as ambiguous drowns out the SO/SI structure signal.
-    (b1 === 0x5C && b2 === 0x5C)
-  );
+  return exclusions.has(pairKey(b1, b2));
 }
 
 function isPrivateUseCodePoint(cp: number): boolean {
@@ -144,8 +146,13 @@ function makeEvent(
   };
 }
 
-export function inspectIbmDbcs(profile: IbmDbcsCodePageProfile, data: Uint8Array): AnalysisResult {
+export function inspectIbmDbcs(
+  profile: IbmDbcsCodePageProfile,
+  data: Uint8Array,
+  options: InspectIbmDbcsOptions = {},
+): AnalysisResult {
   const events: DiagnosticEvent[] = [];
+  const dbcsAmbiguousExclusions = options.dbcsAmbiguousExclusions ?? DEFAULT_DBCS_AMBIGUOUS_EXCLUSION_PAIRS;
   let dbcsMode = false;
   let i = 0;
   let ord = 1;
@@ -206,7 +213,12 @@ export function inspectIbmDbcs(profile: IbmDbcsCodePageProfile, data: Uint8Array
     const glyph = i + 1 < data.length ? decodeIbmDbcsPair(profile, b1, data[i + 1]) : null;
     if (glyph !== null) {
       const pairLooksSbcs = strongSbcsByte(profile, b1) && strongSbcsByte(profile, data[i + 1]);
-      if (pairLooksSbcs && isSymbolicSbcsPair(data, i) && !isObviousSbcsPair(data, i) && isNormalDbcsGlyph(glyph)) {
+      if (
+        pairLooksSbcs &&
+        isSymbolicSbcsPair(data, i) &&
+        !isExcludedDbcsAmbiguousPair(data, i, dbcsAmbiguousExclusions) &&
+        isNormalDbcsGlyph(glyph)
+      ) {
         events.push(makeEvent('DBCS_AMBIGUOUS', data, i, 2, ord, glyph,
           'Byte pair is valid DBCS, but the current SBCS mode also permits both bytes as SBCS characters.'));
         i += 2; ord += 2;

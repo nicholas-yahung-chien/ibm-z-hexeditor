@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, replaceNibble } from './byteModel';
 import type { ByteCell, EditorSnapshot, HexNibble } from './protocol';
+import type { InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
 import type { HexOnSession } from './sessionRegistry';
 
 export class HexOnDocument implements vscode.CustomDocument {
@@ -17,12 +18,17 @@ export class HexOnDocument implements vscode.CustomDocument {
     readonly fileEncoding: string,
     readonly sourceViewColumn: vscode.ViewColumn | undefined,
     bytes: Uint8Array,
+    private diagnosticsOptions: InspectIbmDbcsOptions = {},
   ) {
     this.cells = cellsFromBytes(bytes);
     this.savedCells = cellsFromBytes(bytes);
   }
 
-  static async create(uri: vscode.Uri, session: HexOnSession | undefined): Promise<HexOnDocument> {
+  static async create(
+    uri: vscode.Uri,
+    session: HexOnSession | undefined,
+    diagnosticsOptions: InspectIbmDbcsOptions = {},
+  ): Promise<HexOnDocument> {
     const bytes = session?.bytes ?? await vscode.workspace.fs.readFile(uri);
 
     return new HexOnDocument(
@@ -31,6 +37,7 @@ export class HexOnDocument implements vscode.CustomDocument {
       session?.fileEncoding ?? 'utf8',
       session?.sourceViewColumn,
       bytes,
+      diagnosticsOptions,
     );
   }
 
@@ -45,7 +52,13 @@ export class HexOnDocument implements vscode.CustomDocument {
       fileEncoding: this.fileEncoding,
       cells: this.cells,
       dirty: this.dirty,
+      diagnosticsOptions: this.diagnosticsOptions,
     });
+  }
+
+  updateDiagnosticsOptions(diagnosticsOptions: InspectIbmDbcsOptions): void {
+    this.diagnosticsOptions = diagnosticsOptions;
+    this.changeEmitter.fire(this.snapshot());
   }
 
   hasUnsavedChanges(): boolean {

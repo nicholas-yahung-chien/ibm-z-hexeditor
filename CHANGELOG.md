@@ -19,6 +19,7 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - Save, reload, and revert flows for edited raw bytes.
 - Save confirmation when IBM EBCDIC DBCS structural diagnostics report blocking DBCS issues.
 - Condense Mode setting for a denser byte grid.
+- User-configurable `DBCS_AMBIGUOUS` byte-pair exclusions with default-rule seeding in user settings JSON.
 - VSIX packaging script.
 - Project icon and initial user-facing documentation.
 

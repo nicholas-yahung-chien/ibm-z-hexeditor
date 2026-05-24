@@ -1,7 +1,7 @@
 import { getIbmDbcsProfile } from './codePages';
 import { decodeIbmDbcsPair, decodeIbmDbcsSbcsByte, type IbmDbcsCodePageProfile } from './codec/ibmDbcs';
 import { inspectIbmDbcs } from './inspector/inspectIbmDbcs';
-import type { AnalysisResult } from './inspector/inspectIbmDbcs';
+import type { AnalysisResult, InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
 import type { ByteCell, EditorSnapshot, PreviewEntry, RecordLine } from './protocol';
 
 export function cellsFromBytes(bytes: Uint8Array): ByteCell[] {
@@ -93,11 +93,12 @@ export function makeSnapshot(args: {
   fileEncoding: string;
   cells: ByteCell[];
   dirty: boolean;
+  diagnosticsOptions?: InspectIbmDbcsOptions;
 }): EditorSnapshot {
   const bytes = bytesFromCells(args.cells);
   const lines = buildLines(bytes, args.fileEncoding);
   const profile = getIbmDbcsProfile(args.fileEncoding);
-  const diagnostics = profile ? inspectIbmDbcs(profile, bytes) : null;
+  const diagnostics = profile ? inspectIbmDbcs(profile, bytes, args.diagnosticsOptions) : null;
   const preview = previewBytes(bytes, args.fileEncoding);
   const annotated = annotateCells(args.cells, diagnostics);
 

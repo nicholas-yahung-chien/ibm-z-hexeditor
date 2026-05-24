@@ -96,6 +96,22 @@ The setting `ibmZHexEditor.condenseMode` enables a denser editor view:
 
 This mode is intended for wide fixed-format files where showing more bytes per row matters more than row labels.
 
+## DBCS Ambiguous Exclusions
+
+By default, the diagnostics suppress noisy `DBCS_AMBIGUOUS` warnings for common SBCS filler pairs such as EBCDIC spaces and repeated COBOL asterisks.
+
+To customize this behavior, enable `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`. When it is first enabled, the extension writes the default rules into user settings JSON so they can be edited:
+
+```json
+"ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": true,
+"ibmZHexEditor.dbcsAmbiguousExclusions": [
+  { "bytes": "40 40", "label": "EBCDIC spaces" },
+  { "bytes": "5C 5C", "label": "COBOL repeated asterisks" }
+]
+```
+
+The `bytes` value accepts `40 40`, `0x40 0x40`, or `4040`. Invalid entries are ignored and reported with a warning.
+
 ## Current Limits
 
 - The extension currently supports local files only.

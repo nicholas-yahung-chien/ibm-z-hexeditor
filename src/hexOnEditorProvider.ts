@@ -1,6 +1,11 @@
 import * as vscode from 'vscode';
 import { countDiagnosticProblems, summarizeProblemCounts } from './diagnosticsSummary';
 import { HexOnDocument } from './hexOnDocument';
+import {
+  affectsDiagnosticsSettings,
+  readDiagnosticsSettings,
+  seedDefaultDbcsAmbiguousExclusionsIfNeeded,
+} from './settings';
 import type { EditorViewSettings, FromWebviewMessage, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
@@ -10,24 +15,30 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private readonly changeEmitter = new vscode.EventEmitter<vscode.CustomDocumentEditEvent<HexOnDocument>>();
   readonly onDidChangeCustomDocument = this.changeEmitter.event;
   private readonly webviews = new Map<HexOnDocument, vscode.Webview>();
+  private lastInvalidDiagnosticsSettingsWarning = '';
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly sessions: SessionRegistry,
   ) {
     this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
-      if (!event.affectsConfiguration('ibmZHexEditor.condenseMode')) {
-        return;
+      if (event.affectsConfiguration('ibmZHexEditor.condenseMode')) {
+        for (const [document, webview] of this.webviews) {
+          this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+        }
       }
 
-      for (const [document, webview] of this.webviews) {
-        this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+      if (affectsDiagnosticsSettings(event)) {
+        void this.refreshDiagnosticsSettings();
       }
     }));
   }
 
   async openCustomDocument(uri: vscode.Uri): Promise<HexOnDocument> {
-    return HexOnDocument.create(uri, this.sessions.take(uri));
+    await seedDefaultDbcsAmbiguousExclusionsIfNeeded();
+    const settings = readDiagnosticsSettings(uri);
+    this.warnInvalidDiagnosticsSettings(settings.invalidRules);
+    return HexOnDocument.create(uri, this.sessions.take(uri), settings.options);
   }
 
   async resolveCustomEditor(document: HexOnDocument, webviewPanel: vscode.WebviewPanel): Promise<void> {
@@ -189,6 +200,30 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     return {
       condenseMode: config.get<boolean>('condenseMode', false),
     };
+  }
+
+  private async refreshDiagnosticsSettings(): Promise<void> {
+    await seedDefaultDbcsAmbiguousExclusionsIfNeeded();
+
+    for (const document of this.webviews.keys()) {
+      const settings = readDiagnosticsSettings(document.uri);
+      this.warnInvalidDiagnosticsSettings(settings.invalidRules);
+      document.updateDiagnosticsOptions(settings.options);
+    }
+  }
+
+  private warnInvalidDiagnosticsSettings(invalidRules: readonly string[]): void {
+    if (invalidRules.length === 0) {
+      return;
+    }
+
+    const message = `Ignoring invalid DBCS ambiguous exclusion rule(s): ${invalidRules.join('; ')}`;
+    if (message === this.lastInvalidDiagnosticsSettingsWarning) {
+      return;
+    }
+
+    this.lastInvalidDiagnosticsSettingsWarning = message;
+    void vscode.window.showWarningMessage(message);
   }
 
   private async revertActiveDocument(): Promise<void> {
