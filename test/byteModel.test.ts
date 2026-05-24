@@ -84,7 +84,8 @@ describe('byte-first model', () => {
     });
 
     expect(repaired.diagnostics?.hasProblems).toBe(false);
-    expect(repaired.diagnostics?.counts.DBCS_AMBIGUOUS).toBe(2);
+    expect(repaired.diagnostics?.counts.DBCS).toBe(2);
+    expect(repaired.diagnostics?.counts.DBCS_AMBIGUOUS).toBe(0);
     expect(repaired.preview.map(entry => entry.text)).toEqual(['>', '測', '試', '<']);
   });
 
@@ -114,7 +115,8 @@ describe('byte-first model', () => {
     });
 
     expect(repaired.diagnostics?.hasProblems).toBe(false);
-    expect(repaired.diagnostics?.counts.DBCS_AMBIGUOUS).toBe(2);
+    expect(repaired.diagnostics?.counts.DBCS).toBe(2);
+    expect(repaired.diagnostics?.counts.DBCS_AMBIGUOUS).toBe(0);
     expect(bytesFromCells(repaired.cells)).toEqual(bytes);
   });
 

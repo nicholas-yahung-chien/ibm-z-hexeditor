@@ -20,12 +20,27 @@ describe('IBM-937 codec', () => {
     expect(result.counts.MISSING_SI_AT_EOF).toBe(1);
   });
 
-  it('counts explicit ambiguous DBCS bytes as DBCS pairs', () => {
+  it('counts explicit DBCS bytes inside SO/SI as normal DBCS pairs', () => {
     const result = inspectIbm937(Uint8Array.from([SO, 0x5a, 0x61, 0x5d, 0x7c, SI]));
 
     expect(result.hasProblems).toBe(false);
-    expect(result.counts.DBCS + result.counts.DBCS_AMBIGUOUS).toBe(2);
+    expect(result.counts.DBCS).toBe(2);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+  });
+
+  it('reports DBCS ambiguous only when a valid DBCS pair appears in SBCS mode', () => {
+    const result = inspectIbm937(Uint8Array.from([0x5a, 0x61, 0x5d, 0x7c]));
+
+    expect(result.hasProblems).toBe(false);
     expect(result.counts.DBCS_AMBIGUOUS).toBe(2);
+  });
+
+  it('does not report space padding as DBCS ambiguous', () => {
+    const result = inspectIbm937(Uint8Array.from([0x40, 0x40, 0x40, 0x40]));
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+    expect(result.counts.SBCS).toBe(4);
   });
 
   it('reports an unmatched SI as an SO/SI structure problem', () => {

@@ -79,15 +79,8 @@ function strongSbcsByte(b: number): boolean {
   }
 }
 
-function strongSbcsRunLength(data: Uint8Array, offset: number, max: number): number {
-  let run = 0;
-  const end = Math.min(data.length, offset + max);
-  for (let i = offset; i < end; i++) {
-    const b = data[i];
-    if (b === SO || b === SI || !strongSbcsByte(b)) break;
-    run++;
-  }
-  return run;
+function isPaddingPair(data: Uint8Array, offset: number): boolean {
+  return data[offset] === 0x40 && data[offset + 1] === 0x40;
 }
 
 function toHex(data: Uint8Array, offset: number, length: number): string {
@@ -160,18 +153,7 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
     if (dbcsMode) {
       const glyph = i + 1 < data.length ? decodeDbcsPair(b1, data[i + 1]) : null;
       if (glyph !== null) {
-        const sbcsRun = strongSbcsRunLength(data, i, 4);
-        events.push(makeEvent(
-          sbcsRun >= 2 ? 'DBCS_AMBIGUOUS' : 'DBCS',
-          data,
-          i,
-          2,
-          ord,
-          glyph,
-          sbcsRun >= 2
-            ? 'Valid explicit DBCS pair, but bytes also look like an SBCS run.'
-            : '',
-        ));
+        events.push(makeEvent('DBCS', data, i, 2, ord, glyph, ''));
         i += 2; ord += 2;
         continue;
       }
@@ -194,18 +176,32 @@ export function inspectIbm937(data: Uint8Array): AnalysisResult {
     }
 
     // SBCS mode
-    if (strongSbcsByte(b1) || i === data.length - 1) {
-      events.push(makeEvent('SBCS', data, i, 1, ord, decodeSbcsByte(b1), ''));
-      i++; ord++;
-      continue;
-    }
-
     const glyph = i + 1 < data.length ? decodeDbcsPair(b1, data[i + 1]) : null;
     if (glyph !== null) {
+      const pairLooksSbcs = strongSbcsByte(b1) && strongSbcsByte(data[i + 1]);
+      if (pairLooksSbcs && !isPaddingPair(data, i)) {
+        events.push(makeEvent('DBCS_AMBIGUOUS', data, i, 2, ord, glyph,
+          'Byte pair is valid DBCS, but the current SBCS mode also permits both bytes as SBCS characters.'));
+        i += 2; ord += 2;
+        continue;
+      }
+
+      if (pairLooksSbcs) {
+        events.push(makeEvent('SBCS', data, i, 1, ord, decodeSbcsByte(b1), ''));
+        i++; ord++;
+        continue;
+      }
+
       events.push(makeEvent('MISSING_SO', data, i, 2, ord, glyph,
         'Valid DBCS pair found in SBCS mode; inferred missing SO before this pair.'));
       dbcsMode = true;
       i += 2; ord += 2;
+      continue;
+    }
+
+    if (strongSbcsByte(b1) || i === data.length - 1) {
+      events.push(makeEvent('SBCS', data, i, 1, ord, decodeSbcsByte(b1), ''));
+      i++; ord++;
       continue;
     }
 
