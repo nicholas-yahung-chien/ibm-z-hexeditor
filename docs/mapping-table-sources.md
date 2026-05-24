@@ -1,6 +1,6 @@
 # Mapping Table Sources
 
-This note records the source strategy for adding IBM EBCDIC DBCS code pages after the IBM-937 MVP.
+This note records the source strategy for adding IBM EBCDIC SBCS and DBCS code pages after the IBM-937 MVP.
 
 ## Recommended Source
 
@@ -9,9 +9,9 @@ Use ICU `.ucm` mapping files from the Unicode ICU repository as the primary sour
 Reasons:
 
 - ICU documents `.ucm` as its text mapping-table format and states that ICU ships mapping files under `icu/source/data/mappings`.
-- ICU `.ucm` headers identify mixed host code pages with `EBCDIC_STATEFUL`.
+- ICU `.ucm` headers identify single-byte code pages with `SBCS` and mixed host code pages with `EBCDIC_STATEFUL`.
 - The ICU state table for `EBCDIC_STATEFUL` explicitly models SO/SI state shifts.
-- IBM documents the target z/OS DBCS code pages with the same converter names used by ICU.
+- IBM documents the target z/OS EBCDIC code pages with converter names that align with ICU mapping files.
 
 Before vendoring generated tables into a product build, confirm licensing with the owning product/legal team. The ICU files include Unicode license references and IBM copyright notices. Generated files should preserve source URLs, source file names, and the ICU commit or release used to generate them.
 
@@ -19,6 +19,10 @@ Before vendoring generated tables into a product build, confirm licensing with t
 
 | Code page | Language/variant | ICU source file | Notes |
 | --- | --- | --- | --- |
+| IBM-037 | US/Canada EBCDIC SBCS | [`ibm-37_P100-1995.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-37_P100-1995.ucm) | Enabled generated SBCS profile. |
+| IBM-500 | International EBCDIC SBCS | [`ibm-500_P100-1995.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-500_P100-1995.ucm) | Enabled generated SBCS profile. |
+| IBM-1047 | Latin-1/Open Systems EBCDIC SBCS | [`ibm-1047_P100-1995.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1047_P100-1995.ucm) | Enabled generated SBCS profile. |
+| IBM-1140 | US/Canada EBCDIC SBCS with Euro | [`ibm-1140_P100-1997.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1140_P100-1997.ucm) | Enabled generated SBCS profile. |
 | IBM-930 | Japanese Katakana-Kanji host mixed | [`ibm-930_P120-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-930_P120-1999.ucm) | Enabled generated profile and likely base for IBM-939. |
 | IBM-933 | Korean host mixed | [`ibm-933_P110-1995.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-933_P110-1995.ucm) | Enabled generated Korean profile. |
 | IBM-935 | Simplified Chinese host mixed | [`ibm-935_P110-1999.ucm`](https://github.com/unicode-org/icu/blob/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-935_P110-1999.ucm) | Enabled generated Simplified Chinese profile. |
@@ -36,6 +40,10 @@ The prototype script `scripts/inspect-ucm-mapping.mjs` reads local or remote `.u
 
 | File | UCM class | One-byte mappings | Two-byte mappings | Base |
 | --- | --- | ---: | ---: | --- |
+| `ibm-37_P100-1995.ucm` | `SBCS` | 352 | 0 | none |
+| `ibm-500_P100-1995.ucm` | `SBCS` | 352 | 0 | none |
+| `ibm-1047_P100-1995.ucm` | `SBCS` | 351 | 0 | none |
+| `ibm-1140_P100-1997.ucm` | `SBCS` | 351 | 0 | none |
 | `ibm-930_P120-1999.ucm` | `EBCDIC_STATEFUL` | 335 | 11,680 | none |
 | `ibm-933_P110-1995.ucm` | `EBCDIC_STATEFUL` | 279 | 10,763 | none |
 | `ibm-935_P110-1999.ucm` | `EBCDIC_STATEFUL` | 236 | 9,358 | none |
@@ -56,7 +64,7 @@ Add a generator that reads ICU `.ucm` files and emits TypeScript mapping tables 
 Recommended steps:
 
 1. Record each source file in a manifest with code page id, ICU URL, source revision, and base file if any.
-2. Parse the `.ucm` header and require `uconv_class` to be `EBCDIC_STATEFUL` for these profiles.
+2. Parse the `.ucm` header and require `uconv_class` to be `SBCS` or `EBCDIC_STATEFUL` for these profiles.
 3. Parse `CHARMAP` rows into byte sequences and Unicode code points.
 4. Split one-byte rows into `sbcsToUnicode` and `unicodeToSbcs`.
 5. Split two-byte rows into `dbcsToUnicode` and `unicodeToDbcs`.
@@ -73,6 +81,7 @@ Common commands:
 ```sh
 node scripts/generate-ucm-tables.mjs --profile ibm939 --dry-run
 node scripts/generate-ucm-tables.mjs --all --dry-run
+node scripts/generate-ucm-tables.mjs --profile ibm37 --profile ibm500 --profile ibm1047 --profile ibm1140 --out-dir src/codec/generated
 node scripts/generate-ucm-tables.mjs --profile ibm930 --profile ibm933 --profile ibm935 --profile ibm939 --out-dir src/codec/generated
 node scripts/generate-ucm-tables.mjs --profile ibm1364 --profile ibm1371 --profile ibm1388 --profile ibm1390 --profile ibm1399 --dry-run
 node scripts/generate-ucm-tables.mjs --profile ibm1364 --profile ibm1371 --profile ibm1388 --profile ibm1390 --profile ibm1399 --out-dir src/codec/generated
@@ -84,6 +93,10 @@ Dry-run generated-table counts from ICU commit `177fbc931d8f7d929c077c2b2254b79a
 
 | Profile | Source chain | SBCS mappings | DBCS mappings |
 | --- | --- | ---: | ---: |
+| IBM-037 | `ibm-37_P100-1995.ucm` | 256 | 0 |
+| IBM-500 | `ibm-500_P100-1995.ucm` | 256 | 0 |
+| IBM-1047 | `ibm-1047_P100-1995.ucm` | 256 | 0 |
+| IBM-1140 | `ibm-1140_P100-1997.ucm` | 256 | 0 |
 | IBM-930 | `ibm-930_P120-1999.ucm` | 226 | 11,635 |
 | IBM-933 | `ibm-933_P110-1995.ucm` | 215 | 10,757 |
 | IBM-935 | `ibm-935_P110-1999.ucm` | 163 | 9,356 |
@@ -101,7 +114,8 @@ For each new profile:
 
 - verify that known language samples decode correctly;
 - verify Unicode-to-byte and byte-to-Unicode roundtrips for representative SBCS and DBCS characters;
-- verify SO/SI diagnostics with valid DBCS spans, missing SO, missing SI, odd DBCS byte counts, and inserted/deleted bytes;
+- verify that SBCS-only profiles preview bytes without DBCS diagnostics;
+- verify SO/SI diagnostics with valid DBCS spans, missing SO, missing SI, odd DBCS byte counts, and inserted/deleted bytes for DBCS profiles;
 - verify that source-like SBCS filler data does not create noisy DBCS ambiguous warnings;
 - compare selected samples with ICU output where a local ICU converter is available.
 

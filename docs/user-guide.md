@@ -20,7 +20,7 @@ Then in VS Code, run `Extensions: Install from VSIX...` and choose `dist/ibm-z-h
 3. If the current editor has unsaved changes, save it first. The HEX ON editor reads bytes from disk.
 4. Choose the actual file-content encoding used by the bytes on disk.
 
-The encoding picker may show the encoding reported by VS Code for the current text document. Treat that as a reference only. If the file bytes are actually IBM EBCDIC DBCS, choose the matching IBM code page even when VS Code displayed the file as UTF-8 or another encoding.
+The encoding picker may show the encoding reported by VS Code for the current text document. Treat that as a reference only. If the file bytes are actually IBM EBCDIC, choose the matching IBM code page even when VS Code displayed the file as UTF-8 or another encoding.
 
 Encoding choices include a short language or encoding-family description, such as `Korean EBCDIC DBCS / 한국어` or `Traditional Chinese Big5 / 繁體中文`, to make the actual bytes-on-disk choice easier to distinguish.
 
@@ -30,12 +30,17 @@ The editor is byte-first:
 
 - hex rows always show the raw file bytes;
 - the read-only character preview is decoded from those bytes using the selected encoding;
+- IBM-037, IBM-500, IBM-1047, and IBM-1140 enable SBCS EBCDIC preview;
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 enable SO/SI and DBCS diagnostics;
 - save writes the edited raw bytes back to disk without converting through Unicode text.
 
 The MVP has focused validation for:
 
 - `ibm937`
+- `ibm37`
+- `ibm500`
+- `ibm1047`
+- `ibm1140`
 - `ibm930`
 - `ibm933`
 - `ibm935`
@@ -75,7 +80,7 @@ Diagnostics and the preview update as the raw bytes change.
 
 ## Diagnostics Panel
 
-For supported IBM EBCDIC DBCS files, the diagnostics strip summarizes SO/SI structure and DBCS candidates.
+For supported IBM EBCDIC DBCS files, the diagnostics strip summarizes SO/SI structure and DBCS candidates. Supported SBCS-only EBCDIC files do not show DBCS diagnostics.
 
 - `DBCS pair(s)` counts confirmed DBCS pairs inside explicit `SO ... SI` mode.
 - `warning(s)` counts non-blocking warnings such as `DBCS ambiguous`.
@@ -133,4 +138,5 @@ The `bytes` value accepts `40 40`, `0x40 0x40`, or `4040`. Invalid entries are i
 
 - The extension currently supports local files only.
 - Files larger than `ibmZHexEditor.maxFileSizeKb` are blocked by the MVP size guard.
-- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics. Other encodings are preview/edit flows only.
+- IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
+- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.

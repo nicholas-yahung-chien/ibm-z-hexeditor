@@ -2,6 +2,8 @@
 
 This document describes the current diagnostics used by the IBM Z HEX ON Editor when the selected file-content encoding is a supported IBM EBCDIC DBCS profile such as `ibm930`, `ibm933`, `ibm935`, `ibm937`, `ibm939`, `ibm1364`, `ibm1371`, `ibm1388`, `ibm1390`, or `ibm1399`.
 
+SBCS-only EBCDIC profiles such as `ibm37`, `ibm500`, `ibm1047`, and `ibm1140` use code-page preview and EBCDIC newline handling, but they do not run SO/SI DBCS diagnostics.
+
 The editor reads raw bytes from disk. Diagnostics are computed from those bytes, not from the Unicode text that VS Code may have decoded for the same file in a normal text editor.
 
 ## Modes

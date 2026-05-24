@@ -1,6 +1,38 @@
 {
   "profiles": [
     {
+      "id": "ibm37",
+      "label": "IBM-037",
+      "sourceName": "ibm-37_P100-1995.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-37_P100-1995.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm37Tables.ts"
+    },
+    {
+      "id": "ibm500",
+      "label": "IBM-500",
+      "sourceName": "ibm-500_P100-1995.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-500_P100-1995.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm500Tables.ts"
+    },
+    {
+      "id": "ibm1047",
+      "label": "IBM-1047",
+      "sourceName": "ibm-1047_P100-1995.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1047_P100-1995.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1047Tables.ts"
+    },
+    {
+      "id": "ibm1140",
+      "label": "IBM-1140",
+      "sourceName": "ibm-1140_P100-1997.ucm",
+      "sourceUrl": "https://raw.githubusercontent.com/unicode-org/icu/177fbc931d8f7d929c077c2b2254b79a741a4fae/icu4c/source/data/mappings/ibm-1140_P100-1997.ucm",
+      "sourceRevision": "unicode-org/icu 177fbc931d8f7d929c077c2b2254b79a741a4fae",
+      "outputFile": "ibm1140Tables.ts"
+    },
+    {
       "id": "ibm930",
       "label": "IBM-930",
       "sourceName": "ibm-930_P120-1999.ucm",

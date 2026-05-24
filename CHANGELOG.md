@@ -12,7 +12,8 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - Raw byte editing with high and low hex-nibble rows.
 - Read-only character preview based on the selected file-content encoding.
 - Encoding picker that treats the VS Code-reported encoding as a reference and lets the user choose the actual bytes-on-disk encoding.
-- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 preview support.
+- IBM-037, IBM-500, IBM-1047, and IBM-1140 SBCS preview support.
+- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 DBCS preview support.
 - IBM EBCDIC DBCS SO/SI diagnostics for explicit DBCS mode, missing or unmatched shift bytes, and conservative DBCS ambiguity warnings.
 - Expandable diagnostics panel with category filters, location buttons, and previous/next navigation.
 - Immediate diagnostics updates after nibble edits, byte insertion, and byte deletion.
@@ -26,7 +27,8 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 ### Current Limits
 
 - Local files only.
+- IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
 - Other encodings are currently preview/edit flows without code-page-specific diagnostics.
-- Additional IBM EBCDIC DBCS code pages can be added after mapping tables, fixtures, and tests are available.
+- Additional IBM EBCDIC SBCS or DBCS code pages can be added after mapping tables, fixtures, and tests are available.
 - Localization is planned near the end of the MVP cycle.

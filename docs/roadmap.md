@@ -4,8 +4,8 @@ This roadmap captures the current direction after the IBM-937 MVP.
 
 ## Near Term
 
-1. Keep regression coverage stable across IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 fixtures.
-2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md), including all enabled IBM EBCDIC DBCS profiles.
+1. Keep regression coverage stable across IBM-037, IBM-500, IBM-1047, IBM-1140, IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 fixtures.
+2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md), including all enabled IBM EBCDIC SBCS and DBCS profiles.
 3. Capture manual validation notes for the IBM-1364/1371/1388/1390/1399 batch after the generated-table tests pass.
 4. Capture the screenshots listed in [screenshots.md](screenshots.md).
 5. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
@@ -17,12 +17,16 @@ The editor is already byte-first, so support for additional IBM EBCDIC code page
 Planned direction:
 
 - continue extracting IBM-937-specific codec and inspector behavior into reusable IBM DBCS profile APIs documented in [code-page-architecture.md](code-page-architecture.md);
-- represent each code page as a profile with SBCS mapping, DBCS mapping, SO/SI behavior, and ambiguity rules;
+- represent each code page as a profile with SBCS mapping, and for DBCS profiles also DBCS mapping, SO/SI behavior, and ambiguity rules;
 - keep IBM-937 as the reference implementation and regression baseline;
 - add encoding picker entries only after a code page profile has reliable tables and tests.
 
 Enabled profiles:
 
+- `IBM-037`: US/Canada EBCDIC SBCS, generated from ICU `.ucm`.
+- `IBM-500`: International EBCDIC SBCS, generated from ICU `.ucm`.
+- `IBM-1047`: Latin-1/Open Systems EBCDIC SBCS, generated from ICU `.ucm`.
+- `IBM-1140`: US/Canada EBCDIC SBCS with Euro, generated from ICU `.ucm`.
 - `IBM-930`: Japanese Katakana-Kanji host mixed, generated from ICU `.ucm`.
 - `IBM-933`: Korean EBCDIC DBCS, generated from ICU `.ucm`.
 - `IBM-935`: Simplified Chinese EBCDIC DBCS, generated from ICU `.ucm`.

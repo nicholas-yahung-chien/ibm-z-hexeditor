@@ -51,6 +51,10 @@ Copy-Item test\fixtures\SOAIPB1.ibm1371.cpy .tmp\manual\SOAIPB1.acceptance.ibm13
 Copy-Item test\fixtures\SOAIPB1.ibm1388.cpy .tmp\manual\SOAIPB1.acceptance.ibm1388.cpy -Force
 Copy-Item test\fixtures\SOAIPB1.ibm1390.cpy .tmp\manual\SOAIPB1.acceptance.ibm1390.cpy -Force
 Copy-Item test\fixtures\SOAIPB1.ibm1399.cpy .tmp\manual\SOAIPB1.acceptance.ibm1399.cpy -Force
+Copy-Item test\fixtures\HELLO.ibm37.cpy .tmp\manual\HELLO.acceptance.ibm37.cpy -Force
+Copy-Item test\fixtures\HELLO.ibm500.cpy .tmp\manual\HELLO.acceptance.ibm500.cpy -Force
+Copy-Item test\fixtures\HELLO.ibm1047.cpy .tmp\manual\HELLO.acceptance.ibm1047.cpy -Force
+Copy-Item test\fixtures\HELLO.ibm1140.cpy .tmp\manual\HELLO.acceptance.ibm1140.cpy -Force
 ```
 
 Expected:
@@ -65,6 +69,10 @@ Expected:
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1388.cpy` exists.
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1390.cpy` exists.
 - [ ] `.tmp/manual/SOAIPB1.acceptance.ibm1399.cpy` exists.
+- [ ] `.tmp/manual/HELLO.acceptance.ibm37.cpy` exists.
+- [ ] `.tmp/manual/HELLO.acceptance.ibm500.cpy` exists.
+- [ ] `.tmp/manual/HELLO.acceptance.ibm1047.cpy` exists.
+- [ ] `.tmp/manual/HELLO.acceptance.ibm1140.cpy` exists.
 - [ ] `git status --short` remains clean before manual editing begins.
 
 ## 4. Open HEX ON
@@ -83,7 +91,23 @@ Expected:
 - [ ] The encoding picker describes IBM DBCS choices by language, such as Korean, Simplified Chinese, Traditional Chinese, and Japanese.
 - [ ] Encoding picker descriptions are short enough to scan without relying on repeated tooltip text.
 
-## 5. IBM DBCS Code Page Baselines
+## 5. IBM EBCDIC Code Page Baselines
+
+### IBM SBCS
+
+Open each copied `HELLO.acceptance.*.cpy` file with its matching encoding:
+
+- `.tmp/manual/HELLO.acceptance.ibm37.cpy` as IBM-037
+- `.tmp/manual/HELLO.acceptance.ibm500.cpy` as IBM-500
+- `.tmp/manual/HELLO.acceptance.ibm1047.cpy` as IBM-1047
+- `.tmp/manual/HELLO.acceptance.ibm1140.cpy` as IBM-1140
+
+Expected:
+
+- [ ] Header shows the selected `ibm37`, `ibm500`, `ibm1047`, or `ibm1140` encoding id.
+- [ ] The preview row shows `HELLO WORLD` and `ABC` split by the EBCDIC newline byte.
+- [ ] IBM-1140 additionally previews the Euro sign between `WORLD` and the newline.
+- [ ] No SO/SI diagnostics strip is shown for SBCS-only files.
 
 ### IBM-937
 

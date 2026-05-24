@@ -1,6 +1,6 @@
 # Code Page Architecture
 
-This document describes the first refactor step toward supporting additional IBM EBCDIC DBCS code pages.
+This document describes the profile architecture for supporting IBM EBCDIC SBCS and DBCS code pages.
 
 The editor remains byte-first:
 
@@ -12,19 +12,24 @@ The editor remains byte-first:
 
 ## Current Shape
 
-IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 are represented as profiles:
+Supported IBM EBCDIC code pages are represented as profiles:
 
+- `src/codec/ibmSbcs.ts`
+  - generic IBM SBCS profile interface;
+  - generic single-byte encode/decode helpers.
 - `src/codec/ibmDbcs.ts`
   - generic IBM DBCS profile interface;
   - generic encode/decode helpers;
   - generic DBCS pair and SBCS byte decoding helpers.
+- `src/codec/ibm37.ts`, `src/codec/ibm500.ts`, `src/codec/ibm1047.ts`, and `src/codec/ibm1140.ts`
+  - generated-table backed SBCS EBCDIC profile modules.
 - `src/codec/ibm937.ts`
   - `IBM937_PROFILE`;
   - compatibility wrappers such as `encodeToIbm937`, `decodeFromIbm937`, and `decodeDbcsPair`.
 - `src/codec/ibm930.ts`, `src/codec/ibm933.ts`, `src/codec/ibm935.ts`, `src/codec/ibm939.ts`, `src/codec/ibm1364.ts`, `src/codec/ibm1371.ts`, `src/codec/ibm1388.ts`, `src/codec/ibm1390.ts`, and `src/codec/ibm1399.ts`
   - generated-table backed Japanese, Korean, Simplified Chinese, and Traditional Chinese profile modules.
 - `src/codec/generated/`
-  - generated ICU `.ucm` mapping tables for IBM-930, IBM-933, IBM-935, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399.
+  - generated ICU `.ucm` mapping tables for enabled SBCS and DBCS profiles.
 - `src/inspector/inspectIbmDbcs.ts`
   - generic SO/SI diagnostics traversal for IBM EBCDIC DBCS profiles.
 - `src/inspector/inspect937.ts`
@@ -34,7 +39,7 @@ IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1
 
 Existing IBM-937 public helper names are intentionally preserved so current tests and callers continue to work.
 
-## Adding A New IBM DBCS Code Page
+## Adding A New IBM EBCDIC Code Page
 
 Add a new profile only after reliable mapping tables and fixture bytes are available. The current source strategy is documented in [mapping-table-sources.md](mapping-table-sources.md).
 
@@ -43,7 +48,18 @@ Recommended steps:
 1. Run `node scripts/generate-ucm-tables.mjs --profile <id> --dry-run` and confirm the source chain and counts.
 2. Add generated mapping tables under `src/codec/` or `src/codec/generated/`.
 3. Add a profile module, for example `src/codec/ibm939.ts`.
-4. Export a profile object with:
+4. Export a profile object.
+
+   For SBCS profiles:
+   - `id`
+   - `label`
+   - `sbcsToUnicode`
+   - `unicodeToSbcs`
+   - `newlineBytes`
+   - `replacementByte`
+   - `replacementText`
+
+   For DBCS profiles:
    - `id`
    - `label`
    - `so`
@@ -58,13 +74,22 @@ Recommended steps:
 5. Register the profile in `src/codePages.ts`.
 6. Add encoding picker entries only after tests pass.
 7. Add codec roundtrip tests.
-8. Add SO/SI diagnostics tests.
+8. Add SO/SI diagnostics tests for DBCS profiles.
 9. Add at least one fixture regression test.
 10. Update user documentation and diagnostics notes.
 
 ## Candidate Profiles
 
 Enabled profiles:
+
+SBCS:
+
+- `IBM-037` for US/Canada EBCDIC SBCS;
+- `IBM-500` for International EBCDIC SBCS;
+- `IBM-1047` for Latin-1/Open Systems EBCDIC SBCS;
+- `IBM-1140` for US/Canada EBCDIC SBCS with Euro.
+
+DBCS:
 
 - `IBM-930` for Japanese Katakana-Kanji EBCDIC DBCS;
 - `IBM-933` for Korean EBCDIC DBCS;

@@ -5,7 +5,7 @@ import {
   getDocumentEncoding,
   normalizeEncoding,
 } from './encoding';
-import { getIbmDbcsProfiles } from './codePages';
+import { getIbmDbcsProfiles, getIbmSbcsProfiles } from './codePages';
 import { SessionRegistry } from './sessionRegistry';
 import { encodingDescriptions, extensionText } from './i18n';
 
@@ -140,6 +140,17 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       .map(profile => ({
         label: profile.label,
         description: encodingDescriptions[profile.id] ?? extensionText.ibmDbcsDescription(),
+        value: profile.id,
+      })),
+    {
+      label: extensionText.ibmSbcsSeparator(),
+      kind: vscode.QuickPickItemKind.Separator,
+    },
+    ...getIbmSbcsProfiles()
+      .filter(profile => profile.id !== normalized)
+      .map(profile => ({
+        label: profile.label,
+        description: encodingDescriptions[profile.id] ?? extensionText.ibmSbcsDescription(),
         value: profile.id,
       })),
     ...(normalized !== 'utf8'

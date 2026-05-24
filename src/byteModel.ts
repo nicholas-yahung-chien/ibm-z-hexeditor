@@ -1,5 +1,6 @@
-import { getIbmDbcsProfile } from './codePages';
+import { getIbmDbcsProfile, getIbmSbcsProfile } from './codePages';
 import { decodeIbmDbcsPair, decodeIbmDbcsSbcsByte, type IbmDbcsCodePageProfile } from './codec/ibmDbcs';
+import { decodeIbmSbcsByte, type IbmSbcsCodePageProfile } from './codec/ibmSbcs';
 import { inspectIbmDbcs } from './inspector/inspectIbmDbcs';
 import type { AnalysisResult, InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
 import type { ByteCell, EditorSnapshot, PreviewEntry, RecordLine } from './protocol';
@@ -119,6 +120,10 @@ export function previewBytes(bytes: Uint8Array, encoding: string): PreviewEntry[
   if (profile) {
     return previewIbmDbcs(profile, bytes);
   }
+  const sbcsProfile = getIbmSbcsProfile(encoding);
+  if (sbcsProfile) {
+    return previewIbmSbcs(sbcsProfile, bytes);
+  }
   if (encoding === 'utf8' || encoding === 'utf8bom') {
     return previewUtf8(bytes);
   }
@@ -160,6 +165,18 @@ function previewUtf8(bytes: Uint8Array): PreviewEntry[] {
   }
 
   return entries;
+}
+
+function previewIbmSbcs(profile: IbmSbcsCodePageProfile, bytes: Uint8Array): PreviewEntry[] {
+  return Array.from(bytes, (value, byteOffset) => {
+    const text = decodeIbmSbcsByte(profile, value);
+    return {
+      byteOffset,
+      byteLength: 1,
+      text: text.startsWith('[') ? '.' : text,
+      kind: text.startsWith('[') ? 'control' : 'sbcs',
+    };
+  });
 }
 
 function previewIbmDbcs(profile: IbmDbcsCodePageProfile, bytes: Uint8Array): PreviewEntry[] {
@@ -252,6 +269,10 @@ function newlineSetForEncoding(encoding: string): Set<number> {
   const profile = getIbmDbcsProfile(encoding);
   if (profile) {
     return new Set(profile.newlineBytes);
+  }
+  const sbcsProfile = getIbmSbcsProfile(encoding);
+  if (sbcsProfile) {
+    return new Set(sbcsProfile.newlineBytes);
   }
   return new Set([0x0a]);
 }

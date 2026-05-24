@@ -245,8 +245,8 @@ export function buildTables(loadedSources, options = {}) {
   const entriesByByteKey = new Map();
 
   for (const source of loadedSources) {
-    if (source.parsed.header.uconv_class !== "EBCDIC_STATEFUL") {
-      throw new Error(`${source.parsed.sourceName}: expected uconv_class EBCDIC_STATEFUL.`);
+    if (!["EBCDIC_STATEFUL", "SBCS"].includes(source.parsed.header.uconv_class)) {
+      throw new Error(`${source.parsed.sourceName}: expected uconv_class EBCDIC_STATEFUL or SBCS.`);
     }
 
     for (const entry of source.parsed.entries) {

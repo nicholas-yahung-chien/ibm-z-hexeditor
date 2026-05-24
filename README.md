@@ -4,7 +4,7 @@
 
 IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
-The current MVP is focused on IBM EBCDIC DBCS and UTF-8 workflows. IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
+The current MVP is focused on IBM EBCDIC and UTF-8 workflows. IBM-037, IBM-500, IBM-1047, and IBM-1140 files get SBCS preview support. IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
 
 ## What You Can Do
 
@@ -12,6 +12,7 @@ The current MVP is focused on IBM EBCDIC DBCS and UTF-8 workflows. IBM-930, IBM-
 - View raw file bytes as editable high/low hex-nibble rows.
 - See a read-only character preview decoded with the encoding you choose.
 - Edit bytes by replacing nibbles, inserting `00`, or deleting bytes.
+- Preview supported IBM EBCDIC SBCS and DBCS bytes as text.
 - Inspect IBM EBCDIC DBCS SO/SI structure and DBCS ambiguity warnings.
 - Jump from diagnostics to the exact byte location.
 - Save edited bytes back to disk, then return to the default VS Code editor.
@@ -60,7 +61,7 @@ Open this repository in VS Code and press `F5` to launch an Extension Developmen
 5. Edit bytes in the HEX ON view.
 6. Press `Ctrl+S` or click `Save`.
 
-Choose one of the supported IBM EBCDIC DBCS encodings when the file bytes use that code page, even if VS Code previously displayed the file through another text encoding.
+Choose one of the supported IBM EBCDIC SBCS or DBCS encodings when the file bytes use that code page, even if VS Code previously displayed the file through another text encoding.
 
 ## Settings
 
@@ -85,8 +86,9 @@ Choose one of the supported IBM EBCDIC DBCS encodings when the file bytes use th
 ## Current Limits
 
 - Local files only.
-- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics. Other encodings are currently preview/edit flows.
-- Additional IBM EBCDIC DBCS code pages can be added through the generated-table workflow after fixtures and tests are available.
+- IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
+- IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
+- Additional IBM EBCDIC SBCS or DBCS code pages can be added through the generated-table workflow after fixtures and tests are available.
 - Localization infrastructure is in place with English baseline strings; translated catalogs are planned after UI text and diagnostics wording settle.
 
 ## Development Verification
