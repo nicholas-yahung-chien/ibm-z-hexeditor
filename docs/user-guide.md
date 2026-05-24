@@ -2,6 +2,17 @@
 
 This guide describes the current MVP workflow for the IBM Z HEX ON Editor.
 
+## Install
+
+Build and install the local VSIX:
+
+```sh
+npm install
+npm run package:vsix
+```
+
+Then in VS Code, run `Extensions: Install from VSIX...` and choose `dist/ibm-z-hex-on-editor.vsix`.
+
 ## Open HEX ON
 
 1. Open a local file in VS Code.
@@ -88,4 +99,3 @@ This mode is intended for wide fixed-format files where showing more bytes per r
 - The extension currently supports local files only.
 - Files larger than `ibmZHexEditor.maxFileSizeKb` are blocked by the MVP size guard.
 - IBM-937 has the most complete diagnostics. Other encodings are preview/edit flows only.
-- The editor does not yet provide a packaged `.vsix` release workflow in the repository scripts.

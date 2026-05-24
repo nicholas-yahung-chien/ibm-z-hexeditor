@@ -1,10 +1,20 @@
 {
   "name": "ibm-z-hex-on-editor",
   "displayName": "IBM Z HEX ON Editor",
-  "description": "ISPF-style HEX ON editor for IBM Z code page byte editing.",
+  "description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM-937 preview and SO/SI DBCS diagnostics.",
   "version": "0.1.0",
   "publisher": "nicholas-yahung-chien",
   "license": "MIT",
+  "icon": "images/icon.png",
+  "keywords": [
+    "IBM Z",
+    "z/OS",
+    "HEX ON",
+    "EBCDIC",
+    "IBM-937",
+    "DBCS",
+    "hex editor"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/nicholas-yahung-chien/ibm-z-hexeditor.git"
@@ -63,12 +73,12 @@
           "type": "number",
           "default": 1024,
           "minimum": 1,
-          "description": "Maximum source file size in KB for the MVP custom editor."
+          "description": "Maximum local file size, in KB, that can be opened in the HEX ON editor."
         },
         "ibmZHexEditor.condenseMode": {
           "type": "boolean",
           "default": false,
-          "description": "Use a denser HEX ON editor layout with narrower byte cells, hidden byte offsets, and no grid edge padding."
+          "description": "Show a denser HEX ON grid with narrower byte cells, hidden offsets, and no grid edge padding."
         }
       }
     }

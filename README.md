@@ -1,70 +1,84 @@
 # IBM Z HEX ON Editor
 
-VS Code extension prototype for ISPF-style `HEX ON` editing.
+IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
-The editor opens the current file in a custom webview, edits the file's raw bytes through high/low hex-nibble rows, and renders a read-only character preview using the file-content encoding selected by the user. The MVP focuses on UTF-8 and IBM-937 preview, including SO/SI diagnostics for EBCDIC DBCS runs.
+The current MVP is focused on IBM-937 and UTF-8 workflows. IBM-937 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
 
-## MVP Scope
+## What You Can Do
 
-- Command: `IBM Z Hex Editor: Open HEX ON`
-- Source bytes: local file bytes read directly from disk
-- File-content encoding preview: UTF-8 or IBM-937 in the first byte-first milestone
-- Editing surface: read-only character row plus editable high/low nibble rows
-- Raw byte editing: replace nibbles, insert bytes, delete bytes
-- IBM-937 diagnostics: SO/SI structure checks and conservative DBCS ambiguity warnings
-- Save behavior: write the edited raw bytes back to the file, then reopen it in the default text editor
-- Condense Mode: optional denser grid layout for fixed-format files
+- Open a local file in a HEX ON custom editor.
+- View raw file bytes as editable high/low hex-nibble rows.
+- See a read-only character preview decoded with the encoding you choose.
+- Edit bytes by replacing nibbles, inserting `00`, or deleting bytes.
+- Inspect IBM-937 SO/SI structure and DBCS ambiguity warnings.
+- Jump from diagnostics to the exact byte location.
+- Save edited bytes back to disk, then return to the default VS Code editor.
+- Enable Condense Mode to show more bytes per row.
 
-## File Encoding Flow
+## Installation
 
-VS Code exposes text documents to extensions as decoded Unicode strings, while the file on disk still has concrete bytes. This extension therefore treats the selected encoding as a preview/diagnostic choice, not as the source of truth for the hex rows:
+### Install From VSIX
 
-1. Resolve the active local file from the text editor or active file tab.
-2. Save the active file first if it is dirty.
-3. Show a file-content encoding picker:
-   - use the encoding VS Code reports for the current `TextDocument`
-   - preview as IBM-937
-   - force UTF-8
-   - choose a common VS Code encoding id such as `cp950`, `big5hkscs`, `shiftjis`, or `gbk`
-   - enter another VS Code encoding id manually
-4. Read the file's raw bytes from disk.
-5. Display those raw bytes in the hex rows.
-6. Render the read-only character preview using the selected encoding.
-7. On save, write the edited raw bytes back to disk without a Unicode roundtrip.
+Build the package:
 
-The IBM-937 path is intended for opening existing EBCDIC byte streams directly, including files where SO/SI structure needs inspection or repair.
+```sh
+npm install
+npm run package:vsix
+```
 
-## Usage
+Install `dist/ibm-z-hex-on-editor.vsix` from VS Code:
 
-See [docs/user-guide.md](docs/user-guide.md) for the current MVP workflow, keyboard editing behavior, save/reload/revert behavior, and Condense Mode setting.
+1. Open the Extensions view.
+2. Run `Extensions: Install from VSIX...`.
+3. Select `dist/ibm-z-hex-on-editor.vsix`.
+4. Reload VS Code if prompted.
 
-For IBM-937 SO/SI and DBCS rules, see [docs/diagnostics.md](docs/diagnostics.md).
+For repeatable validation with a clean VS Code profile, see [docs/acceptance-checklist.md](docs/acceptance-checklist.md).
 
-For packaged-extension validation, see [docs/acceptance-checklist.md](docs/acceptance-checklist.md).
-
-For planned work, including additional IBM EBCDIC DBCS code pages, see [docs/roadmap.md](docs/roadmap.md).
-
-## Settings
-
-- `ibmZHexEditor.maxFileSizeKb`: maximum local file size for the MVP custom editor.
-- `ibmZHexEditor.condenseMode`: enable a denser grid with narrower byte cells and hidden offsets.
-
-## Development
+### Run From Source
 
 ```sh
 npm install
 npm run compile
-npm test
-npm run package:vsix
 ```
 
-Run the extension from VS Code's Extension Development Host after compiling.
+Open this repository in VS Code and press `F5` to launch an Extension Development Host.
 
-Useful verification commands:
+## Basic Use
+
+1. Open a local file in VS Code.
+2. Run `IBM Z Hex Editor: Open HEX ON` from the Command Palette, editor title menu, or editor context menu.
+3. If the current file has unsaved changes, save it first.
+4. Choose the actual file-content encoding of the bytes on disk.
+5. Edit bytes in the HEX ON view.
+6. Press `Ctrl+S` or click `Save`.
+
+Choose `IBM-937` when the file bytes are IBM-937, even if VS Code previously displayed the file through another text encoding.
+
+## Settings
+
+- `ibmZHexEditor.maxFileSizeKb`: maximum local file size, in KB, that can be opened in the HEX ON editor.
+- `ibmZHexEditor.condenseMode`: show a denser grid with narrower byte cells, hidden offsets, and no grid edge padding.
+
+## Documentation
+
+- [User guide](docs/user-guide.md)
+- [IBM-937 diagnostics rules](docs/diagnostics.md)
+- [Acceptance checklist](docs/acceptance-checklist.md)
+- [Icon design notes](docs/icon-design.md)
+- [Roadmap](docs/roadmap.md)
+
+## Current Limits
+
+- Local files only.
+- IBM-937 has the most complete diagnostics. Other encodings are currently preview/edit flows.
+- Additional IBM EBCDIC DBCS code pages are planned after the IBM-937 architecture is stabilized.
+- Localization is planned near the end of the MVP cycle after UI text and diagnostics wording settle.
+
+## Development Verification
 
 ```sh
 npm run type-check
 npm test
-npm run compile
 npm run package:vsix
 ```
