@@ -55,6 +55,20 @@ export function countDiagnosticWarnings(result: AnalysisResult | null): number {
   return count;
 }
 
+export interface DiagnosticHeaderCounts {
+  problemCount: number;
+  dbcsPairCount: number;
+  warningCount: number;
+}
+
+export function getDiagnosticHeaderCounts(result: AnalysisResult | null): DiagnosticHeaderCounts {
+  return {
+    problemCount: countDiagnosticProblems(result),
+    dbcsPairCount: result?.counts.DBCS ?? 0,
+    warningCount: countDiagnosticWarnings(result),
+  };
+}
+
 export function summarizeProblemCounts(result: AnalysisResult | null): string {
   if (!result) {
     return '';

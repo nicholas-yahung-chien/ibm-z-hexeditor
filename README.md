@@ -40,6 +40,8 @@ See [docs/user-guide.md](docs/user-guide.md) for the current MVP workflow, keybo
 
 For IBM-937 SO/SI and DBCS rules, see [docs/diagnostics.md](docs/diagnostics.md).
 
+For planned work, including additional IBM EBCDIC DBCS code pages, see [docs/roadmap.md](docs/roadmap.md).
+
 ## Settings
 
 - `ibmZHexEditor.maxFileSizeKb`: maximum local file size for the MVP custom editor.

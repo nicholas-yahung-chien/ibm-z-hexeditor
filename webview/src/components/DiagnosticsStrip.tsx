@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspect937';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspect937';
-import { countDiagnosticProblems, countDiagnosticWarnings, DIAGNOSTIC_KIND_LABELS, DIAGNOSTIC_KIND_ORDER } from '../../../src/diagnosticsSummary';
+import { DIAGNOSTIC_KIND_LABELS, DIAGNOSTIC_KIND_ORDER, getDiagnosticHeaderCounts } from '../../../src/diagnosticsSummary';
 
 interface Props {
   result: AnalysisResult | null;
@@ -37,9 +37,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
     return null;
   }
 
-  const problemCount = countDiagnosticProblems(result);
-  const dbcsPairCount = result.counts.DBCS;
-  const warningCount = countDiagnosticWarnings(result);
+  const { problemCount, dbcsPairCount, warningCount } = getDiagnosticHeaderCounts(result);
   const jumpKinds = new Set<DiagnosticKind>([...PROBLEM_KINDS, ...WARNING_KINDS]);
   const jumpEvents = details
     .filter(item => jumpKinds.has(item.kind))
