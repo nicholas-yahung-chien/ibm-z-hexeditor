@@ -1,12 +1,12 @@
-# IBM-937 Diagnostics
+# IBM EBCDIC DBCS Diagnostics
 
-This document describes the current diagnostics used by the IBM Z HEX ON Editor when the selected file-content encoding is `ibm937`.
+This document describes the current diagnostics used by the IBM Z HEX ON Editor when the selected file-content encoding is a supported IBM EBCDIC DBCS profile such as `ibm930`, `ibm937`, or `ibm939`.
 
 The editor reads raw bytes from disk. Diagnostics are computed from those bytes, not from the Unicode text that VS Code may have decoded for the same file in a normal text editor.
 
 ## Modes
 
-IBM-937 DBCS text uses shift bytes:
+IBM EBCDIC DBCS text uses shift bytes:
 
 - `SO` (`0x0E`) enters DBCS mode.
 - `SI` (`0x0F`) returns to SBCS mode.
@@ -27,23 +27,23 @@ The inspector walks the byte stream from left to right and keeps the current mod
 ### Normal Content
 
 `SBCS`
-: A byte interpreted as a single-byte IBM-937 character while the inspector is in SBCS mode.
+: A byte interpreted as a single-byte IBM DBCS profile character while the inspector is in SBCS mode.
 
 `DBCS`
-: A valid two-byte IBM-937 DBCS pair found while the inspector is inside explicit `SO ... SI` DBCS mode.
+: A valid two-byte DBCS pair found while the inspector is inside explicit `SO ... SI` DBCS mode.
 
 The summary line's `DBCS pair(s)` count intentionally uses only `DBCS`. It does not include `DBCS_AMBIGUOUS`, because ambiguous pairs are warnings in SBCS mode rather than confirmed DBCS content.
 
 ### Warnings
 
 `DBCS_AMBIGUOUS`
-: A valid IBM-937 DBCS pair found while the inspector is in SBCS mode, where both bytes are also permitted SBCS bytes.
+: A valid DBCS pair found while the inspector is in SBCS mode, where both bytes are also permitted SBCS bytes.
 
 This warning means "these two bytes can be read as a DBCS character, but the current SO/SI state says they are SBCS." It does not block save.
 
 To avoid noisy false positives in COBOL and other source-like files, the current MVP only reports this warning when all of the following are true:
 
-- the byte pair is a valid IBM-937 DBCS mapping;
+- the byte pair is a valid DBCS mapping for the selected profile;
 - the current mode is SBCS;
 - both bytes are plausible SBCS bytes;
 - the DBCS mapping resolves to a normal Unicode character rather than a Private Use Area code point;
@@ -89,6 +89,6 @@ When problem diagnostics are present, the extension shows a modal confirmation b
 
 ## Known Limits
 
-- Diagnostics currently exist only for `ibm937`.
+- Diagnostics currently exist for `ibm930`, `ibm937`, and `ibm939`.
 - The `DBCS_AMBIGUOUS` rule is intentionally conservative. It favors reducing noise in source files over reporting every possible DBCS table match.
-- The IBM-937 mapping table contains Private Use Area mappings. These are treated as non-normal DBCS candidates for ambiguity warnings.
+- IBM DBCS mapping tables can contain Private Use Area mappings. These are treated as non-normal DBCS candidates for ambiguity warnings.

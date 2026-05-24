@@ -4,7 +4,7 @@
 
 IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
-The current MVP is focused on IBM-937 and UTF-8 workflows. IBM-937 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
+The current MVP is focused on IBM EBCDIC DBCS and UTF-8 workflows. IBM-930, IBM-937, and IBM-939 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
 
 ## What You Can Do
 
@@ -12,7 +12,7 @@ The current MVP is focused on IBM-937 and UTF-8 workflows. IBM-937 files get SO/
 - View raw file bytes as editable high/low hex-nibble rows.
 - See a read-only character preview decoded with the encoding you choose.
 - Edit bytes by replacing nibbles, inserting `00`, or deleting bytes.
-- Inspect IBM-937 SO/SI structure and DBCS ambiguity warnings.
+- Inspect IBM EBCDIC DBCS SO/SI structure and DBCS ambiguity warnings.
 - Jump from diagnostics to the exact byte location.
 - Save edited bytes back to disk, then return to the default VS Code editor.
 - Enable Condense Mode to show more bytes per row.
@@ -59,7 +59,7 @@ Open this repository in VS Code and press `F5` to launch an Extension Developmen
 5. Edit bytes in the HEX ON view.
 6. Press `Ctrl+S` or click `Save`.
 
-Choose `IBM-937` when the file bytes are IBM-937, even if VS Code previously displayed the file through another text encoding.
+Choose `IBM-930`, `IBM-937`, or `IBM-939` when the file bytes use one of those IBM EBCDIC DBCS encodings, even if VS Code previously displayed the file through another text encoding.
 
 ## Settings
 
@@ -80,8 +80,8 @@ Choose `IBM-937` when the file bytes are IBM-937, even if VS Code previously dis
 ## Current Limits
 
 - Local files only.
-- IBM-937 has the most complete diagnostics. Other encodings are currently preview/edit flows.
-- Additional IBM EBCDIC DBCS code pages are planned after the IBM-937 architecture is stabilized.
+- IBM-930, IBM-937, and IBM-939 have SO/SI DBCS diagnostics. Other encodings are currently preview/edit flows.
+- Additional IBM EBCDIC DBCS code pages are planned after the generated-table workflow is validated with more fixtures.
 - Localization is planned near the end of the MVP cycle after UI text and diagnostics wording settle.
 
 ## Development Verification

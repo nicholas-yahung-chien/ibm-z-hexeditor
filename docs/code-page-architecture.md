@@ -12,7 +12,7 @@ The editor remains byte-first:
 
 ## Current Shape
 
-IBM-937 is now represented as a profile:
+IBM-930, IBM-937, and IBM-939 are represented as profiles:
 
 - `src/codec/ibmDbcs.ts`
   - generic IBM DBCS profile interface;
@@ -21,6 +21,10 @@ IBM-937 is now represented as a profile:
 - `src/codec/ibm937.ts`
   - `IBM937_PROFILE`;
   - compatibility wrappers such as `encodeToIbm937`, `decodeFromIbm937`, and `decodeDbcsPair`.
+- `src/codec/ibm930.ts` and `src/codec/ibm939.ts`
+  - generated-table backed Japanese profile modules.
+- `src/codec/generated/`
+  - generated ICU `.ucm` mapping tables for IBM-930 and IBM-939.
 - `src/inspector/inspectIbmDbcs.ts`
   - generic SO/SI diagnostics traversal for IBM EBCDIC DBCS profiles.
 - `src/inspector/inspect937.ts`
@@ -60,9 +64,14 @@ Recommended steps:
 
 ## Candidate Profiles
 
-Initial candidates remain:
+Enabled profiles:
 
-- `IBM-939` or `IBM-930` for Japanese EBCDIC DBCS;
+- `IBM-930` for Japanese Katakana-Kanji EBCDIC DBCS;
+- `IBM-937` for Traditional Chinese EBCDIC DBCS;
+- `IBM-939` for Japanese Latin-Kanji EBCDIC DBCS.
+
+Initial remaining candidates:
+
 - `IBM-933` for Korean EBCDIC DBCS;
 - `IBM-935` for Simplified Chinese EBCDIC DBCS.
 
@@ -79,8 +88,8 @@ The current generic inspector assumes:
 
 Before enabling a new code page, verify these assumptions against real sample data for that language and code page. If needed, extend the profile interface with profile-specific predicates rather than adding code-page branches inside the inspector.
 
-## Non-Goals For This Step
+## Non-Goals For The IBM-930/939 Step
 
-- No new mapping tables are added.
-- No new encoding picker entries are enabled.
-- No user-visible behavior should change for IBM-937.
+- Do not replace the existing IBM-937 table yet.
+- Do not enable IBM-933 or IBM-935 until fixtures and tests are added.
+- Do not broaden diagnostics heuristics beyond the generic IBM DBCS rules until real language-specific samples justify it.

@@ -221,7 +221,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode }: Props) {
       tabIndex={0}
       ref={gridRef}
       onKeyDown={onKeyDown}
-      aria-label="IBM-937 hex editor grid"
+      aria-label={`${snapshot.fileEncoding} hex editor grid`}
     >
       {groups.map(group => {
         const rows = [];

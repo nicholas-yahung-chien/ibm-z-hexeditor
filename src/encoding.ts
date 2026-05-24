@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { normalizeIbmDbcsEncoding } from './codePages';
 
 export const COMMON_SOURCE_ENCODINGS = [
   'utf8',
@@ -34,7 +35,10 @@ export function normalizeEncoding(encoding: string | undefined): string {
   }
 
   const lower = encoding.toLowerCase();
-  return lower === 'utf-8' ? 'utf8' : lower;
+  if (lower === 'utf-8') {
+    return 'utf8';
+  }
+  return normalizeIbmDbcsEncoding(lower);
 }
 
 export function getDocumentEncoding(document: vscode.TextDocument): string {

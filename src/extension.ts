@@ -5,6 +5,7 @@ import {
   getDocumentEncoding,
   normalizeEncoding,
 } from './encoding';
+import { getIbmDbcsProfiles } from './codePages';
 import { SessionRegistry } from './sessionRegistry';
 
 interface ActiveResource {
@@ -129,14 +130,14 @@ async function pickFileEncoding(currentEncoding: string | undefined): Promise<st
       kind: vscode.QuickPickItemKind.Separator,
     },
     currentItem,
-    ...(normalized !== 'ibm937'
-      ? [{
-        label: 'IBM-937',
-        description: 'Use when the file bytes are IBM-937/EBCDIC; enables SO/SI diagnostics',
-        detail: 'Choose this even if VS Code currently displayed the file as UTF-8 but the bytes are actually IBM-937.',
-        value: 'ibm937',
-      }]
-      : []),
+    ...getIbmDbcsProfiles()
+      .filter(profile => profile.id !== normalized)
+      .map(profile => ({
+        label: profile.label,
+        description: `Use when the file bytes are ${profile.label}/EBCDIC; enables SO/SI diagnostics`,
+        detail: `Choose this even if VS Code currently displayed the file as UTF-8 but the bytes are actually ${profile.label}.`,
+        value: profile.id,
+      })),
     ...(normalized !== 'utf8'
       ? [{
         label: 'UTF-8',

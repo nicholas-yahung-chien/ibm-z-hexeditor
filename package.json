@@ -1,7 +1,7 @@
 {
   "name": "ibm-z-hex-on-editor",
   "displayName": "IBM Z HEX ON Editor",
-  "description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM-937 preview and SO/SI DBCS diagnostics.",
+  "description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM EBCDIC DBCS preview and SO/SI diagnostics.",
   "version": "0.1.0",
   "publisher": "nicholas-yahung-chien",
   "license": "MIT",
@@ -15,7 +15,9 @@
     "z/OS",
     "HEX ON",
     "EBCDIC",
+    "IBM-930",
     "IBM-937",
+    "IBM-939",
     "DBCS",
     "hex editor"
   ],

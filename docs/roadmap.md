@@ -4,7 +4,7 @@ This roadmap captures the current direction after the IBM-937 MVP.
 
 ## Near Term
 
-1. Keep IBM-937 regression coverage stable.
+1. Keep IBM-937 regression coverage stable while adding fixtures for IBM-930 and IBM-939.
 2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md).
 3. Capture the screenshots listed in [screenshots.md](screenshots.md).
 4. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
@@ -22,8 +22,9 @@ Planned direction:
 
 Initial candidate profiles:
 
+- `IBM-930`: Japanese Katakana-Kanji host mixed, generated from ICU `.ucm`.
 - `IBM-937`: Traditional Chinese, current MVP baseline.
-- `IBM-939` or `IBM-930`: Japanese EBCDIC DBCS.
+- `IBM-939`: Japanese Latin-Kanji host mixed, generated from ICU `.ucm` over IBM-930.
 - `IBM-933`: Korean EBCDIC DBCS.
 - `IBM-935`: Simplified Chinese EBCDIC DBCS.
 

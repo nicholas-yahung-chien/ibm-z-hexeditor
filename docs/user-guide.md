@@ -20,7 +20,7 @@ Then in VS Code, run `Extensions: Install from VSIX...` and choose `dist/ibm-z-h
 3. If the current editor has unsaved changes, save it first. The HEX ON editor reads bytes from disk.
 4. Choose the actual file-content encoding used by the bytes on disk.
 
-The encoding picker may show the encoding reported by VS Code for the current text document. Treat that as a reference only. If the file bytes are actually IBM-937, choose `IBM-937` even when VS Code displayed the file as UTF-8 or another encoding.
+The encoding picker may show the encoding reported by VS Code for the current text document. Treat that as a reference only. If the file bytes are actually IBM EBCDIC DBCS, choose the matching IBM code page even when VS Code displayed the file as UTF-8 or another encoding.
 
 ## Encoding Choices
 
@@ -28,12 +28,14 @@ The editor is byte-first:
 
 - hex rows always show the raw file bytes;
 - the read-only character preview is decoded from those bytes using the selected encoding;
-- IBM-937 enables SO/SI and DBCS diagnostics;
+- IBM-930, IBM-937, and IBM-939 enable SO/SI and DBCS diagnostics;
 - save writes the edited raw bytes back to disk without converting through Unicode text.
 
 The MVP has focused validation for:
 
 - `ibm937`
+- `ibm930`
+- `ibm939`
 - `utf8`
 - common VS Code encoding ids such as `cp950`, `big5hkscs`, `shiftjis`, and `gbk`
 
@@ -62,7 +64,7 @@ Diagnostics and the preview update as the raw bytes change.
 
 ## Diagnostics Panel
 
-For IBM-937 files, the diagnostics strip summarizes SO/SI structure and DBCS candidates.
+For supported IBM EBCDIC DBCS files, the diagnostics strip summarizes SO/SI structure and DBCS candidates.
 
 - `DBCS pair(s)` counts confirmed DBCS pairs inside explicit `SO ... SI` mode.
 - `warning(s)` counts non-blocking warnings such as `DBCS ambiguous`.
@@ -75,7 +77,7 @@ See [diagnostics.md](diagnostics.md) for the exact rule definitions.
 ## Save, Reload, and Revert
 
 `Save`
-: Writes the current raw bytes to disk. If IBM-937 structural problems exist, the extension asks for confirmation before saving. After a normal save, VS Code reopens the file in the default editor.
+: Writes the current raw bytes to disk. If IBM DBCS structural problems exist, the extension asks for confirmation before saving. After a normal save, VS Code reopens the file in the default editor.
 
 `Reload`
 : Rereads the file bytes from disk. If the HEX ON editor has unsaved edits, the extension asks before discarding them.
@@ -98,4 +100,4 @@ This mode is intended for wide fixed-format files where showing more bytes per r
 
 - The extension currently supports local files only.
 - Files larger than `ibmZHexEditor.maxFileSizeKb` are blocked by the MVP size guard.
-- IBM-937 has the most complete diagnostics. Other encodings are preview/edit flows only.
+- IBM-930, IBM-937, and IBM-939 have SO/SI DBCS diagnostics. Other encodings are preview/edit flows only.
