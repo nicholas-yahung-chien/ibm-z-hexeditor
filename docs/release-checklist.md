@@ -6,12 +6,13 @@ Use this checklist to record a complete release-candidate validation pass before
 
 - Version: `0.1.0`
 - Package: `dist/ibm-z-hex-on-editor.vsix`
-- Repository commit:
-- Validation date:
-- Validator:
-- VS Code version:
-- Operating system:
-- Node.js version:
+- Repository commit: `788591c`
+- Validation date: `2026-05-25`
+- Validator: Pending manual sign-off
+- VS Code-compatible host: IBM Bob `1.109.5+bob1.0.2`, commit `473fcbe9e52a0216936d3c384820ebb51fb5cfc2`, x64
+- Host CLI: `C:\Users\NicholasChien\Documents\IBM Bob\bin\bobide.cmd`
+- Operating system: Microsoft Windows 11 Enterprise 10.0.26200
+- Node.js version: `v22.16.0`
 
 ## Build Verification
 
@@ -25,10 +26,10 @@ npm run package:vsix
 
 Expected:
 
-- [ ] TypeScript check passes.
-- [ ] Unit and fixture regression tests pass.
-- [ ] VSIX package is created at `dist/ibm-z-hex-on-editor.vsix`.
-- [ ] Package output includes `README.md`, `CHANGELOG.md`, `images/icon.png`, and `images/screenshots/`.
+- [x] TypeScript check passes.
+- [x] Unit and fixture regression tests pass.
+- [x] VSIX package is created at `dist/ibm-z-hex-on-editor.vsix`.
+- [x] Package output includes `README.md`, `CHANGELOG.md`, `images/icon.png`, and `images/screenshots/`.
 
 ## VSIX Installation
 
