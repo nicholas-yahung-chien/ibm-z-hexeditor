@@ -68,7 +68,8 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       const gridRect = grid.getBoundingClientRect();
       const rowRect = row.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
-      const top = rowRect.top - gridRect.top + grid.scrollTop;
+      const stickyOffset = getStickyScrollOffset(grid);
+      const top = rowRect.top - gridRect.top + grid.scrollTop - stickyOffset;
       const left = targetRect.left - gridRect.left + grid.scrollLeft - ((grid.clientWidth - targetRect.width) / 2);
 
       grid.scrollTo({
@@ -403,4 +404,13 @@ function offsetInRange(offset: number, start: number, length: number): boolean {
 
 function rangesOverlap(startA: number, lengthA: number, startB: number, lengthB: number): boolean {
   return startA < startB + lengthB && startB < startA + lengthA;
+}
+
+function getStickyScrollOffset(grid: HTMLElement): number {
+  const ruler = grid.querySelector<HTMLElement>('.ruler-group');
+  if (!ruler) {
+    return 0;
+  }
+
+  return ruler.getBoundingClientRect().height;
 }

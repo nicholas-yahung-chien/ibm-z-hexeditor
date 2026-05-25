@@ -49,6 +49,38 @@ function strongSbcsByte(profile: IbmDbcsCodePageProfile, b: number): boolean {
   if (b < 0x40) return true;
   if (b === 0xFF) return true;
   if (isSbcsAlphanumeric(b)) return true;
+  return isCommonSbcsSymbolByte(b);
+}
+
+function isSbcsAlphanumeric(b: number): boolean {
+  return (
+    (b >= 0xF0 && b <= 0xF9) ||
+    (b >= 0xC1 && b <= 0xC9) ||
+    (b >= 0xD1 && b <= 0xD9) ||
+    (b >= 0xE2 && b <= 0xE9) ||
+    (b >= 0x81 && b <= 0x89) ||
+    (b >= 0x91 && b <= 0x99) ||
+    (b >= 0xA2 && b <= 0xA9)
+  );
+}
+
+function isSymbolicSbcsPair(data: Uint8Array, offset: number): boolean {
+  return !isSbcsAlphanumeric(data[offset]) && !isSbcsAlphanumeric(data[offset + 1]);
+}
+
+function isSbcsLowercaseLetter(b: number): boolean {
+  return (
+    (b >= 0x81 && b <= 0x89) ||
+    (b >= 0x91 && b <= 0x99) ||
+    (b >= 0xA2 && b <= 0xA9)
+  );
+}
+
+function isSbcsSymbolByte(b: number): boolean {
+  return isCommonSbcsSymbolByte(b) && !isSbcsAlphanumeric(b);
+}
+
+function isCommonSbcsSymbolByte(b: number): boolean {
   switch (b) {
     case 0x40: // space
     case 0x4B: // .
@@ -77,22 +109,6 @@ function strongSbcsByte(profile: IbmDbcsCodePageProfile, b: number): boolean {
   }
 }
 
-function isSbcsAlphanumeric(b: number): boolean {
-  return (
-    (b >= 0xF0 && b <= 0xF9) ||
-    (b >= 0xC1 && b <= 0xC9) ||
-    (b >= 0xD1 && b <= 0xD9) ||
-    (b >= 0xE2 && b <= 0xE9) ||
-    (b >= 0x81 && b <= 0x89) ||
-    (b >= 0x91 && b <= 0x99) ||
-    (b >= 0xA2 && b <= 0xA9)
-  );
-}
-
-function isSymbolicSbcsPair(data: Uint8Array, offset: number): boolean {
-  return !isSbcsAlphanumeric(data[offset]) && !isSbcsAlphanumeric(data[offset + 1]);
-}
-
 function isExcludedDbcsAmbiguousPair(
   data: Uint8Array,
   offset: number,
@@ -114,6 +130,30 @@ function isPrivateUseCodePoint(cp: number): boolean {
 function isNormalDbcsGlyph(glyph: string): boolean {
   const cp = glyph.codePointAt(0);
   return cp !== undefined && !isPrivateUseCodePoint(cp);
+}
+
+function isCjkUnifiedIdeograph(glyph: string): boolean {
+  const cp = glyph.codePointAt(0);
+  return cp !== undefined && (
+    (cp >= 0x3400 && cp <= 0x4DBF) ||
+    (cp >= 0x4E00 && cp <= 0x9FFF) ||
+    (cp >= 0x20000 && cp <= 0x2A6DF) ||
+    (cp >= 0x2A700 && cp <= 0x2B73F) ||
+    (cp >= 0x2B740 && cp <= 0x2B81F) ||
+    (cp >= 0x2B820 && cp <= 0x2CEAF) ||
+    (cp >= 0x30000 && cp <= 0x3134F)
+  );
+}
+
+function isCjkSymbolLowercaseAmbiguousPair(data: Uint8Array, offset: number, glyph: string): boolean {
+  // IBM-937 has common ideographs such as "中" at byte pairs like 4C 84.
+  // In SBCS mode those bytes render as "<d", so this catches missing SO/SI
+  // cases without enabling every alphanumeric-looking DBCS candidate.
+  return (
+    isCjkUnifiedIdeograph(glyph) &&
+    isSbcsSymbolByte(data[offset]) &&
+    isSbcsLowercaseLetter(data[offset + 1])
+  );
 }
 
 function toHex(data: Uint8Array, offset: number, length: number): string {
@@ -215,7 +255,7 @@ export function inspectIbmDbcs(
       const pairLooksSbcs = strongSbcsByte(profile, b1) && strongSbcsByte(profile, data[i + 1]);
       if (
         pairLooksSbcs &&
-        isSymbolicSbcsPair(data, i) &&
+        (isSymbolicSbcsPair(data, i) || isCjkSymbolLowercaseAmbiguousPair(data, i, glyph)) &&
         !isExcludedDbcsAmbiguousPair(data, i, dbcsAmbiguousExclusions) &&
         isNormalDbcsGlyph(glyph)
       ) {

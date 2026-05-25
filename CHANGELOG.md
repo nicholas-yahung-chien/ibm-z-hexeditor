@@ -28,6 +28,7 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - README and Marketplace screenshot assets.
 - Project icon and initial user-facing documentation.
 - First-pass localization catalogs and README pages for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German.
+- Jump-to-diagnostic scrolling now accounts for the sticky column ruler, and IBM-937 DBCS ambiguity detection covers the `4C 84` ideograph case.
 
 ### Current Limits
 

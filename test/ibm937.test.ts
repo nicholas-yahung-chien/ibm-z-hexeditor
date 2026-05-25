@@ -38,6 +38,18 @@ describe('IBM-937 codec', () => {
     expect(result.counts.DBCS_AMBIGUOUS).toBe(2);
   });
 
+  it('reports an IBM-937 DBCS ideograph as ambiguous even when one byte is also SBCS alphanumeric', () => {
+    const result = inspectIbm937(Uint8Array.from([0x4c, 0x84]));
+
+    expect(result.hasProblems).toBe(false);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(1);
+    expect(result.events[0]).toMatchObject({
+      kind: 'DBCS_AMBIGUOUS',
+      bytesHex: '4C 84',
+      decodedText: '中',
+    });
+  });
+
   it('does not report space padding as DBCS ambiguous', () => {
     const result = inspectIbm937(Uint8Array.from([0x40, 0x40, 0x40, 0x40]));
 
