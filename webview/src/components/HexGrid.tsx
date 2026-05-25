@@ -228,7 +228,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
 
   return (
     <main
-      className="hex-grid-shell"
+      className={['hex-grid-shell', showRuler ? 'ruler-enabled' : ''].filter(Boolean).join(' ')}
       tabIndex={0}
       ref={gridRef}
       onKeyDown={onKeyDown}

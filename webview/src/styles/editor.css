@@ -383,6 +383,11 @@ h1 {
   line-height: 1.25;
 }
 
+.hex-grid-shell.ruler-enabled {
+  padding-top: 0;
+  scroll-padding-block-start: 0;
+}
+
 .condense-mode .hex-grid-shell {
   padding: 0 0 75vh;
   scroll-padding-block-start: 0;
