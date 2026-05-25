@@ -82,7 +82,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       });
       grid.focus({ preventScroll: true });
     });
-  }, [jumpTarget, snapshot.cells.length]);
+  }, [jumpTarget?.token]);
 
   useEffect(() => {
     const element = gridRef.current;
