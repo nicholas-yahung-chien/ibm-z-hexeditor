@@ -5,8 +5,8 @@ The current icon is a working project asset for the MVP and can be replaced by a
 Design intent:
 
 - align visually with IBM Z VS Code extension family patterns: dark rounded tile, blue/purple structural linework, and a white functional symbol;
-- use a custom HEX ON metaphor instead of copying an existing IBM product icon;
-- show a mainframe/Z-like frame around editable hex byte cells;
+- reuse the IBM Z extension family frame language instead of introducing a visually separate product tile;
+- show the HEX ON purpose with a compact white `HEX` mark in the lower-right corner;
 - keep enough contrast for Marketplace and VS Code extension views;
 - keep `images/icon.svg` as an editable source and `images/icon.png` as the packaged Marketplace asset.
 

@@ -2,6 +2,12 @@
 
 All notable changes to the IBM Z HEX ON Editor extension will be documented in this file.
 
+## 0.1.2 - Icon Family Alignment
+
+### Changed
+
+- Updated the extension icon to better align with the IBM Z VS Code extension family: dark rounded tile, blue/purple frame language, and a white `HEX` mark.
+
 ## 0.1.1 - Diagnostics Preview Refresh
 
 ### Changed
