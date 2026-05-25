@@ -16,6 +16,7 @@ tsconfig.json
 package-lock.json
 *.vsix
 *.log
+images/icon-source.png
 
 node_modules/**
 !node_modules/@vscode/

@@ -8,7 +8,9 @@ Design intent:
 - reuse the IBM Z extension family frame language instead of introducing a visually separate product tile;
 - show the HEX ON purpose with a compact white `HEX` mark in the lower-right corner;
 - keep enough contrast for Marketplace and VS Code extension views;
-- keep `images/icon.svg` as an editable source and `images/icon.png` as the packaged Marketplace asset.
+- keep `images/icon-source.png` as the provided high-resolution source asset;
+- keep `images/icon.png` as the packaged Marketplace asset;
+- keep `images/icon.svg` as a raster-preserving SVG wrapper generated from `images/icon.png`, not as an independent vector redraw.
 
 References used:
 

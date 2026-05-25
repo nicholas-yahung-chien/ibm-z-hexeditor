@@ -2,6 +2,12 @@
 
 All notable changes to the IBM Z HEX ON Editor extension will be documented in this file.
 
+## 0.1.3 - Marketplace Icon Asset
+
+### Changed
+
+- Converted the provided icon into a 256x256 Marketplace PNG asset and generated a matching SVG wrapper from that PNG.
+
 ## 0.1.2 - Icon Family Alignment
 
 ### Changed
