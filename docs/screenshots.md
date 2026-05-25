@@ -160,15 +160,17 @@ The webview-only screenshots can be regenerated with:
 npm run capture:screenshots
 ```
 
-This script starts a local Vite server, renders the editor with demo snapshots, and captures:
+This script starts a local Vite server, renders the editor with demo snapshots, and regenerates:
 
 - `images/screenshots/hex-on-standard.png`
 - `images/screenshots/diagnostics-expanded.png`
 - `images/screenshots/sbcs-preview.png`
 - `images/screenshots/condense-mode.png`
 
-The following VS Code chrome or modal screenshots still need manual capture from an Extension Development Host or VSIX-installed extension:
+The following VS Code chrome or modal screenshots are captured manually from an Extension Development Host or VSIX-installed extension:
 
 - `images/screenshots/encoding-picker.png`
 - `images/screenshots/unsupported-ibm-encoding.png`
 - `images/screenshots/save-confirmation.png`
+
+Manual screenshots should be refreshed when the encoding picker, warning dialogs, save confirmation flow, or VS Code chrome changes.
