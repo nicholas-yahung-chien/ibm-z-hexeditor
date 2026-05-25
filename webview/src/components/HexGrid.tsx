@@ -36,6 +36,9 @@ function cellClass(cell: ByteCell): string {
   if (WARNING_KINDS.has(cell.diagnostic as never)) {
     return 'cell-warning';
   }
+  if (cell.diagnostic === 'DBCS') {
+    return 'cell-dbcs';
+  }
   return '';
 }
 

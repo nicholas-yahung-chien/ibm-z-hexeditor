@@ -89,6 +89,23 @@ describe('byte-first model', () => {
     expect(repaired.preview.map(entry => entry.text)).toEqual(['>', '測', '試', '<']);
   });
 
+  it('annotates inferred DBCS bytes after a backed-up missing SO', () => {
+    const bytes = encodeToIbm937('測試一下中文');
+    const withoutSo = cellsFromBytes(bytes.slice(1));
+    const snapshot = makeSnapshot({
+      uri: 'inline',
+      fileName: 'inline.cpy',
+      fileEncoding: 'ibm937',
+      cells: withoutSo,
+      dirty: true,
+    });
+
+    expect(snapshot.diagnostics?.counts.MISSING_SO).toBe(1);
+    expect(snapshot.diagnostics?.counts.DBCS).toBe(5);
+    expect(snapshot.cells.slice(0, 2).map(cell => cell.diagnostic)).toEqual(['MISSING_SO', 'MISSING_SO']);
+    expect(snapshot.cells.slice(2, 12).map(cell => cell.diagnostic)).toEqual(Array(10).fill('DBCS'));
+  });
+
   it('updates SO/SI diagnostics when SI is deleted and reinserted', () => {
     const bytes = encodeToIbm937('測試');
     const cells = cellsFromBytes(bytes);

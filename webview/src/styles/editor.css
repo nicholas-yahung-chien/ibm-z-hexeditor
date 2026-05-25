@@ -572,6 +572,10 @@ h1 {
   background: color-mix(in srgb, var(--warning) 30%, transparent);
 }
 
+.cell-dbcs {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+}
+
 .empty-state {
   display: grid;
   place-items: center;
