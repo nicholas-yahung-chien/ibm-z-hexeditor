@@ -92,6 +92,13 @@ Click the diagnostics strip to expand details. Category pills can be selected to
 
 See [diagnostics.md](diagnostics.md) for the exact rule definitions.
 
+Important diagnostic interpretation notes:
+
+- `DBCS ambiguous` is a warning, not a save-blocking structural problem.
+- When a likely missing `SO` is inferred, the editor may back the problem location up to the start of a pending ambiguous DBCS run.
+- Bytes after that inferred missing `SO` can be highlighted as `DBCS` to show the repaired interpretation path.
+- Custom `DBCS_AMBIGUOUS` exclusions replace the built-in defaults when enabled.
+
 ## Save, Reload, and Revert
 
 `Save`

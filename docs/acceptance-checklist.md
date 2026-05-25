@@ -346,6 +346,21 @@ Expected:
 - [ ] Diagnostics details show the relevant missing or unmatched SO/SI category.
 - [ ] Save prompts for confirmation when structural problems exist.
 
+### Missing SO Backtracking
+
+Use a copied IBM-937 fixture or a small IBM-937 file containing `測試一下中文` inside `SO ... SI`.
+
+1. Delete the leading `SO` byte only.
+2. Expand diagnostics.
+3. Click the `Missing SO` location.
+
+Expected:
+
+- [ ] `Missing SO` points to the first byte pair of the likely DBCS run, such as `5A 61` for `測`, not only to the later DBCS-only byte pair.
+- [ ] Later bytes in the inferred DBCS run are highlighted as `DBCS`.
+- [ ] The save confirmation counts the missing `SO` as one structural problem.
+- [ ] `DBCS ambiguous` warnings remain warnings and do not independently block save.
+
 ## 11. Save, Reopen, Reload, Revert
 
 ### Save

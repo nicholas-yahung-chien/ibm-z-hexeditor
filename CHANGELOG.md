@@ -7,6 +7,7 @@ All notable changes to the IBM Z HEX ON Editor extension will be documented in t
 ### Changed
 
 - Updated the provided icon asset with rounded transparent corners to match the IBM Z extension family tile shape.
+- Expanded DBCS diagnostics documentation for scan order, missing-SO backtracking, inferred DBCS highlighting, and save-confirmation behavior.
 
 ## 0.1.3 - Marketplace Icon Asset
 
