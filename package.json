@@ -103,6 +103,11 @@
           "default": false,
           "description": "%configuration.showRuler.description%"
         },
+        "ibmZHexEditor.performanceLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "%configuration.performanceLogging.description%"
+        },
         "ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": {
           "type": "boolean",
           "default": false,

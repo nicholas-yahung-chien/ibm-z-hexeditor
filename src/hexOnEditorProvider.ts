@@ -7,7 +7,7 @@ import {
   seedDefaultDbcsAmbiguousExclusionsIfNeeded,
 } from './settings';
 import { diagnosticKindLabels, extensionText } from './i18n';
-import type { EditorViewSettings, FromWebviewMessage, ToWebviewMessage } from './protocol';
+import type { EditorViewSettings, FromWebviewMessage, PerformanceLogFields, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
 export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDocument> {
@@ -16,16 +16,20 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private readonly changeEmitter = new vscode.EventEmitter<vscode.CustomDocumentEditEvent<HexOnDocument>>();
   readonly onDidChangeCustomDocument = this.changeEmitter.event;
   private readonly webviews = new Map<HexOnDocument, vscode.Webview>();
+  private readonly performanceOutput: vscode.OutputChannel;
   private lastInvalidDiagnosticsSettingsWarning = '';
 
   constructor(
     private readonly context: vscode.ExtensionContext,
     private readonly sessions: SessionRegistry,
   ) {
+    this.performanceOutput = vscode.window.createOutputChannel('IBM Z HEX ON Performance');
+    this.context.subscriptions.push(this.performanceOutput);
     this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
       if (
         event.affectsConfiguration('ibmZHexEditor.condenseMode') ||
-        event.affectsConfiguration('ibmZHexEditor.showRuler')
+        event.affectsConfiguration('ibmZHexEditor.showRuler') ||
+        event.affectsConfiguration('ibmZHexEditor.performanceLogging')
       ) {
         for (const [document, webview] of this.webviews) {
           this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
@@ -39,13 +43,25 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   }
 
   async openCustomDocument(uri: vscode.Uri): Promise<HexOnDocument> {
+    const start = performance.now();
     await seedDefaultDbcsAmbiguousExclusionsIfNeeded();
     const settings = readDiagnosticsSettings(uri);
     this.warnInvalidDiagnosticsSettings(settings.invalidRules);
-    return HexOnDocument.create(uri, this.sessions.take(uri), settings.options);
+    const document = await HexOnDocument.create(
+      uri,
+      this.sessions.take(uri),
+      settings.options,
+      (phase, fields) => this.logPerformance(uri, phase, fields),
+    );
+    this.logPerformance(uri, 'provider.openCustomDocument', {
+      durationMs: elapsed(start),
+      encoding: document.fileEncoding,
+    });
+    return document;
   }
 
   async resolveCustomEditor(document: HexOnDocument, webviewPanel: vscode.WebviewPanel): Promise<void> {
+    const start = performance.now();
     webviewPanel.webview.options = {
       enableScripts: true,
       localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview')],
@@ -53,10 +69,13 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
     webviewPanel.webview.html = this.html(webviewPanel.webview);
     this.webviews.set(document, webviewPanel.webview);
+    this.logPerformance(document.uri, 'provider.resolveCustomEditor', {
+      durationMs: elapsed(start),
+    });
 
     const disposables: vscode.Disposable[] = [];
     disposables.push(document.onDidChangeSnapshot(snapshot => {
-      this.post(webviewPanel.webview, { type: 'snapshot', snapshot });
+      this.post(webviewPanel.webview, { type: 'snapshot', snapshot }, document.uri, 'webview.snapshot');
     }));
     disposables.push(webviewPanel.webview.onDidReceiveMessage((message: FromWebviewMessage) => {
       this.handleMessage(document, webviewPanel.webview, message);
@@ -68,6 +87,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   }
 
   async saveCustomDocument(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<void> {
+    const start = performance.now();
     const webview = this.webviews.get(document);
     let problemCount = 0;
     try {
@@ -78,6 +98,10 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       throw error;
     }
 
+    this.logPerformance(document.uri, 'provider.saveCustomDocument', {
+      durationMs: elapsed(start),
+      problemCount,
+    });
     this.postStatus(webview, problemCount > 0 ? extensionText.savedWithProblems(problemCount) : extensionText.saved());
     const column = document.sourceViewColumn ?? vscode.ViewColumn.Active;
     try {
@@ -95,10 +119,16 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken,
   ): Promise<void> {
+    const start = performance.now();
     const webview = this.webviews.get(document);
     try {
       const problemCount = await this.confirmSaveWithProblems(document, cancellation);
       await document.writeTo(destination, cancellation);
+      this.logPerformance(document.uri, 'provider.saveCustomDocumentAs', {
+        durationMs: elapsed(start),
+        problemCount,
+        destination: destination.fsPath || destination.toString(),
+      });
       this.postStatus(webview, problemCount > 0 ? extensionText.savedWithProblems(problemCount) : extensionText.saved());
     } catch (error) {
       this.postStatus(webview, isCancellationError(error) ? extensionText.saveCanceled() : extensionText.saveFailed(messageFromError(error)));
@@ -130,7 +160,12 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private handleMessage(document: HexOnDocument, webview: vscode.Webview, message: FromWebviewMessage): void {
     if (message.type === 'ready') {
       this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
-      this.post(webview, { type: 'init', snapshot: document.snapshot() });
+      this.post(webview, { type: 'init', snapshot: document.snapshot() }, document.uri, 'webview.init');
+      return;
+    }
+
+    if (message.type === 'performanceLog') {
+      this.logPerformance(document.uri, `webview.${message.phase}`, message.fields);
       return;
     }
 
@@ -189,7 +224,47 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }
   }
 
-  private post(webview: vscode.Webview, message: ToWebviewMessage): void {
+  private postWithPerformance(
+    webview: vscode.Webview,
+    message: ToWebviewMessage,
+    resource: vscode.Uri,
+    phase: string,
+  ): void {
+    const start = performance.now();
+    const marked = this.isPerformanceLoggingEnabled(resource)
+      ? { ...message, perf: { phase, sentAt: performance.now() } }
+      : message;
+    void webview.postMessage(marked);
+    this.logPerformance(resource, 'provider.postMessage', {
+      durationMs: elapsed(start),
+      messageType: message.type,
+      phase,
+    });
+  }
+
+  private logPerformance(resource: vscode.Uri, phase: string, fields: PerformanceLogFields = {}): void {
+    if (!this.isPerformanceLoggingEnabled(resource)) {
+      return;
+    }
+
+    const formattedFields = Object.entries(fields)
+      .map(([key, value]) => `${key}=${formatPerformanceField(value)}`)
+      .join(' ');
+    const message = `[${new Date().toISOString()}] ${phase} file=${resource.fsPath || resource.toString()}${formattedFields ? ` ${formattedFields}` : ''}`;
+    this.performanceOutput.appendLine(message);
+    console.log(`IBM Z HEX ON Performance ${message}`);
+  }
+
+  private isPerformanceLoggingEnabled(resource: vscode.Uri): boolean {
+    return vscode.workspace.getConfiguration('ibmZHexEditor', resource).get<boolean>('performanceLogging', false);
+  }
+
+  private post(webview: vscode.Webview, message: ToWebviewMessage, resource?: vscode.Uri, phase?: string): void {
+    if (resource && phase) {
+      this.postWithPerformance(webview, message, resource, phase);
+      return;
+    }
+
     void webview.postMessage(message);
   }
 
@@ -204,6 +279,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     return {
       condenseMode: config.get<boolean>('condenseMode', false),
       showRuler: config.get<boolean>('showRuler', false),
+      performanceLogging: config.get<boolean>('performanceLogging', false),
       locale: vscode.env.language,
     };
   }
@@ -256,7 +332,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }
 
     await document.revert();
-    this.post(webview, { type: 'snapshot', snapshot: document.snapshot() });
+    this.post(webview, { type: 'snapshot', snapshot: document.snapshot() }, document.uri, 'webview.reloadSnapshot');
   }
 
   private async confirmSaveWithProblems(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<number> {
@@ -313,6 +389,17 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
 function messageFromError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function elapsed(start: number): number {
+  return Number((performance.now() - start).toFixed(2));
+}
+
+function formatPerformanceField(value: string | number | boolean | null): string {
+  if (typeof value === 'string') {
+    return JSON.stringify(value);
+  }
+  return String(value);
 }
 
 function isCancellationError(error: unknown): boolean {

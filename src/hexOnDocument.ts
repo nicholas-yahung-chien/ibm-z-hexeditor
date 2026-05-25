@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, replaceNibble } from './byteModel';
 import type { ByteCell, EditorSnapshot, HexNibble } from './protocol';
+import type { PerformanceLogFields } from './protocol';
 import type { InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
 import type { HexOnSession } from './sessionRegistry';
 
@@ -19,6 +20,7 @@ export class HexOnDocument implements vscode.CustomDocument {
     readonly sourceViewColumn: vscode.ViewColumn | undefined,
     bytes: Uint8Array,
     private diagnosticsOptions: InspectIbmDbcsOptions = {},
+    private readonly performanceLog?: (phase: string, fields: PerformanceLogFields) => void,
   ) {
     this.cells = cellsFromBytes(bytes);
     this.savedCells = cellsFromBytes(bytes);
@@ -28,8 +30,15 @@ export class HexOnDocument implements vscode.CustomDocument {
     uri: vscode.Uri,
     session: HexOnSession | undefined,
     diagnosticsOptions: InspectIbmDbcsOptions = {},
+    performanceLog?: (phase: string, fields: PerformanceLogFields) => void,
   ): Promise<HexOnDocument> {
+    const readStart = performance.now();
     const bytes = session?.bytes ?? await vscode.workspace.fs.readFile(uri);
+    performanceLog?.('document.readBytes', {
+      durationMs: elapsed(readStart),
+      bytes: bytes.length,
+      source: session?.bytes ? 'session' : 'disk',
+    });
 
     return new HexOnDocument(
       uri,
@@ -38,6 +47,7 @@ export class HexOnDocument implements vscode.CustomDocument {
       session?.sourceViewColumn,
       bytes,
       diagnosticsOptions,
+      performanceLog,
     );
   }
 
@@ -46,7 +56,8 @@ export class HexOnDocument implements vscode.CustomDocument {
   }
 
   snapshot(): EditorSnapshot {
-    return makeSnapshot({
+    const start = performance.now();
+    const snapshot = makeSnapshot({
       uri: this.uri.toString(),
       fileName: this.fileName,
       fileEncoding: this.fileEncoding,
@@ -54,6 +65,15 @@ export class HexOnDocument implements vscode.CustomDocument {
       dirty: this.dirty,
       diagnosticsOptions: this.diagnosticsOptions,
     });
+    this.performanceLog?.('document.snapshot', {
+      durationMs: elapsed(start),
+      bytes: snapshot.cells.length,
+      lines: snapshot.lines.length,
+      previewEntries: snapshot.preview.length,
+      diagnosticEvents: snapshot.diagnostics?.events.length ?? 0,
+      dirty: snapshot.dirty,
+    });
+    return snapshot;
   }
 
   updateDiagnosticsOptions(diagnosticsOptions: InspectIbmDbcsOptions): void {
@@ -103,10 +123,15 @@ export class HexOnDocument implements vscode.CustomDocument {
       return;
     }
 
+    const start = performance.now();
     await this.writeTo(this.uri, cancellation);
     this.savedCells = this.cells;
     this.dirty = false;
     this.changeEmitter.fire(this.snapshot());
+    this.performanceLog?.('document.save', {
+      durationMs: elapsed(start),
+      bytes: this.cells.length,
+    });
   }
 
   async writeTo(uri: vscode.Uri, cancellation?: vscode.CancellationToken): Promise<void> {
@@ -114,21 +139,36 @@ export class HexOnDocument implements vscode.CustomDocument {
       return;
     }
 
+    const start = performance.now();
     const bytes = bytesFromCells(this.cells);
     if (cancellation?.isCancellationRequested) {
       return;
     }
 
     await vscode.workspace.fs.writeFile(uri, bytes);
+    this.performanceLog?.('document.writeTo', {
+      durationMs: elapsed(start),
+      bytes: bytes.length,
+      destination: uri.fsPath || uri.toString(),
+    });
   }
 
   async revert(): Promise<void> {
+    const start = performance.now();
     const bytes = await vscode.workspace.fs.readFile(this.uri);
     this.cells = cellsFromBytes(bytes);
     this.savedCells = cellsFromBytes(bytes);
     this.dirty = false;
     this.changeEmitter.fire(this.snapshot());
+    this.performanceLog?.('document.revert', {
+      durationMs: elapsed(start),
+      bytes: bytes.length,
+    });
   }
+}
+
+function elapsed(start: number): number {
+  return Number((performance.now() - start).toFixed(2));
 }
 
 function sameCellValues(left: readonly ByteCell[], right: readonly ByteCell[]): boolean {

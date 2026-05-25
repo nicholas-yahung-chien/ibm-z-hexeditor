@@ -8,6 +8,7 @@
   "configuration.maxFileSizeKb.description": "HEX ON エディターで開けるローカル ファイルの最大サイズ (KB)。",
   "configuration.condenseMode.description": "幅の狭いバイト セル、非表示のオフセット、グリッド端の padding なしで、より高密度な HEX ON グリッドを表示します。",
   "configuration.showRuler.description": "HEX ON バイト グリッドの上に列ルーラーを表示します。",
+  "configuration.performanceLogging.description": "HEX ON エディターのパフォーマンス計測ログを IBM Z HEX ON Performance 出力チャネルに書き込みます。既定では無効です。",
   "configuration.dbcsAmbiguousExclusionsEnabled.description": "DBCS ambiguous 診断にカスタム バイト ペア除外を使用します。有効化され、カスタム リストがまだ存在しない場合、編集用の既定除外がユーザー設定 JSON に書き込まれます。",
   "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 診断のカスタム バイト ペア除外。各ルールは、SBCS mode で有効な DBCS ペアを DBCS_AMBIGUOUS 警告から除外します。カスタム リストは組み込み既定値を置き換えます。何も除外しない場合は [] を使用します。",
   "configuration.dbcsAmbiguousExclusions.bytes.description": "除外する 2 バイト ペア。使用できる形式は \"40 40\"、\"0x40 0x40\"、\"4040\" です。",

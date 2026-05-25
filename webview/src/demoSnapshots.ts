@@ -56,7 +56,7 @@ function demoPayload(demo: DemoName): DemoPayload {
         encodeToIbm1047('ABC'),
         Uint8Array.from([0x15]),
       )),
-      settings: { condenseMode: false, showRuler: false, locale },
+      settings: { condenseMode: false, showRuler: false, performanceLogging: false, locale },
     };
   }
 
@@ -71,6 +71,7 @@ function demoPayload(demo: DemoName): DemoPayload {
     settings: {
       condenseMode: demo === 'condense',
       showRuler: demo === 'condense',
+      performanceLogging: false,
       locale,
     },
   };

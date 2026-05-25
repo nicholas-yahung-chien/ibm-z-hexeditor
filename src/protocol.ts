@@ -37,19 +37,32 @@ export interface EditorSnapshot {
 export interface EditorViewSettings {
   condenseMode: boolean;
   showRuler: boolean;
+  performanceLogging: boolean;
   locale: string;
 }
 
+export interface PerformanceMessageMarker {
+  phase: string;
+  sentAt: number;
+}
+
+export type PerformanceLogFields = Record<string, string | number | boolean | null>;
+
 export type ToWebviewMessage =
-  | { type: 'init'; snapshot: EditorSnapshot }
-  | { type: 'snapshot'; snapshot: EditorSnapshot }
-  | { type: 'saved'; snapshot: EditorSnapshot }
-  | { type: 'settings'; settings: EditorViewSettings }
-  | { type: 'status'; message: string }
-  | { type: 'error'; message: string };
+  ({
+    perf?: PerformanceMessageMarker;
+  } & (
+    | { type: 'init'; snapshot: EditorSnapshot }
+    | { type: 'snapshot'; snapshot: EditorSnapshot }
+    | { type: 'saved'; snapshot: EditorSnapshot }
+    | { type: 'settings'; settings: EditorViewSettings }
+    | { type: 'status'; message: string }
+    | { type: 'error'; message: string }
+  ));
 
 export type FromWebviewMessage =
   | { type: 'ready' }
+  | { type: 'performanceLog'; phase: string; fields: PerformanceLogFields }
   | { type: 'replaceNibble'; offset: number; nibble: HexNibble; digit: number }
   | { type: 'insertByte'; offset: number; value?: number }
   | { type: 'deleteByte'; offset: number }

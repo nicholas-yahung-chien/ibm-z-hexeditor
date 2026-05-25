@@ -19,20 +19,26 @@ export default function App() {
   const [viewSettings, setViewSettings] = useState<EditorViewSettings>({
     condenseMode: false,
     showRuler: false,
+    performanceLogging: false,
     locale: initialLocale,
   });
   const [status, setStatus] = useState(t('preparingEditorData'));
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
   const [headerCollapsed, setHeaderCollapsed] = useState(shouldCollapseHeaderFromUrl);
   const snapshotRef = useRef<EditorSnapshot | null>(null);
+  const performanceLoggingRef = useRef(false);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent<ToWebviewMessage>) => {
       const message = event.data;
       if (message.type === 'init' || message.type === 'snapshot' || message.type === 'saved') {
+        const receivedAt = performance.now();
         snapshotRef.current = message.snapshot;
         setSnapshot(message.snapshot);
         setStatus(message.type === 'saved' ? t('saved') : message.snapshot.dirty ? t('modified') : t('ready'));
+        if (message.perf && performanceLoggingRef.current) {
+          reportSnapshotRender(message.perf.phase, message.perf.sentAt, receivedAt, message.snapshot);
+        }
       }
 
       if (message.type === 'error') {
@@ -45,6 +51,7 @@ export default function App() {
 
       if (message.type === 'settings') {
         setLocale(message.settings.locale);
+        performanceLoggingRef.current = message.settings.performanceLogging;
         setViewSettings(message.settings);
         if (snapshotRef.current === null) {
           setStatus(t('preparingEditorData'));
@@ -181,6 +188,30 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function reportSnapshotRender(phase: string, sentAt: number, receivedAt: number, snapshot: EditorSnapshot): void {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      vscode.postMessage({
+        type: 'performanceLog',
+        phase: 'snapshotRender',
+        fields: {
+          phase,
+          transportMs: roundMs(receivedAt - sentAt),
+          renderMs: roundMs(performance.now() - receivedAt),
+          bytes: snapshot.cells.length,
+          lines: snapshot.lines.length,
+          previewEntries: snapshot.preview.length,
+          diagnosticEvents: snapshot.diagnostics?.events.length ?? 0,
+        },
+      });
+    });
+  });
+}
+
+function roundMs(value: number): number {
+  return Number(value.toFixed(2));
 }
 
 function shouldCollapseHeaderFromUrl(): boolean {
