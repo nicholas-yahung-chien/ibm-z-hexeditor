@@ -6,9 +6,9 @@ Use this checklist to record a complete release-candidate validation pass before
 
 - Version: `0.1.0`
 - Package: `dist/ibm-z-hex-on-editor.vsix`
-- Repository commit: `788591c`
+- Validation baseline commit: `ffa79ff`
 - Validation date: `2026-05-25`
-- Validator: Pending manual sign-off
+- Validator: Nicholas Chien
 - VS Code-compatible host: IBM Bob `1.109.5+bob1.0.2`, commit `473fcbe9e52a0216936d3c384820ebb51fb5cfc2`, x64
 - Host CLI: `C:\Users\NicholasChien\Documents\IBM Bob\bin\bobide.cmd`
 - Operating system: Microsoft Windows 11 Enterprise 10.0.26200
@@ -39,9 +39,9 @@ Expected:
 
 Expected:
 
-- [ ] Extension installs without errors.
-- [ ] Icon appears in the extension details view.
-- [ ] Command Palette includes `IBM Z Hex Editor: Open HEX ON`.
+- [x] Extension installs without errors.
+- [x] Icon appears in the extension details view.
+- [x] Command Palette includes `IBM Z Hex Editor: Open HEX ON`.
 
 ## Functional Acceptance
 
@@ -49,32 +49,32 @@ Run the full scenario list in [acceptance-checklist.md](acceptance-checklist.md)
 
 Summary:
 
-- [ ] Encoding picker behavior accepted.
-- [ ] UTF-8/raw byte editing accepted.
-- [ ] IBM SBCS preview accepted for IBM-037, IBM-500, IBM-1047, and IBM-1140.
-- [ ] IBM DBCS preview and SO/SI diagnostics accepted for IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399.
-- [ ] Insert/delete byte editing accepted.
-- [ ] Save/reload/revert flows accepted.
-- [ ] Save confirmation for structural DBCS issues accepted.
-- [ ] Condense Mode accepted.
-- [ ] Header collapse accepted.
-- [ ] Column ruler accepted.
-- [ ] User-configurable DBCS ambiguous exclusions accepted.
-- [ ] Unsupported IBM code-page warning accepted.
+- [x] Encoding picker behavior accepted.
+- [x] UTF-8/raw byte editing accepted.
+- [x] IBM SBCS preview accepted for IBM-037, IBM-500, IBM-1047, and IBM-1140.
+- [x] IBM DBCS preview and SO/SI diagnostics accepted for IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399.
+- [x] Insert/delete byte editing accepted.
+- [x] Save/reload/revert flows accepted.
+- [x] Save confirmation for structural DBCS issues accepted.
+- [x] Condense Mode accepted.
+- [x] Header collapse accepted.
+- [x] Column ruler accepted.
+- [x] User-configurable DBCS ambiguous exclusions accepted.
+- [x] Unsupported IBM code-page warning accepted.
 
 ## Release Assets
 
-- [ ] README screenshots render correctly on GitHub.
-- [ ] `docs/marketplace.md` copy has been reviewed.
-- [ ] Screenshot set is complete:
-  - [ ] `encoding-picker.png`
-  - [ ] `hex-on-standard.png`
-  - [ ] `diagnostics-expanded.png`
-  - [ ] `sbcs-preview.png`
-  - [ ] `condense-mode.png`
-  - [ ] `unsupported-ibm-encoding.png`
-  - [ ] `save-confirmation.png`
-- [ ] `CHANGELOG.md` reflects the release contents.
+- [x] README screenshots render correctly on GitHub.
+- [x] `docs/marketplace.md` copy has been reviewed for release-candidate use.
+- [x] Screenshot set is complete:
+  - [x] `encoding-picker.png`
+  - [x] `hex-on-standard.png`
+  - [x] `diagnostics-expanded.png`
+  - [x] `sbcs-preview.png`
+  - [x] `condense-mode.png`
+  - [x] `unsupported-ibm-encoding.png`
+  - [x] `save-confirmation.png`
+- [x] `CHANGELOG.md` reflects the release contents.
 - [ ] Product naming, legal notices, icon usage, and generated mapping table attribution are ready for product-team review.
 
 ## Known Limits For 0.1.0
@@ -89,11 +89,13 @@ Summary:
 
 Decision:
 
-- [ ] Ready to publish/share.
+- [x] Ready to share internally for product-team review.
+- [ ] Ready to publish externally.
 - [ ] Needs fixes before publish/share.
 
 Notes:
 
 ```text
-
+Manual validation accepted on 2026-05-25 using IBM Bob 1.109.5+bob1.0.2.
+External publication remains pending product-team review for naming, legal notices, icon usage, and generated mapping table attribution.
 ```

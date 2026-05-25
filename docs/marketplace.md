@@ -72,6 +72,7 @@ Recommended Marketplace order:
 - `dist/ibm-z-hex-on-editor.vsix`
 - `README.md`
 - `CHANGELOG.md`
+- `docs/release-notes-0.1.0.md`
 - `images/icon.png`
 - selected screenshots under `images/screenshots/`
 - acceptance notes from [acceptance-checklist.md](acceptance-checklist.md)

@@ -89,6 +89,7 @@ If you manually enter an IBM-style code page id that is not yet supported, the e
 - [Localization plan](docs/i18n.md)
 - [Marketplace listing draft](docs/marketplace.md)
 - [Release checklist](docs/release-checklist.md)
+- [Release notes 0.1.0](docs/release-notes-0.1.0.md)
 - [Screenshot plan](docs/screenshots.md)
 - [Change log](CHANGELOG.md)
 - [Roadmap](docs/roadmap.md)
