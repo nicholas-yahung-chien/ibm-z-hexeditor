@@ -2,6 +2,12 @@
 
 All notable changes to the IBM Z HEX ON Editor extension will be documented in this file.
 
+## 0.1.4 - Rounded Icon Tile
+
+### Changed
+
+- Updated the provided icon asset with rounded transparent corners to match the IBM Z extension family tile shape.
+
 ## 0.1.3 - Marketplace Icon Asset
 
 ### Changed
