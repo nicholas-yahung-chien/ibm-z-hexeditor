@@ -8,6 +8,13 @@ export interface ParsedDbcsAmbiguousExclusions {
   invalidRules: string[];
 }
 
+export interface DbcsAmbiguousExclusionSeedState {
+  enabled: boolean;
+  globalValue?: unknown;
+  workspaceValue?: unknown;
+  workspaceFolderValue?: unknown;
+}
+
 export const DEFAULT_DBCS_AMBIGUOUS_EXCLUSION_RULES: readonly DbcsAmbiguousExclusionRule[] = [
   { bytes: '40 40', label: 'EBCDIC spaces' },
   { bytes: '5C 5C', label: 'COBOL repeated asterisks' },
@@ -65,6 +72,13 @@ export function parseDbcsAmbiguousPair(value: string): number | undefined {
   }
 
   return undefined;
+}
+
+export function shouldSeedDefaultDbcsAmbiguousExclusions(state: DbcsAmbiguousExclusionSeedState): boolean {
+  return state.enabled &&
+    state.globalValue === undefined &&
+    state.workspaceValue === undefined &&
+    state.workspaceFolderValue === undefined;
 }
 
 export function pairKey(b1: number, b2: number): number {

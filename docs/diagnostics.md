@@ -52,7 +52,7 @@ To avoid noisy false positives in COBOL and other source-like files, the current
 - both bytes are symbolic SBCS bytes rather than letters or digits;
 - the pair is not an obvious SBCS filler pair such as `0x40 0x40` spaces or repeated `0x5C 0x5C` asterisks.
 
-The default exclusion list includes `0x40 0x40` and `0x5C 0x5C`. Users can enable `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled` to replace the defaults with custom `DBCS_AMBIGUOUS` exclusions from VS Code user settings JSON. When first enabled, the extension seeds the user settings JSON with the default exclusions so users can modify them directly.
+The default exclusion list includes `0x40 0x40` and `0x5C 0x5C`. Users can enable `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled` to replace the defaults with custom `DBCS_AMBIGUOUS` exclusions from VS Code user settings JSON. When enabled and no custom list exists yet, the extension seeds the user settings JSON with the default exclusions so users can modify them directly. An explicitly configured empty list is respected and means no ambiguous pairs are excluded.
 
 Examples:
 

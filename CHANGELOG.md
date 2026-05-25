@@ -9,6 +9,7 @@ All notable changes to the IBM Z HEX ON Editor extension will be documented in t
 - Bumped the extension version so locally installed VSIX builds are easier to distinguish during validation.
 - Diagnostic jump scrolling now behaves as a one-time action instead of reusing stale jump targets after byte edits.
 - Inferred DBCS bytes after a backed-up missing SO are visually highlighted in the editor grid.
+- DBCS ambiguous exclusion seeding now respects explicitly configured empty or invalid custom lists instead of overwriting them.
 
 ## 0.1.0 - MVP Preview
 

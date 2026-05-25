@@ -79,7 +79,7 @@ If you manually enter an IBM-style code page id that is not yet supported, the e
 - `ibmZHexEditor.condenseMode`: show a denser grid with narrower byte cells, hidden offsets, and no grid edge padding.
 - `ibmZHexEditor.showRuler`: show a column ruler above the byte grid.
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: use custom byte-pair exclusions for `DBCS_AMBIGUOUS` warnings.
-- `ibmZHexEditor.dbcsAmbiguousExclusions`: byte-pair rules such as `{ "bytes": "40 40", "label": "EBCDIC spaces" }`. When custom exclusions are first enabled, the extension writes the default rules to user settings JSON for editing.
+- `ibmZHexEditor.dbcsAmbiguousExclusions`: byte-pair rules such as `{ "bytes": "40 40", "label": "EBCDIC spaces" }`. When custom exclusions are enabled and no custom list exists yet, the extension writes the default rules to user settings JSON for editing. The custom list replaces the built-in defaults; set it to `[]` to use no ambiguous exclusions.
 
 ## Documentation
 

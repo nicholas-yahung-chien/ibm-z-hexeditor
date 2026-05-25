@@ -8,8 +8,8 @@
   "configuration.maxFileSizeKb.description": "HEX ON 編輯器可開啟的本機檔案大小上限，單位為 KB。",
   "configuration.condenseMode.description": "顯示較緊湊的 HEX ON 格線，使用較窄的位元組儲存格、隱藏位移，並移除格線邊緣 padding。",
   "configuration.showRuler.description": "在 HEX ON 位元組格線上方顯示欄位尺規。",
-  "configuration.dbcsAmbiguousExclusionsEnabled.description": "使用自訂位元組組合排除規則處理 DBCS ambiguous 診斷。首次啟用時，會將預設排除規則寫入使用者設定 JSON 供編輯。",
-  "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 診斷的自訂位元組組合排除規則。每條規則會在 SBCS mode 下，將一組有效 DBCS 組合排除於 DBCS_AMBIGUOUS 警告之外。",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "使用自訂位元組組合排除規則處理 DBCS ambiguous 診斷。啟用且尚未設定自訂清單時，會將預設排除規則寫入使用者設定 JSON 供編輯。",
+  "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 診斷的自訂位元組組合排除規則。每條規則會在 SBCS mode 下，將一組有效 DBCS 組合排除於 DBCS_AMBIGUOUS 警告之外。自訂清單會取代內建預設值；使用 [] 表示不排除任何組合。",
   "configuration.dbcsAmbiguousExclusions.bytes.description": "要排除的兩位元組組合。可接受格式包含 \"40 40\"、\"0x40 0x40\" 與 \"4040\"。",
   "configuration.dbcsAmbiguousExclusions.label.description": "選用備註，說明為何排除此組合。"
 }

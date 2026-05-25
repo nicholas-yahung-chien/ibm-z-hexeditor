@@ -8,8 +8,8 @@
   "configuration.maxFileSizeKb.description": "HEX ON 편집기에서 열 수 있는 로컬 파일의 최대 크기(KB)입니다.",
   "configuration.condenseMode.description": "더 좁은 바이트 셀, 숨겨진 오프셋, 그리드 가장자리 padding 제거로 더 조밀한 HEX ON 그리드를 표시합니다.",
   "configuration.showRuler.description": "HEX ON 바이트 그리드 위에 열 눈금자를 표시합니다.",
-  "configuration.dbcsAmbiguousExclusionsEnabled.description": "DBCS ambiguous 진단에 사용자 지정 바이트 쌍 제외 규칙을 사용합니다. 처음 활성화하면 기본 제외 규칙이 사용자 설정 JSON에 기록되어 편집할 수 있습니다.",
-  "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 진단을 위한 사용자 지정 바이트 쌍 제외 규칙입니다. 각 규칙은 SBCS mode에서 유효한 DBCS 쌍을 DBCS_AMBIGUOUS 경고에서 제외합니다.",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "DBCS ambiguous 진단에 사용자 지정 바이트 쌍 제외 규칙을 사용합니다. 활성화되어 있고 사용자 지정 목록이 아직 없으면 기본 제외 규칙이 사용자 설정 JSON에 기록되어 편집할 수 있습니다.",
+  "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 진단을 위한 사용자 지정 바이트 쌍 제외 규칙입니다. 각 규칙은 SBCS mode에서 유효한 DBCS 쌍을 DBCS_AMBIGUOUS 경고에서 제외합니다. 사용자 지정 목록은 기본 제공 값을 대체합니다. 아무것도 제외하지 않으려면 []를 사용합니다.",
   "configuration.dbcsAmbiguousExclusions.bytes.description": "제외할 2바이트 쌍입니다. 허용 형식은 \"40 40\", \"0x40 0x40\", \"4040\"입니다.",
   "configuration.dbcsAmbiguousExclusions.label.description": "이 쌍을 제외하는 이유를 설명하는 선택적 메모입니다."
 }

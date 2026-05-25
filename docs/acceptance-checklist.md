@@ -254,6 +254,7 @@ Expected:
 - [ ] The extension writes `ibmZHexEditor.dbcsAmbiguousExclusions` into user settings JSON if it was empty.
 - [ ] The seeded settings include `40 40` and `5C 5C`.
 - [ ] With the defaults seeded, repeated `5C 5C` pairs are not reported as `DBCS ambiguous`.
+- [ ] If `ibmZHexEditor.dbcsAmbiguousExclusions` is explicitly set to `[]`, the extension respects the empty list and does not seed defaults again.
 
 Then edit user settings JSON:
 

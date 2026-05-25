@@ -124,7 +124,7 @@ The ruler uses the current file's longest logical line up to 100 byte columns, a
 
 By default, the diagnostics suppress noisy `DBCS_AMBIGUOUS` warnings for common SBCS filler pairs such as EBCDIC spaces and repeated COBOL asterisks.
 
-To customize this behavior, enable `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`. When it is first enabled, the extension writes the default rules into user settings JSON so they can be edited:
+To customize this behavior, enable `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`. When it is enabled and no custom list exists yet, the extension writes the default rules into user settings JSON so they can be edited:
 
 ```json
 "ibmZHexEditor.dbcsAmbiguousExclusionsEnabled": true,
@@ -135,6 +135,8 @@ To customize this behavior, enable `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled
 ```
 
 The `bytes` value accepts `40 40`, `0x40 0x40`, or `4040`. Invalid entries are ignored and reported with a warning.
+
+When custom exclusions are enabled, the custom list replaces the built-in defaults. Keep `40 40` or `5C 5C` in the list if you still want those pairs suppressed. Set the list to `[]` to intentionally use no ambiguous exclusions.
 
 ## Current Limits
 

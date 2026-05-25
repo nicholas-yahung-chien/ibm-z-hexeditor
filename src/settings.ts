@@ -3,6 +3,7 @@ import {
   DEFAULT_DBCS_AMBIGUOUS_EXCLUSION_RULES,
   DEFAULT_DBCS_AMBIGUOUS_EXCLUSION_PAIRS,
   parseDbcsAmbiguousExclusionRules,
+  shouldSeedDefaultDbcsAmbiguousExclusions,
   type DbcsAmbiguousExclusionRule,
 } from './dbcsAmbiguousExclusions';
 import type { InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
@@ -36,18 +37,13 @@ export function readDiagnosticsSettings(resource?: vscode.Uri): DiagnosticsSetti
 
 export async function seedDefaultDbcsAmbiguousExclusionsIfNeeded(): Promise<void> {
   const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
-  if (!config.get<boolean>(CUSTOM_EXCLUSIONS_ENABLED, false)) {
-    return;
-  }
-
-  const effectiveValue = config.get<unknown>(CUSTOM_EXCLUSIONS, []);
-  if (Array.isArray(effectiveValue) && effectiveValue.length > 0) {
-    return;
-  }
-
   const inspected = config.inspect<DbcsAmbiguousExclusionRule[]>(CUSTOM_EXCLUSIONS);
-  const globalValue = inspected?.globalValue;
-  if (Array.isArray(globalValue) && globalValue.length > 0) {
+  if (!shouldSeedDefaultDbcsAmbiguousExclusions({
+    enabled: config.get<boolean>(CUSTOM_EXCLUSIONS_ENABLED, false),
+    globalValue: inspected?.globalValue,
+    workspaceValue: inspected?.workspaceValue,
+    workspaceFolderValue: inspected?.workspaceFolderValue,
+  })) {
     return;
   }
 
