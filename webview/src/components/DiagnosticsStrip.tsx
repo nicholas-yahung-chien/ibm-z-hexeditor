@@ -16,7 +16,7 @@ function eventLabel(event: DiagnosticEvent): string {
 }
 
 export function DiagnosticsStrip({ result, onJump }: Props) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(shouldExpandDiagnosticsFromUrl);
   const [activeKind, setActiveKind] = useState<DiagnosticKind | 'all'>('all');
   const [activeEventKey, setActiveEventKey] = useState<string | null>(null);
 
@@ -184,6 +184,11 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
       ) : null}
     </section>
   );
+}
+
+function shouldExpandDiagnosticsFromUrl(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('demo') === 'diagnostics';
 }
 
 function eventKey(event: DiagnosticEvent): string {

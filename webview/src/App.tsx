@@ -16,7 +16,7 @@ export default function App() {
   const [viewSettings, setViewSettings] = useState<EditorViewSettings>({ condenseMode: false, showRuler: false });
   const [status, setStatus] = useState(t('waitingForEditorData'));
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
-  const [headerCollapsed, setHeaderCollapsed] = useState(false);
+  const [headerCollapsed, setHeaderCollapsed] = useState(shouldCollapseHeaderFromUrl);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent<ToWebviewMessage>) => {
@@ -41,6 +41,7 @@ export default function App() {
 
     window.addEventListener('message', handleMessage);
     vscode.postMessage({ type: 'ready' });
+    installDemoSnapshotsIfRequested();
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
@@ -158,6 +159,22 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function shouldCollapseHeaderFromUrl(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('header') === 'collapsed';
+}
+
+function installDemoSnapshotsIfRequested(): void {
+  const params = new URLSearchParams(window.location.search);
+  if (!import.meta.env.DEV || !params.has('demo')) {
+    return;
+  }
+
+  void import('./demoSnapshots')
+    .then((module: { installDemoSnapshots: () => void }) => module.installDemoSnapshots())
+    .catch(error => console.error('Unable to install demo snapshots', error));
 }
 
 type SvgIconName = 'chevron-down' | 'chevron-up' | 'refresh' | 'revert' | 'save';

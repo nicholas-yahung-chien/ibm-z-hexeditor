@@ -21,7 +21,13 @@ The current MVP is focused on IBM EBCDIC and UTF-8 workflows. IBM-037, IBM-500, 
 
 ## Screenshots
 
-Screenshots are planned for the MVP release package. The capture list, filenames, and manual fixture setup are tracked in [docs/screenshots.md](docs/screenshots.md). Marketplace-ready listing copy is tracked in [docs/marketplace.md](docs/marketplace.md).
+Screenshots for the current webview experience are captured below. The full capture list, filenames, and manual fixture setup are tracked in [docs/screenshots.md](docs/screenshots.md). Marketplace-ready listing copy is tracked in [docs/marketplace.md](docs/marketplace.md).
+
+![Standard HEX ON editor](images/screenshots/hex-on-standard.png)
+
+![Expanded DBCS diagnostics](images/screenshots/diagnostics-expanded.png)
+
+![Condense Mode with column ruler](images/screenshots/condense-mode.png)
 
 ## Installation
 

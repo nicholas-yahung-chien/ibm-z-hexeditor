@@ -25,6 +25,29 @@ body {
   font-family: var(--vscode-font-family);
 }
 
+body.demo-theme {
+  --vscode-font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --vscode-editor-font-family: "IBM Plex Mono", Consolas, monospace;
+  --vscode-editor-font-size: 20px;
+  --vscode-editor-background: #1e1e1e;
+  --vscode-editor-foreground: #d4d4d4;
+  --vscode-sideBar-background: #111111;
+  --vscode-descriptionForeground: #b7b7b7;
+  --vscode-editorWidget-border: #454545;
+  --vscode-terminal-ansiGreen: #00d084;
+  --vscode-editorError-foreground: #f14c4c;
+  --vscode-editorWarning-foreground: #cca700;
+  --vscode-button-background: #0e80d8;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-hoverBackground: #1177bb;
+  --vscode-button-secondaryBackground: #1f1f1f;
+  --vscode-button-secondaryForeground: #d4d4d4;
+  --vscode-button-secondaryHoverBackground: #2b2b2b;
+  --vscode-focusBorder: #0090f1;
+  --vscode-editor-selectionBackground: #264f78;
+  --vscode-editorCursor-foreground: #ffffff;
+}
+
 button {
   font: inherit;
 }

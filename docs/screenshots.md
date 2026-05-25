@@ -151,3 +151,24 @@ After screenshots are captured and reviewed, add the most important two or three
 3. `condense-mode.png` or `sbcs-preview.png`
 
 Avoid adding every screenshot to the README. Keep the full screenshot set for Marketplace assets and release notes.
+
+## Automated Webview Capture
+
+The webview-only screenshots can be regenerated with:
+
+```powershell
+npm run capture:screenshots
+```
+
+This script starts a local Vite server, renders the editor with demo snapshots, and captures:
+
+- `images/screenshots/hex-on-standard.png`
+- `images/screenshots/diagnostics-expanded.png`
+- `images/screenshots/sbcs-preview.png`
+- `images/screenshots/condense-mode.png`
+
+The following VS Code chrome or modal screenshots still need manual capture from an Extension Development Host or VSIX-installed extension:
+
+- `images/screenshots/encoding-picker.png`
+- `images/screenshots/unsupported-ibm-encoding.png`
+- `images/screenshots/save-confirmation.png`

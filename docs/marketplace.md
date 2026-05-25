@@ -55,6 +55,8 @@ Other manually entered encodings may still be used for raw byte editing. Unsuppo
 
 Use the filenames and capture instructions in [screenshots.md](screenshots.md).
 
+The webview-only screenshots can be regenerated with `npm run capture:screenshots`. The VS Code encoding picker and modal screenshots still require manual capture from an Extension Development Host or VSIX-installed extension.
+
 Recommended Marketplace order:
 
 1. `encoding-picker.png`
