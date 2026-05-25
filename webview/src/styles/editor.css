@@ -581,10 +581,67 @@ h1 {
   background: color-mix(in srgb, var(--warning) 18%, transparent);
 }
 
-.empty-state {
+.loading-state {
   display: grid;
-  place-items: center;
+  place-content: center;
+  justify-items: center;
+  gap: 0.7rem;
+  min-height: 0;
+  padding: 1.25rem;
   color: var(--vscode-descriptionForeground);
+}
+
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid color-mix(in srgb, var(--vscode-descriptionForeground) 25%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: loading-spin 0.9s linear infinite;
+}
+
+.loading-copy {
+  display: grid;
+  gap: 0.25rem;
+  max-width: min(34rem, 82vw);
+  text-align: center;
+}
+
+.loading-copy strong {
+  color: var(--vscode-editor-foreground);
+  font-weight: 650;
+}
+
+.loading-progress {
+  position: relative;
+  width: min(22rem, 72vw);
+  height: 0.22rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--vscode-descriptionForeground) 18%, transparent);
+}
+
+.loading-progress span {
+  position: absolute;
+  inset-block: 0;
+  width: 42%;
+  background: var(--accent);
+  animation: loading-progress 1.25s ease-in-out infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-progress {
+  0% {
+    left: -42%;
+  }
+
+  100% {
+    left: 100%;
+  }
 }
 
 @media (max-width: 720px) {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { EditorSnapshot, EditorViewSettings, ToWebviewMessage } from '../../src/protocol';
 import { HexGrid } from './components/HexGrid';
 import { DiagnosticsStrip } from './components/DiagnosticsStrip';
@@ -11,21 +11,26 @@ interface JumpTarget {
   token: number;
 }
 
+const initialLocale = navigator.language || 'en';
+setLocale(initialLocale);
+
 export default function App() {
   const [snapshot, setSnapshot] = useState<EditorSnapshot | null>(null);
   const [viewSettings, setViewSettings] = useState<EditorViewSettings>({
     condenseMode: false,
     showRuler: false,
-    locale: navigator.language || 'en',
+    locale: initialLocale,
   });
-  const [status, setStatus] = useState(t('waitingForEditorData'));
+  const [status, setStatus] = useState(t('preparingEditorData'));
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
   const [headerCollapsed, setHeaderCollapsed] = useState(shouldCollapseHeaderFromUrl);
+  const snapshotRef = useRef<EditorSnapshot | null>(null);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent<ToWebviewMessage>) => {
       const message = event.data;
       if (message.type === 'init' || message.type === 'snapshot' || message.type === 'saved') {
+        snapshotRef.current = message.snapshot;
         setSnapshot(message.snapshot);
         setStatus(message.type === 'saved' ? t('saved') : message.snapshot.dirty ? t('modified') : t('ready'));
       }
@@ -41,6 +46,9 @@ export default function App() {
       if (message.type === 'settings') {
         setLocale(message.settings.locale);
         setViewSettings(message.settings);
+        if (snapshotRef.current === null) {
+          setStatus(t('preparingEditorData'));
+        }
       }
     };
 
@@ -160,7 +168,16 @@ export default function App() {
           />
         </>
       ) : (
-        <main className="empty-state">{status}</main>
+        <main className="loading-state" aria-busy="true" aria-live="polite">
+          <div className="loading-spinner" aria-hidden="true" />
+          <div className="loading-copy">
+            <strong>{status}</strong>
+            <span>{t('preparingEditorDataDetail')}</span>
+          </div>
+          <div className="loading-progress" aria-hidden="true">
+            <span />
+          </div>
+        </main>
       )}
     </div>
   );
