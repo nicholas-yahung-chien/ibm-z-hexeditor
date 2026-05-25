@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ByteCell, EditorSnapshot, HexNibble, PreviewEntry } from '../../../src/protocol';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspectIbmDbcs';
 import { t } from '../i18n';
@@ -44,8 +44,9 @@ function cellClass(cell: ByteCell): string {
 
 export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props) {
   const [cursor, setCursor] = useState<Cursor>({ offset: 0, nibble: 'high' });
-  const [bytesPerRow, setBytesPerRow] = useState(FALLBACK_BYTES_PER_ROW);
+  const [bytesPerRow, setBytesPerRow] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const effectiveBytesPerRow = bytesPerRow ?? FALLBACK_BYTES_PER_ROW;
 
   useEffect(() => {
     if (cursor.offset >= snapshot.cells.length) {
@@ -84,7 +85,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
     });
   }, [jumpTarget?.token]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const element = gridRef.current;
     if (!element) {
       return;
@@ -110,7 +111,8 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
         MIN_BYTES_PER_ROW,
         Math.floor((available + cellGap) / (cellSize + cellGap)),
       );
-      setBytesPerRow(Number.isFinite(next) ? next : FALLBACK_BYTES_PER_ROW);
+      const measured = Number.isFinite(next) ? next : FALLBACK_BYTES_PER_ROW;
+      setBytesPerRow(current => current === measured ? current : measured);
     };
 
     measure();
@@ -150,11 +152,11 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
         return current.offset < snapshot.cells.length - 1 ? { offset: current.offset + 1, nibble: 'high' } : current;
       }
       if (direction === 'up') {
-        return { offset: Math.max(0, current.offset - bytesPerRow), nibble: current.nibble };
+        return { offset: Math.max(0, current.offset - effectiveBytesPerRow), nibble: current.nibble };
       }
-      return { offset: Math.min(snapshot.cells.length - 1, current.offset + bytesPerRow), nibble: current.nibble };
+      return { offset: Math.min(snapshot.cells.length - 1, current.offset + effectiveBytesPerRow), nibble: current.nibble };
     });
-  }, [bytesPerRow, snapshot.cells.length]);
+  }, [effectiveBytesPerRow, snapshot.cells.length]);
 
   const editNibble = useCallback((hexDigit: string) => {
     const digit = Number.parseInt(hexDigit, 16);
@@ -234,10 +236,17 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       onKeyDown={onKeyDown}
       aria-label={t('hexGridLabel', { encoding: snapshot.fileEncoding })}
     >
-      {showRuler && rulerColumnCount > 0 ? (
+      <LayoutMeasure />
+      {bytesPerRow === null ? (
+        <div className="hex-grid-loading" aria-live="polite">
+          <span className="loading-spinner" aria-hidden="true" />
+          <span>{t('preparingEditorData')}</span>
+        </div>
+      ) : null}
+      {bytesPerRow !== null && showRuler && rulerColumnCount > 0 ? (
         <ColumnRuler columnCount={rulerColumnCount} bytesPerRow={bytesPerRow} />
       ) : null}
-      {groups.map(group => {
+      {bytesPerRow !== null ? groups.map(group => {
         const rows = [];
         for (let rowOffset = 0; rowOffset < group.cells.length || rowOffset === 0; rowOffset += bytesPerRow) {
           rows.push({
@@ -354,8 +363,21 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
             ))}
           </section>
         );
-      })}
+      }) : null}
     </main>
+  );
+}
+
+function LayoutMeasure() {
+  return (
+    <div className="layout-measure" aria-hidden="true">
+      <div className="hex-row">
+        <span className="offset">000000</span>
+        <div className="byte-grid">
+          <button className="nibble nibble-high" type="button" tabIndex={-1}>0</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

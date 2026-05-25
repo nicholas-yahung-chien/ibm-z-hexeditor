@@ -397,6 +397,27 @@ h1 {
   box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
 }
 
+.layout-measure {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: max-content;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.hex-grid-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 10rem;
+  color: var(--vscode-descriptionForeground);
+  font-family: var(--vscode-font-family);
+  font-size: 0.82rem;
+}
+
 .ruler-group {
   display: grid;
   gap: 0;
@@ -598,6 +619,11 @@ h1 {
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: loading-spin 0.9s linear infinite;
+}
+
+.hex-grid-loading .loading-spinner {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .loading-copy {
