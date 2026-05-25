@@ -6,10 +6,11 @@ This roadmap captures the current direction after the IBM-937 MVP.
 
 1. Keep regression coverage stable across IBM-037, IBM-500, IBM-1047, IBM-1140, IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 fixtures.
 2. Run a full Extension Development Host and VSIX install acceptance pass using [acceptance-checklist.md](acceptance-checklist.md), including all enabled IBM EBCDIC SBCS and DBCS profiles.
-3. Capture manual validation notes for the IBM-1364/1371/1388/1390/1399 batch after the generated-table tests pass.
-4. Capture the screenshots listed in [screenshots.md](screenshots.md).
-5. Review the Marketplace-ready copy in [marketplace.md](marketplace.md) with the product team before publishing.
-6. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
+3. Record the release-candidate validation pass in [release-checklist.md](release-checklist.md).
+4. Capture manual validation notes for the IBM-1364/1371/1388/1390/1399 batch after the generated-table tests pass.
+5. Capture or refresh the screenshots listed in [screenshots.md](screenshots.md).
+6. Review the Marketplace-ready copy in [marketplace.md](marketplace.md) with the product team before publishing.
+7. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
 
 ## Multi-Code-Page EBCDIC DBCS Support
 
@@ -100,3 +101,5 @@ Planned direction:
 The repository provides `npm run package:vsix`, which builds the extension and writes `dist/ibm-z-hex-on-editor.vsix` for local installation testing.
 
 Release documentation is staged in [marketplace.md](marketplace.md), with screenshot capture guidance in [screenshots.md](screenshots.md). Screenshots should be generated from fixture files and reviewed before adding them to the README or Marketplace listing.
+
+Use [release-checklist.md](release-checklist.md) to record the final VSIX validation environment, command results, manual acceptance outcome, release assets, and sign-off decision.

@@ -75,6 +75,7 @@ Recommended Marketplace order:
 - `images/icon.png`
 - selected screenshots under `images/screenshots/`
 - acceptance notes from [acceptance-checklist.md](acceptance-checklist.md)
+- release-candidate sign-off from [release-checklist.md](release-checklist.md)
 
 ## Suggested Tags
 

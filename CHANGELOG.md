@@ -20,9 +20,12 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - Save, reload, and revert flows for edited raw bytes.
 - Save confirmation when IBM EBCDIC DBCS structural diagnostics report blocking DBCS issues.
 - Condense Mode setting for a denser byte grid.
+- Collapsible editor header for more vertical editing space.
+- Optional column ruler for fixed-format byte columns.
 - User-configurable `DBCS_AMBIGUOUS` byte-pair exclusions with default-rule seeding in user settings JSON.
 - Warning when a manually entered IBM-style code page id is not yet supported for code-page-aware preview.
 - VSIX packaging script.
+- README and Marketplace screenshot assets.
 - Project icon and initial user-facing documentation.
 
 ### Current Limits
@@ -33,3 +36,4 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - Other encodings are currently preview/edit flows without code-page-specific diagnostics.
 - Additional IBM EBCDIC SBCS or DBCS code pages can be added after mapping tables, fixtures, and tests are available.
 - Localization is planned near the end of the MVP cycle.
+- Marketplace publication still needs product-team review for naming, legal notices, and generated mapping table attribution.
