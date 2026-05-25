@@ -192,15 +192,39 @@ export function inspectIbmDbcs(
   options: InspectIbmDbcsOptions = {},
 ): AnalysisResult {
   const events: DiagnosticEvent[] = [];
+  const pendingAmbiguousEvents: DiagnosticEvent[] = [];
   const dbcsAmbiguousExclusions = options.dbcsAmbiguousExclusions ?? DEFAULT_DBCS_AMBIGUOUS_EXCLUSION_PAIRS;
   let dbcsMode = false;
   let i = 0;
   let ord = 1;
 
+  const flushPendingAmbiguousEvents = () => {
+    events.push(...pendingAmbiguousEvents);
+    pendingAmbiguousEvents.length = 0;
+  };
+
+  const inferMissingSoFromPendingAmbiguousRun = (currentOffset: number, currentOrdinal: number, currentGlyph: string) => {
+    const first = pendingAmbiguousEvents[0];
+    if (first === undefined) {
+      events.push(makeEvent('MISSING_SO', data, currentOffset, 2, currentOrdinal, currentGlyph,
+        'Valid DBCS pair found in SBCS mode; inferred missing SO before this pair.'));
+      return;
+    }
+
+    events.push(makeEvent('MISSING_SO', data, first.offset, first.length, first.startOrdinal, first.decodedText,
+      'Valid DBCS run found in SBCS mode; inferred missing SO before this run.'));
+    for (const pending of pendingAmbiguousEvents.slice(1)) {
+      events.push(makeEvent('DBCS', data, pending.offset, pending.length, pending.startOrdinal, pending.decodedText, ''));
+    }
+    events.push(makeEvent('DBCS', data, currentOffset, 2, currentOrdinal, currentGlyph, ''));
+    pendingAmbiguousEvents.length = 0;
+  };
+
   while (i < data.length) {
     const b1 = data[i];
 
     if (b1 === profile.so) {
+      flushPendingAmbiguousEvents();
       if (dbcsMode) {
         events.push(makeEvent('UNMATCHED_SO', data, i, 1, ord,
           'SO', 'SO found while already in DBCS mode; likely duplicate SO or missing SI before this SO.'));
@@ -213,6 +237,7 @@ export function inspectIbmDbcs(
     }
 
     if (b1 === profile.si) {
+      flushPendingAmbiguousEvents();
       if (!dbcsMode) {
         events.push(makeEvent('UNMATCHED_SI', data, i, 1, ord,
           'SI', 'SI found while already in SBCS mode; likely duplicate SI or missing SO before this SI.'));
@@ -259,37 +284,40 @@ export function inspectIbmDbcs(
         !isExcludedDbcsAmbiguousPair(data, i, dbcsAmbiguousExclusions) &&
         isNormalDbcsGlyph(glyph)
       ) {
-        events.push(makeEvent('DBCS_AMBIGUOUS', data, i, 2, ord, glyph,
+        pendingAmbiguousEvents.push(makeEvent('DBCS_AMBIGUOUS', data, i, 2, ord, glyph,
           'Byte pair is valid DBCS, but the current SBCS mode also permits both bytes as SBCS characters.'));
         i += 2; ord += 2;
         continue;
       }
 
       if (pairLooksSbcs) {
+        flushPendingAmbiguousEvents();
         events.push(makeEvent('SBCS', data, i, 1, ord, decodeIbmDbcsSbcsByte(profile, b1), ''));
         i++; ord++;
         continue;
       }
 
-      events.push(makeEvent('MISSING_SO', data, i, 2, ord, glyph,
-        'Valid DBCS pair found in SBCS mode; inferred missing SO before this pair.'));
+      inferMissingSoFromPendingAmbiguousRun(i, ord, glyph);
       dbcsMode = true;
       i += 2; ord += 2;
       continue;
     }
 
     if (strongSbcsByte(profile, b1) || i === data.length - 1) {
+      flushPendingAmbiguousEvents();
       events.push(makeEvent('SBCS', data, i, 1, ord, decodeIbmDbcsSbcsByte(profile, b1), ''));
       i++; ord++;
       continue;
     }
 
+    flushPendingAmbiguousEvents();
     events.push(makeEvent('INVALID_OR_UNKNOWN', data, i, 1, ord,
       decodeIbmDbcsSbcsByte(profile, b1),
       'Byte is neither a strong SBCS byte nor a valid DBCS pair start.'));
     i++; ord++;
   }
 
+  flushPendingAmbiguousEvents();
   if (dbcsMode) {
     events.push({
       kind: 'MISSING_SI_AT_EOF',

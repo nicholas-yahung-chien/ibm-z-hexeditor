@@ -50,6 +50,22 @@ describe('IBM-937 codec', () => {
     });
   });
 
+  it('backs up a missing SO to the start of a pending ambiguous DBCS run', () => {
+    const encoded = encodeToIbm937('測試一下中文');
+    const withoutSo = encoded.slice(1);
+    const result = inspectIbm937(withoutSo);
+
+    expect(result.hasProblems).toBe(true);
+    expect(result.counts.MISSING_SO).toBe(1);
+    expect(result.counts.DBCS_AMBIGUOUS).toBe(0);
+    expect(result.counts.DBCS).toBe(5);
+    expect(result.events[0]).toMatchObject({
+      kind: 'MISSING_SO',
+      bytesHex: '5A 61',
+      decodedText: '測',
+    });
+  });
+
   it('does not report space padding as DBCS ambiguous', () => {
     const result = inspectIbm937(Uint8Array.from([0x40, 0x40, 0x40, 0x40]));
 
