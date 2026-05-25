@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = process.cwd();
@@ -31,6 +31,25 @@ describe('localization bundles', () => {
 
     for (const localeName of packageLocaleNames) {
       expect(() => JSON.parse(readFileSync(join(root, localeName), 'utf8')), localeName).not.toThrow();
+    }
+  });
+
+  it('provides localized README entry points', () => {
+    const readmeNames = [
+      'README.zh-TW.md',
+      'README.zh-CN.md',
+      'README.ja.md',
+      'README.ko.md',
+      'README.de.md',
+    ];
+
+    for (const readmeName of readmeNames) {
+      expect(existsSync(join(root, readmeName)), readmeName).toBe(true);
+    }
+
+    const readme = readFileSync(join(root, 'README.md'), 'utf8');
+    for (const readmeName of readmeNames) {
+      expect(readme).toContain(readmeName);
     }
   });
 });

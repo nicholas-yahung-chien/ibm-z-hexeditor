@@ -1,5 +1,7 @@
 # IBM Z HEX ON Editor
 
+[English](README.md) | [繁體中文](README.zh-TW.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Deutsch](README.de.md)
+
 ![IBM Z HEX ON Editor icon](images/icon.png)
 
 IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
@@ -100,7 +102,7 @@ If you manually enter an IBM-style code page id that is not yet supported, the e
 - IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
 - Additional IBM EBCDIC SBCS or DBCS code pages can be added through the generated-table workflow after fixtures and tests are available.
-- Localization infrastructure is in place with English baseline strings; translated catalogs are planned after UI text and diagnostics wording settle.
+- First-pass localization is available for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German. Product localization review is still recommended before external publication.
 
 ## Development Verification
 

@@ -27,7 +27,7 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - VSIX packaging script.
 - README and Marketplace screenshot assets.
 - Project icon and initial user-facing documentation.
-- First-pass localization catalogs for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German.
+- First-pass localization catalogs and README pages for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German.
 
 ### Current Limits
 
