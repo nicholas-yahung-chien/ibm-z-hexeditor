@@ -6,7 +6,7 @@ import {
   readDiagnosticsSettings,
   seedDefaultDbcsAmbiguousExclusionsIfNeeded,
 } from './settings';
-import { extensionText } from './i18n';
+import { diagnosticKindLabels, extensionText } from './i18n';
 import type { EditorViewSettings, FromWebviewMessage, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
@@ -129,8 +129,8 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
   private handleMessage(document: HexOnDocument, webview: vscode.Webview, message: FromWebviewMessage): void {
     if (message.type === 'ready') {
-      this.post(webview, { type: 'init', snapshot: document.snapshot() });
       this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+      this.post(webview, { type: 'init', snapshot: document.snapshot() });
       return;
     }
 
@@ -204,6 +204,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     return {
       condenseMode: config.get<boolean>('condenseMode', false),
       showRuler: config.get<boolean>('showRuler', false),
+      locale: vscode.env.language,
     };
   }
 
@@ -269,7 +270,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       return 0;
     }
 
-    const summary = summarizeProblemCounts(diagnostics);
+    const summary = summarizeProblemCounts(diagnostics, diagnosticKindLabels());
     const choice = await vscode.window.showWarningMessage(
       extensionText.saveProblemsPrompt(problemCount),
       {
@@ -293,7 +294,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     const nonce = crypto.randomUUID();
 
     return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${escapeHtmlAttribute(vscode.env.language)}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -316,4 +317,11 @@ function messageFromError(error: unknown): string {
 
 function isCancellationError(error: unknown): boolean {
   return error instanceof vscode.CancellationError;
+}
+
+function escapeHtmlAttribute(value: string): string {
+  return value.replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }

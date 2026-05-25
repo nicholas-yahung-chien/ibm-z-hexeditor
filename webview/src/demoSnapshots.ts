@@ -47,6 +47,7 @@ function postDemoMessage(message: ToWebviewMessage): void {
 }
 
 function demoPayload(demo: DemoName): DemoPayload {
+  const locale = new URLSearchParams(window.location.search).get('locale') ?? 'en';
   if (demo === 'sbcs') {
     return {
       snapshot: snapshotFromBytes('HELLO.ibm1047.cpy', 'ibm1047', concatBytes(
@@ -55,7 +56,7 @@ function demoPayload(demo: DemoName): DemoPayload {
         encodeToIbm1047('ABC'),
         Uint8Array.from([0x15]),
       )),
-      settings: { condenseMode: false, showRuler: false },
+      settings: { condenseMode: false, showRuler: false, locale },
     };
   }
 
@@ -70,6 +71,7 @@ function demoPayload(demo: DemoName): DemoPayload {
     settings: {
       condenseMode: demo === 'condense',
       showRuler: demo === 'condense',
+      locale,
     },
   };
 }

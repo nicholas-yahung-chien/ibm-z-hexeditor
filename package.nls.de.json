@@ -1,0 +1,15 @@
+{
+  "extension.displayName": "IBM Z HEX ON Editor",
+  "extension.description": "IBM Z-Dateibytes in einer ISPF-ähnlichen HEX ON-Ansicht bearbeiten, mit IBM EBCDIC DBCS-Vorschau und SO/SI-Diagnosen.",
+  "command.openHexOn.title": "IBM Z Hex Editor: HEX ON öffnen",
+  "command.openHexOn.category": "IBM Z Hex Editor",
+  "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",
+  "configuration.title": "IBM Z HEX ON Editor",
+  "configuration.maxFileSizeKb.description": "Maximale lokale Dateigröße in KB, die im HEX ON-Editor geöffnet werden kann.",
+  "configuration.condenseMode.description": "Zeigt ein dichteres HEX ON-Raster mit schmaleren Byte-Zellen, ausgeblendeten Offsets und ohne Rand-Padding des Rasters.",
+  "configuration.showRuler.description": "Zeigt ein Spaltenlineal über dem HEX ON-Byte-Raster.",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "Benutzerdefinierte Byte-Paar-Ausschlüsse für DBCS ambiguous-Diagnosen verwenden. Beim ersten Aktivieren werden Standardausschlüsse zur Bearbeitung in die Benutzer-JSON-Einstellungen geschrieben.",
+  "configuration.dbcsAmbiguousExclusions.description": "Benutzerdefinierte Byte-Paar-Ausschlüsse für DBCS ambiguous-Diagnosen. Jede Regel schließt ein gültiges DBCS-Paar im SBCS mode von DBCS_AMBIGUOUS-Warnungen aus.",
+  "configuration.dbcsAmbiguousExclusions.bytes.description": "Auszuschließendes Zwei-Byte-Paar. Akzeptierte Formate sind \"40 40\", \"0x40 0x40\" und \"4040\".",
+  "configuration.dbcsAmbiguousExclusions.label.description": "Optionale Notiz, warum dieses Paar ausgeschlossen wird."
+}

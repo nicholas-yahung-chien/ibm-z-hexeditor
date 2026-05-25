@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import type { DiagnosticKind } from './inspector/inspectIbmDbcs';
 
 export const extensionText = {
   openLocalFileWarning: () => vscode.l10n.t('Open a local file before starting HEX ON editing.'),
@@ -45,6 +46,23 @@ export const extensionText = {
     : vscode.l10n.t('Saving will write the current raw bytes exactly as shown in the HEX ON editor.'),
   saveAnyway: () => vscode.l10n.t('Save Anyway'),
 };
+
+export function diagnosticKindLabels(): Record<DiagnosticKind, string> {
+  return {
+    SO: 'SO',
+    SI: 'SI',
+    SBCS: 'SBCS',
+    DBCS: 'DBCS',
+    DBCS_AMBIGUOUS: vscode.l10n.t('DBCS ambiguous'),
+    MISSING_SO: vscode.l10n.t('Missing SO'),
+    MISSING_SI: vscode.l10n.t('Missing SI'),
+    MISSING_SI_AT_EOF: vscode.l10n.t('Missing SI at EOF'),
+    UNMATCHED_SO: vscode.l10n.t('Unmatched SO'),
+    UNMATCHED_SI: vscode.l10n.t('Unmatched SI'),
+    AMBIGUOUS: vscode.l10n.t('Ambiguous'),
+    INVALID_OR_UNKNOWN: vscode.l10n.t('Invalid or unknown'),
+  };
+}
 
 export const encodingDescriptions: Record<string, string> = {
   ibm930: vscode.l10n.t('Japanese Katakana-Kanji EBCDIC DBCS / \u65e5\u672c\u8a9e'),

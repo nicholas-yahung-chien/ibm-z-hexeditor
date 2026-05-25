@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { AnalysisResult, DiagnosticEvent, DiagnosticKind } from '../../../src/inspector/inspectIbmDbcs';
 import { PROBLEM_KINDS, WARNING_KINDS } from '../../../src/inspector/inspectIbmDbcs';
-import { DIAGNOSTIC_KIND_LABELS, DIAGNOSTIC_KIND_ORDER, getDiagnosticHeaderCounts } from '../../../src/diagnosticsSummary';
-import { t } from '../i18n';
+import { DIAGNOSTIC_KIND_ORDER, getDiagnosticHeaderCounts } from '../../../src/diagnosticsSummary';
+import { diagnosticLabel, t } from '../i18n';
 
 interface Props {
   result: AnalysisResult | null;
@@ -146,7 +146,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
                 ].filter(Boolean).join(' ')}
                 key={item.kind}
               >
-                <span>{DIAGNOSTIC_KIND_LABELS[item.kind]}</span>
+                <span>{diagnosticLabel(item.kind)}</span>
                 <strong>{item.count.toLocaleString()}</strong>
               </button>
             ))}
@@ -156,7 +156,7 @@ export function DiagnosticsStrip({ result, onJump }: Props) {
             <div className="diagnostics-locations">
               {jumpGroups.map(item => (
                 <div className="diagnostic-location-group" key={`loc-${item.kind}`}>
-                  <div className="diagnostic-location-title">{DIAGNOSTIC_KIND_LABELS[item.kind]}</div>
+                  <div className="diagnostic-location-title">{diagnosticLabel(item.kind)}</div>
                   <div className="diagnostic-location-list">
                     {item.events.slice(0, 12).map((event, index) => (
                       <button

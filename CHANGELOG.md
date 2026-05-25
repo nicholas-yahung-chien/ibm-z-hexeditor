@@ -27,6 +27,7 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - VSIX packaging script.
 - README and Marketplace screenshot assets.
 - Project icon and initial user-facing documentation.
+- First-pass localization catalogs for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German.
 
 ### Current Limits
 
@@ -35,5 +36,5 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
 - Other encodings are currently preview/edit flows without code-page-specific diagnostics.
 - Additional IBM EBCDIC SBCS or DBCS code pages can be added after mapping tables, fixtures, and tests are available.
-- Localization is planned near the end of the MVP cycle.
+- First-pass localization still needs native-speaker or product localization review before external publication.
 - Marketplace publication still needs product-team review for naming, legal notices, and generated mapping table attribution.

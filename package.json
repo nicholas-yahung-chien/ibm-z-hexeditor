@@ -46,6 +46,7 @@
     "onCommand:ibmZHexEditor.openHexOn",
     "onCustomEditor:ibmZHexEditor.hexOn"
   ],
+  "l10n": "./l10n",
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [

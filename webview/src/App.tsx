@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { EditorSnapshot, EditorViewSettings, ToWebviewMessage } from '../../src/protocol';
 import { HexGrid } from './components/HexGrid';
 import { DiagnosticsStrip } from './components/DiagnosticsStrip';
-import { t } from './i18n';
+import { setLocale, t } from './i18n';
 import { vscode } from './vscode';
 
 interface JumpTarget {
@@ -13,7 +13,11 @@ interface JumpTarget {
 
 export default function App() {
   const [snapshot, setSnapshot] = useState<EditorSnapshot | null>(null);
-  const [viewSettings, setViewSettings] = useState<EditorViewSettings>({ condenseMode: false, showRuler: false });
+  const [viewSettings, setViewSettings] = useState<EditorViewSettings>({
+    condenseMode: false,
+    showRuler: false,
+    locale: navigator.language || 'en',
+  });
   const [status, setStatus] = useState(t('waitingForEditorData'));
   const [jumpTarget, setJumpTarget] = useState<JumpTarget | null>(null);
   const [headerCollapsed, setHeaderCollapsed] = useState(shouldCollapseHeaderFromUrl);
@@ -35,6 +39,7 @@ export default function App() {
       }
 
       if (message.type === 'settings') {
+        setLocale(message.settings.locale);
         setViewSettings(message.settings);
       }
     };

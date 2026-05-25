@@ -70,7 +70,7 @@ Implemented direction:
 
 ## Localization
 
-Localization should stay near the end of the MVP cycle, after the main editor workflows and diagnostics wording have stabilized. The baseline lookup structure is now in place, but translated catalogs should be added after the remaining UX copy is stable.
+Localization is now in a first-pass implementation state. The main editor workflows and diagnostics wording have stabilized enough for engineering translations, but native-speaker and product localization review should still happen before external publication.
 
 Initial target languages:
 
@@ -81,20 +81,22 @@ Initial target languages:
 - Korean
 - German
 
-Implemented foundation:
+Implemented:
 
 - extension contribution strings are routed through `package.nls.json`;
+- translated package contribution files exist for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German;
 - extension host prompts and status text are routed through `src/i18n.ts` and `vscode.l10n.t(...)`;
+- extension host localization bundles exist under `l10n/`;
 - webview UI strings are routed through `webview/src/i18n.ts`;
+- the host passes `vscode.env.language` to the webview through `EditorViewSettings.locale`;
 - diagnostics category identifiers remain stable.
 
-Planned direction:
+Planned review:
 
-- add translated `package.nls.*.json` files;
-- add VS Code localization bundles for extension host strings;
-- pass the active locale into the webview and load locale-specific webview catalogs;
-- translate only labels, descriptions, prompts, and help text, not internal diagnostic identifiers;
-- add a final localization review before a public release candidate.
+- review first-pass Traditional Chinese, Simplified Chinese, Japanese, Korean, and German translations with native speakers or product localization owners;
+- test German text expansion in standard and Condense Mode layouts;
+- test CJK readability in compact header, diagnostics, and encoding picker flows;
+- translate only labels, descriptions, prompts, and help text, not internal diagnostic identifiers.
 
 ## Packaging
 

@@ -1,3 +1,5 @@
+import type { DiagnosticKind } from '../../src/inspector/inspectIbmDbcs';
+
 const messages = {
   appTitle: 'IBM Z HEX ON Editor',
   encodingFallback: 'encoding',
@@ -30,14 +32,237 @@ const messages = {
   diagnosticsMore: '+{count} more',
   hexGridLabel: '{encoding} hex editor grid',
   columnRulerLabel: 'Column ruler, 1 to {count}',
+  diagnosticDbcsAmbiguous: 'DBCS ambiguous',
+  diagnosticMissingSo: 'Missing SO',
+  diagnosticMissingSi: 'Missing SI',
+  diagnosticMissingSiAtEof: 'Missing SI at EOF',
+  diagnosticUnmatchedSo: 'Unmatched SO',
+  diagnosticUnmatchedSi: 'Unmatched SI',
+  diagnosticAmbiguous: 'Ambiguous',
+  diagnosticInvalidOrUnknown: 'Invalid or unknown',
 };
 
 type MessageKey = keyof typeof messages;
 type MessageArgs = Record<string, string | number>;
+type MessageCatalog = Partial<Record<MessageKey, string>>;
+
+const catalogs: Record<string, MessageCatalog> = {
+  'zh-tw': {
+    encodingFallback: '編碼',
+    loading: '載入中',
+    waitingForEditorData: '正在等待編輯器資料...',
+    saved: '已儲存',
+    modified: '已修改',
+    ready: '就緒',
+    rawBytes: '原始位元組',
+    bytes: '{count} bytes',
+    editingHint: '方向鍵移動，0-9/A-F 編輯，Ins 插入 00，Del/Backspace 刪除，Ctrl+S 儲存',
+    showHeader: '顯示標頭',
+    hideHeader: '隱藏標頭',
+    fileActions: '檔案動作',
+    reload: '重新載入',
+    revert: '還原',
+    save: '儲存',
+    diagnosticsStructureValid: 'SO/SI 結構有效',
+    diagnosticsIssueCount: '{count} 個 DBCS 問題',
+    diagnosticsPairCount: '{count} 組 DBCS',
+    diagnosticsWarningCount: '{count} 個警告',
+    diagnosticNavigation: '診斷導覽',
+    diagnosticCategoryCounts: '診斷分類統計',
+    previous: '上一個',
+    next: '下一個',
+    clearFilter: '清除篩選',
+    hexGridLabel: '{encoding} hex 編輯器格線',
+    columnRulerLabel: '欄位尺規，1 到 {count}',
+    diagnosticDbcsAmbiguous: 'DBCS ambiguous',
+    diagnosticMissingSo: '缺少 SO',
+    diagnosticMissingSi: '缺少 SI',
+    diagnosticMissingSiAtEof: 'EOF 處缺少 SI',
+    diagnosticUnmatchedSo: '未配對 SO',
+    diagnosticUnmatchedSi: '未配對 SI',
+    diagnosticAmbiguous: '模稜兩可',
+    diagnosticInvalidOrUnknown: '無效或未知',
+  },
+  'zh-cn': {
+    encodingFallback: '编码',
+    loading: '正在加载',
+    waitingForEditorData: '正在等待编辑器数据...',
+    saved: '已保存',
+    modified: '已修改',
+    ready: '就绪',
+    rawBytes: '原始字节',
+    bytes: '{count} bytes',
+    editingHint: '方向键移动，0-9/A-F 编辑，Ins 插入 00，Del/Backspace 删除，Ctrl+S 保存',
+    showHeader: '显示标头',
+    hideHeader: '隐藏标头',
+    fileActions: '文件操作',
+    reload: '重新加载',
+    revert: '还原',
+    save: '保存',
+    diagnosticsStructureValid: 'SO/SI 结构有效',
+    diagnosticsIssueCount: '{count} 个 DBCS 问题',
+    diagnosticsPairCount: '{count} 组 DBCS',
+    diagnosticsWarningCount: '{count} 个警告',
+    diagnosticNavigation: '诊断导航',
+    diagnosticCategoryCounts: '诊断分类统计',
+    previous: '上一个',
+    next: '下一个',
+    clearFilter: '清除筛选',
+    hexGridLabel: '{encoding} hex 编辑器网格',
+    columnRulerLabel: '列标尺，1 到 {count}',
+    diagnosticDbcsAmbiguous: 'DBCS ambiguous',
+    diagnosticMissingSo: '缺少 SO',
+    diagnosticMissingSi: '缺少 SI',
+    diagnosticMissingSiAtEof: 'EOF 处缺少 SI',
+    diagnosticUnmatchedSo: '未配对 SO',
+    diagnosticUnmatchedSi: '未配对 SI',
+    diagnosticAmbiguous: '不明确',
+    diagnosticInvalidOrUnknown: '无效或未知',
+  },
+  ja: {
+    encodingFallback: 'エンコーディング',
+    loading: '読み込み中',
+    waitingForEditorData: 'エディター データを待機しています...',
+    saved: '保存済み',
+    modified: '変更済み',
+    ready: '準備完了',
+    rawBytes: 'raw bytes',
+    bytes: '{count} bytes',
+    editingHint: '矢印キーで移動、0-9/A-F で編集、Ins で 00 を挿入、Del/Backspace で削除、Ctrl+S で保存',
+    showHeader: 'ヘッダーを表示',
+    hideHeader: 'ヘッダーを非表示',
+    fileActions: 'ファイル操作',
+    reload: '再読み込み',
+    revert: '元に戻す',
+    save: '保存',
+    diagnosticsStructureValid: 'SO/SI 構造は有効です',
+    diagnosticsIssueCount: '{count} 件の DBCS 問題',
+    diagnosticsPairCount: '{count} 個の DBCS ペア',
+    diagnosticsWarningCount: '{count} 件の警告',
+    diagnosticNavigation: '診断ナビゲーション',
+    diagnosticCategoryCounts: '診断カテゴリ数',
+    previous: '前へ',
+    next: '次へ',
+    clearFilter: 'フィルターをクリア',
+    hexGridLabel: '{encoding} hex エディター グリッド',
+    columnRulerLabel: '列ルーラー、1 から {count}',
+    diagnosticDbcsAmbiguous: 'DBCS ambiguous',
+    diagnosticMissingSo: 'SO なし',
+    diagnosticMissingSi: 'SI なし',
+    diagnosticMissingSiAtEof: 'EOF で SI なし',
+    diagnosticUnmatchedSo: '対応しない SO',
+    diagnosticUnmatchedSi: '対応しない SI',
+    diagnosticAmbiguous: '曖昧',
+    diagnosticInvalidOrUnknown: '無効または不明',
+  },
+  ko: {
+    encodingFallback: '인코딩',
+    loading: '로드 중',
+    waitingForEditorData: '편집기 데이터를 기다리는 중...',
+    saved: '저장됨',
+    modified: '수정됨',
+    ready: '준비됨',
+    rawBytes: '원시 바이트',
+    bytes: '{count} bytes',
+    editingHint: '화살표 키로 이동, 0-9/A-F로 편집, Ins로 00 삽입, Del/Backspace로 삭제, Ctrl+S로 저장',
+    showHeader: '헤더 표시',
+    hideHeader: '헤더 숨기기',
+    fileActions: '파일 작업',
+    reload: '다시 로드',
+    revert: '되돌리기',
+    save: '저장',
+    diagnosticsStructureValid: 'SO/SI 구조가 유효함',
+    diagnosticsIssueCount: 'DBCS 문제 {count}개',
+    diagnosticsPairCount: 'DBCS 쌍 {count}개',
+    diagnosticsWarningCount: '경고 {count}개',
+    diagnosticNavigation: '진단 탐색',
+    diagnosticCategoryCounts: '진단 범주 수',
+    previous: '이전',
+    next: '다음',
+    clearFilter: '필터 지우기',
+    hexGridLabel: '{encoding} hex 편집기 그리드',
+    columnRulerLabel: '열 눈금자, 1부터 {count}까지',
+    diagnosticDbcsAmbiguous: 'DBCS ambiguous',
+    diagnosticMissingSo: 'SO 누락',
+    diagnosticMissingSi: 'SI 누락',
+    diagnosticMissingSiAtEof: 'EOF에서 SI 누락',
+    diagnosticUnmatchedSo: '일치하지 않는 SO',
+    diagnosticUnmatchedSi: '일치하지 않는 SI',
+    diagnosticAmbiguous: '모호함',
+    diagnosticInvalidOrUnknown: '잘못되었거나 알 수 없음',
+  },
+  de: {
+    encodingFallback: 'Codierung',
+    loading: 'Wird geladen',
+    waitingForEditorData: 'Warte auf Editordaten...',
+    saved: 'Gespeichert',
+    modified: 'Geändert',
+    ready: 'Bereit',
+    rawBytes: 'Rohbytes',
+    bytes: '{count} Bytes',
+    editingHint: 'Pfeiltasten bewegen, 0-9/A-F bearbeiten, Einfg fügt 00 ein, Entf/Rücktaste löscht, Strg+S speichert',
+    showHeader: 'Kopfbereich anzeigen',
+    hideHeader: 'Kopfbereich ausblenden',
+    fileActions: 'Dateiaktionen',
+    reload: 'Neu laden',
+    revert: 'Zurücksetzen',
+    save: 'Speichern',
+    diagnosticsStructureValid: 'SO/SI-Struktur gültig',
+    diagnosticsIssueCount: '{count} DBCS-Problem(e)',
+    diagnosticsPairCount: '{count} DBCS-Paar(e)',
+    diagnosticsWarningCount: '{count} Warnung(en)',
+    diagnosticNavigation: 'Diagnosenavigation',
+    diagnosticCategoryCounts: 'Diagnosekategorien',
+    previous: 'Zurück',
+    next: 'Weiter',
+    clearFilter: 'Filter löschen',
+    hexGridLabel: '{encoding}-Hex-Editor-Raster',
+    columnRulerLabel: 'Spaltenlineal, 1 bis {count}',
+    diagnosticDbcsAmbiguous: 'DBCS ambiguous',
+    diagnosticMissingSo: 'Fehlendes SO',
+    diagnosticMissingSi: 'Fehlendes SI',
+    diagnosticMissingSiAtEof: 'Fehlendes SI am EOF',
+    diagnosticUnmatchedSo: 'Nicht zugeordnetes SO',
+    diagnosticUnmatchedSi: 'Nicht zugeordnetes SI',
+    diagnosticAmbiguous: 'Mehrdeutig',
+    diagnosticInvalidOrUnknown: 'Ungültig oder unbekannt',
+  },
+};
+
+let activeCatalog: MessageCatalog = {};
+
+export function setLocale(locale: string): void {
+  activeCatalog = catalogs[normalizeLocale(locale)] ?? {};
+}
 
 export function t(key: MessageKey, args: MessageArgs = {}): string {
-  return messages[key].replace(/\{(\w+)\}/g, (match, name: string) => {
+  const message = activeCatalog[key] ?? messages[key];
+  return message.replace(/\{(\w+)\}/g, (match, name: string) => {
     const value = args[name];
     return value === undefined ? match : String(value);
   });
+}
+
+export function diagnosticLabel(kind: DiagnosticKind): string {
+  switch (kind) {
+    case 'DBCS_AMBIGUOUS': return t('diagnosticDbcsAmbiguous');
+    case 'MISSING_SO': return t('diagnosticMissingSo');
+    case 'MISSING_SI': return t('diagnosticMissingSi');
+    case 'MISSING_SI_AT_EOF': return t('diagnosticMissingSiAtEof');
+    case 'UNMATCHED_SO': return t('diagnosticUnmatchedSo');
+    case 'UNMATCHED_SI': return t('diagnosticUnmatchedSi');
+    case 'AMBIGUOUS': return t('diagnosticAmbiguous');
+    case 'INVALID_OR_UNKNOWN': return t('diagnosticInvalidOrUnknown');
+    default: return kind;
+  }
+}
+
+function normalizeLocale(locale: string): string {
+  const normalized = locale.toLowerCase().replace('_', '-');
+  if (normalized.startsWith('zh-tw') || normalized.startsWith('zh-hant')) return 'zh-tw';
+  if (normalized.startsWith('zh-cn') || normalized.startsWith('zh-hans')) return 'zh-cn';
+  if (normalized.startsWith('ja')) return 'ja';
+  if (normalized.startsWith('ko')) return 'ko';
+  if (normalized.startsWith('de')) return 'de';
+  return 'en';
 }

@@ -69,7 +69,10 @@ export function getDiagnosticHeaderCounts(result: AnalysisResult | null): Diagno
   };
 }
 
-export function summarizeProblemCounts(result: AnalysisResult | null): string {
+export function summarizeProblemCounts(
+  result: AnalysisResult | null,
+  labels: Record<DiagnosticKind, string> = DIAGNOSTIC_KIND_LABELS,
+): string {
   if (!result) {
     return '';
   }
@@ -78,6 +81,6 @@ export function summarizeProblemCounts(result: AnalysisResult | null): string {
     .filter(kind => PROBLEM_KINDS.has(kind))
     .map(kind => ({ kind, count: result.counts[kind] ?? 0 }))
     .filter(item => item.count > 0)
-    .map(item => `${DIAGNOSTIC_KIND_LABELS[item.kind]}: ${item.count}`)
+    .map(item => `${labels[item.kind]}: ${item.count}`)
     .join(', ');
 }
