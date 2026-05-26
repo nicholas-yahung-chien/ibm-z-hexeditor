@@ -47,4 +47,39 @@ describe('paged render ranges', () => {
       length: NO_NEWLINE_DISPLAY_LINE_BYTES,
     });
   });
+
+  it('uses the configured page line count for explicit record lines', () => {
+    const bytes = Uint8Array.from(Array.from({ length: 120 }, () => 0x15));
+    const ranges = buildPageRanges(bytes, 'ibm937', 50);
+
+    expect(ranges).toHaveLength(3);
+    expect(ranges[0]).toMatchObject({
+      pageEndOffset: 50,
+      pageLineCount: 50,
+    });
+    expect(ranges[2]).toMatchObject({
+      pageStartOffset: 100,
+      pageEndOffset: 120,
+      pageLineCount: 20,
+    });
+  });
+
+  it('maps configured page lines to byte page size when no line breaks exist', () => {
+    const pageLineLimit = 100;
+    const pageByteCount = pageLineLimit * NO_NEWLINE_DISPLAY_LINE_BYTES;
+    const bytes = new Uint8Array(pageByteCount + 1).fill(0x40);
+    const ranges = buildPageRanges(bytes, 'ibm937', pageLineLimit);
+
+    expect(ranges).toHaveLength(2);
+    expect(ranges[0]).toMatchObject({
+      pageStartOffset: 0,
+      pageEndOffset: pageByteCount,
+      pageLineCount: pageLineLimit,
+    });
+    expect(ranges[1]).toMatchObject({
+      pageStartOffset: pageByteCount,
+      pageEndOffset: pageByteCount + 1,
+      pageLineCount: 1,
+    });
+  });
 });

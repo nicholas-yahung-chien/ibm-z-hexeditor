@@ -4,10 +4,10 @@ Use this checklist to record a complete release-candidate validation pass before
 
 ## Release Candidate
 
-- Version: `0.1.0`
+- Version: `0.1.5`
 - Package: `dist/ibm-z-hex-on-editor.vsix`
-- Validation baseline commit: `ffa79ff`
-- Validation date: `2026-05-25`
+- Validation baseline commit: `pending final release commit`
+- Validation date: `2026-05-26`
 - Validator: Nicholas Chien
 - VS Code-compatible host: IBM Bob `1.109.5+bob1.0.2`, commit `473fcbe9e52a0216936d3c384820ebb51fb5cfc2`, x64
 - Host CLI: `C:\Users\NicholasChien\Documents\IBM Bob\bin\bobide.cmd`
@@ -30,6 +30,8 @@ Expected:
 - [x] Unit and fixture regression tests pass.
 - [x] VSIX package is created at `dist/ibm-z-hex-on-editor.vsix`.
 - [x] Package output includes `README.md`, `CHANGELOG.md`, `images/icon.png`, and `images/screenshots/`.
+- [x] Package output excludes `test/`, `test/fixtures/`, `.tmp/`, logs, scripts, and source files.
+- [x] Package output includes only the required Codicons runtime assets under `dist/codicons`.
 
 ## VSIX Installation
 
@@ -61,6 +63,13 @@ Summary:
 - [x] Column ruler accepted.
 - [x] User-configurable DBCS ambiguous exclusions accepted.
 - [x] Unsupported IBM code-page warning accepted.
+- [x] Paged rendering accepted with configurable page limits of 30, 50, and 100 logical lines.
+- [x] IBM-937 1200-line stress fixture accepted for manual open and navigation testing.
+- [x] `Ctrl+F` search accepted for Unicode and Hex modes.
+- [x] Unicode wildcard search accepted with line-bounded `*`, leading/trailing wildcard range behavior, and escaped wildcard literals.
+- [x] Search result navigation and cancel-search behavior accepted.
+- [x] Optional performance logging accepted and remains disabled by default.
+- [x] Localized extension, settings, prompt, and webview strings accepted for first-pass validation, with reload-window guidance documented.
 
 ## Release Assets
 
@@ -77,13 +86,15 @@ Summary:
 - [x] `CHANGELOG.md` reflects the release contents.
 - [ ] Product naming, legal notices, icon usage, and generated mapping table attribution are ready for product-team review.
 
-## Known Limits For 0.1.0
+## Known Limits For 0.1.5
 
 - Local files only.
 - Supported IBM EBCDIC SBCS profiles provide preview but no SO/SI diagnostics.
 - Supported IBM EBCDIC DBCS profiles provide preview and SO/SI diagnostics.
 - Unsupported IBM-style code page ids can still be edited as raw bytes, but use generic preview, row splitting, and diagnostics behavior.
-- Full localization catalogs are planned after the MVP copy stabilizes.
+- First-pass localization exists for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German, but product localization review is still recommended before external publication.
+- Code page mapping tables are bundled into the VSIX so the extension works offline after installation. Future lazy loading must keep the complete mapping data inside the single VSIX package.
+- `dist/extension.js` is large because mapping tables are bundled for complete offline functionality.
 
 ## Sign-Off Notes
 
@@ -96,6 +107,6 @@ Decision:
 Notes:
 
 ```text
-Manual validation accepted on 2026-05-25 using IBM Bob 1.109.5+bob1.0.2.
+Manual validation accepted across the MVP feature set using IBM Bob 1.109.5+bob1.0.2.
 External publication remains pending product-team review for naming, legal notices, icon usage, and generated mapping table attribution.
 ```

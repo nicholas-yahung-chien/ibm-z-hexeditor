@@ -49,6 +49,8 @@ VS Code에서 `dist/ibm-z-hex-on-editor.vsix`를 설치합니다.
 3. `dist/ibm-z-hex-on-editor.vsix`를 선택합니다.
 4. VS Code에서 요청하면 다시 로드합니다.
 
+VSIX를 설치하거나 업데이트한 뒤 설정 페이지의 지역화 문구가 즉시 갱신되지 않으면 `Developer: Reload Window`를 실행하거나 VS Code / IBM Bob을 다시 시작하세요.
+
 깨끗한 VS Code profile로 반복 가능한 검증을 하려면 [docs/acceptance-checklist.md](docs/acceptance-checklist.md)를 참고하세요.
 
 ### 소스에서 실행
@@ -73,11 +75,16 @@ npm run compile
 
 지원되지 않는 IBM-style code page id를 직접 입력하면 extension이 열기 전에 경고를 표시합니다. raw byte editing은 계속 사용할 수 있지만 preview, row splitting, diagnostics는 generic fallback behavior를 사용합니다.
 
+HEX ON editor 안에서 `Ctrl+F`를 누르면 검색을 열 수 있습니다. 검색어를 입력한 뒤 검색 버튼을 누르면 현재 snapshot을 검색합니다. 결과를 탐색하는 동안 입력란은 잠기며, 검색 취소 버튼을 눌러야 다시 편집할 수 있습니다. Unicode 검색은 `.` 및 editor line을 넘지 않는 `*` 와일드카드를 지원하고, `\.` 및 `\*`로 리터럴 기호를 검색할 수 있습니다. 앞쪽 `*`는 현재 editor line의 시작까지, 뒤쪽 `*`는 현재 editor line의 끝까지 일치 범위를 확장합니다. Hex 검색은 `A6 4F` 또는 `0xA6 0x4F`처럼 공백으로 구분한 bytes를 받습니다.
+
 ## 설정
 
 - `ibmZHexEditor.maxFileSizeKb`: HEX ON editor에서 열 수 있는 로컬 파일의 최대 크기(KB).
 - `ibmZHexEditor.condenseMode`: 더 좁은 byte cell, 숨겨진 offset, grid edge padding 제거로 더 조밀한 grid를 표시합니다.
 - `ibmZHexEditor.showRuler`: byte grid 위에 column ruler를 표시합니다.
+- `ibmZHexEditor.renderMode`: 전체 파일을 표시할지, 한 번에 한 페이지만 표시할지 선택합니다.
+- `ibmZHexEditor.pageLineLimit`: 페이지 모드에서 한 페이지에 표시할 논리 줄 수의 최대값입니다. `30`, `50`, `100`을 선택할 수 있으며, 명시적 줄바꿈이 없는 파일은 페이지당 `3000`, `5000`, `10000` bytes로 대응됩니다.
+- `ibmZHexEditor.performanceLogging`: editor timing logs를 `IBM Z HEX ON Performance` output channel에 기록합니다. 기본값은 비활성화입니다.
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: `DBCS_AMBIGUOUS` warnings에 custom byte-pair exclusions를 사용합니다.
 - `ibmZHexEditor.dbcsAmbiguousExclusions`: `{ "bytes": "40 40", "label": "EBCDIC spaces" }` 같은 byte-pair rules. custom exclusions를 처음 활성화하면 extension이 기본 rules를 user settings JSON에 기록하여 편집할 수 있게 합니다.
 

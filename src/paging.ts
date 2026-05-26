@@ -2,8 +2,8 @@ import { buildLines } from './byteModel';
 import type { RecordLine, RenderMode } from './protocol';
 
 export const PAGE_LINE_COUNT = 30;
-export const PAGE_BYTE_COUNT = 3000;
 export const NO_NEWLINE_DISPLAY_LINE_BYTES = 100;
+export const PAGE_BYTE_COUNT = PAGE_LINE_COUNT * NO_NEWLINE_DISPLAY_LINE_BYTES;
 
 export interface PageRange {
   mode: RenderMode;
@@ -18,21 +18,26 @@ export interface PageRange {
   forceLineBytes?: number;
 }
 
-export function buildPageRanges(bytes: Uint8Array, encoding: string): PageRange[] {
+export function buildPageRanges(
+  bytes: Uint8Array,
+  encoding: string,
+  pageLineLimit = PAGE_LINE_COUNT,
+): PageRange[] {
+  const normalizedPageLineLimit = normalizePageLineLimit(pageLineLimit);
   if (bytes.length === 0) {
     return [singleRange(0, 0, 1, 0, 0, 0, 0, 1)];
   }
 
   const lines = buildLines(bytes, encoding);
   if (lines.length <= 1) {
-    return buildBytePageRanges(bytes.length);
+    return buildBytePageRanges(bytes.length, normalizedPageLineLimit);
   }
 
-  const pageCount = Math.ceil(lines.length / PAGE_LINE_COUNT);
+  const pageCount = Math.ceil(lines.length / normalizedPageLineLimit);
   const ranges: PageRange[] = [];
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-    const firstLineIndex = pageIndex * PAGE_LINE_COUNT;
-    const pageLines = lines.slice(firstLineIndex, firstLineIndex + PAGE_LINE_COUNT);
+    const firstLineIndex = pageIndex * normalizedPageLineLimit;
+    const pageLines = lines.slice(firstLineIndex, firstLineIndex + normalizedPageLineLimit);
     const firstLine = pageLines[0];
     const lastLine = pageLines[pageLines.length - 1];
     const pageStartOffset = firstLine.startOffset;
@@ -79,12 +84,13 @@ export function buildDisplayLinesForPage(
   return lines;
 }
 
-function buildBytePageRanges(totalBytes: number): PageRange[] {
-  const pageCount = Math.max(1, Math.ceil(totalBytes / PAGE_BYTE_COUNT));
+function buildBytePageRanges(totalBytes: number, pageLineLimit: number): PageRange[] {
+  const pageByteCount = pageLineLimit * NO_NEWLINE_DISPLAY_LINE_BYTES;
+  const pageCount = Math.max(1, Math.ceil(totalBytes / pageByteCount));
   const ranges: PageRange[] = [];
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-    const pageStartOffset = pageIndex * PAGE_BYTE_COUNT;
-    const pageEndOffset = Math.min(totalBytes, pageStartOffset + PAGE_BYTE_COUNT);
+    const pageStartOffset = pageIndex * pageByteCount;
+    const pageEndOffset = Math.min(totalBytes, pageStartOffset + pageByteCount);
     ranges.push({
       ...singleRange(
         pageIndex,
@@ -93,7 +99,7 @@ function buildBytePageRanges(totalBytes: number): PageRange[] {
         Math.max(1, Math.ceil(totalBytes / NO_NEWLINE_DISPLAY_LINE_BYTES)),
         pageStartOffset,
         pageEndOffset,
-        pageIndex * Math.ceil(PAGE_BYTE_COUNT / NO_NEWLINE_DISPLAY_LINE_BYTES),
+        pageIndex * pageLineLimit,
         Math.max(1, Math.ceil((pageEndOffset - pageStartOffset) / NO_NEWLINE_DISPLAY_LINE_BYTES)),
       ),
       forceLineBytes: NO_NEWLINE_DISPLAY_LINE_BYTES,
@@ -123,4 +129,8 @@ function singleRange(
     pageLineStart,
     pageLineCount,
   };
+}
+
+export function normalizePageLineLimit(value: number): number {
+  return [30, 50, 100].includes(value) ? value : PAGE_LINE_COUNT;
 }

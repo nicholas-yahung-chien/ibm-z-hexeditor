@@ -2,7 +2,7 @@
   "name": "ibm-z-hex-on-editor",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "nicholas-yahung-chien",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -116,6 +116,21 @@
             "%configuration.renderMode.paged.description%"
           ]
         },
+        "ibmZHexEditor.pageLineLimit": {
+          "type": "number",
+          "enum": [
+            30,
+            50,
+            100
+          ],
+          "default": 30,
+          "description": "%configuration.pageLineLimit.description%",
+          "enumDescriptions": [
+            "%configuration.pageLineLimit.30.description%",
+            "%configuration.pageLineLimit.50.description%",
+            "%configuration.pageLineLimit.100.description%"
+          ]
+        },
         "ibmZHexEditor.performanceLogging": {
           "type": "boolean",
           "default": false,
@@ -165,7 +180,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@vscode/codicons": "^0.0.36",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -175,6 +189,7 @@
     "@types/react-dom": "^18.3.7",
     "@types/vscode": "^1.100.0",
     "@vitejs/plugin-react": "^4.5.0",
+    "@vscode/codicons": "^0.0.36",
     "@vscode/vsce": "^3.9.1",
     "esbuild": "^0.25.5",
     "jsdom": "^26.1.0",

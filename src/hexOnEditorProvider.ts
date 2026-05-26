@@ -6,6 +6,7 @@ import {
   readDiagnosticsSettings,
   seedDefaultDbcsAmbiguousExclusionsIfNeeded,
 } from './settings';
+import { normalizePageLineLimit, PAGE_LINE_COUNT } from './paging';
 import { diagnosticKindLabels, extensionText } from './i18n';
 import type { EditorViewSettings, FromWebviewMessage, PerformanceLogFields, RenderMode, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
@@ -30,6 +31,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
         event.affectsConfiguration('ibmZHexEditor.condenseMode') ||
         event.affectsConfiguration('ibmZHexEditor.showRuler') ||
         event.affectsConfiguration('ibmZHexEditor.renderMode') ||
+        event.affectsConfiguration('ibmZHexEditor.pageLineLimit') ||
         event.affectsConfiguration('ibmZHexEditor.performanceLogging')
       ) {
         for (const [document, webview] of this.webviews) {
@@ -289,6 +291,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       condenseMode: config.get<boolean>('condenseMode', false),
       showRuler: config.get<boolean>('showRuler', false),
       renderMode: this.readRenderMode(resource),
+      pageLineLimit: this.readPageLineLimit(resource),
       performanceLogging: config.get<boolean>('performanceLogging', false),
       locale: vscode.env.language,
     };
@@ -297,6 +300,11 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private readRenderMode(resource: vscode.Uri): RenderMode {
     const configured = vscode.workspace.getConfiguration('ibmZHexEditor', resource).get<string>('renderMode', 'full');
     return configured === 'paged' ? 'paged' : 'full';
+  }
+
+  private readPageLineLimit(resource: vscode.Uri): number {
+    const configured = vscode.workspace.getConfiguration('ibmZHexEditor', resource).get<number>('pageLineLimit', PAGE_LINE_COUNT);
+    return normalizePageLineLimit(configured);
   }
 
   private async refreshDiagnosticsSettings(): Promise<void> {
@@ -362,7 +370,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       return;
     }
 
-    document.setPage(pageIndex);
+    document.setPage(pageIndex, this.readPageLineLimit(document.uri));
     this.postSnapshot(webview, document, 'snapshot', 'webview.pageSnapshot');
   }
 
@@ -371,7 +379,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       throw new vscode.CancellationError();
     }
 
-    const diagnostics = document.snapshot(this.readRenderMode(document.uri)).diagnostics;
+    const diagnostics = document.snapshot(this.readRenderMode(document.uri), this.readPageLineLimit(document.uri)).diagnostics;
     const problemCount = countDiagnosticProblems(diagnostics);
     if (problemCount === 0) {
       return 0;
@@ -400,13 +408,16 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     type: 'init' | 'snapshot' | 'saved',
     phase: string,
   ): void {
-    this.post(webview, { type, snapshot: document.snapshot(this.readRenderMode(document.uri)) }, document.uri, phase);
+    this.post(webview, {
+      type,
+      snapshot: document.snapshot(this.readRenderMode(document.uri), this.readPageLineLimit(document.uri)),
+    }, document.uri, phase);
   }
 
   private html(webview: vscode.Webview): string {
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview', 'assets', 'index.js'));
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview', 'assets', 'index.css'));
-    const codiconsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.css'));
+    const codiconsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'codicons', 'codicon.css'));
     const nonce = crypto.randomUUID();
 
     return `<!DOCTYPE html>

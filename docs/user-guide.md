@@ -13,6 +13,8 @@ npm run package:vsix
 
 Then in VS Code, run `Extensions: Install from VSIX...` and choose `dist/ibm-z-hex-on-editor.vsix`.
 
+If localized settings text does not update immediately after installing or updating a VSIX, run `Developer: Reload Window` or restart VS Code / IBM Bob.
+
 ## Open HEX ON
 
 1. Open a local file in VS Code.
@@ -80,6 +82,19 @@ The header can be collapsed from the editor toolbar to give the byte grid more v
 
 Diagnostics and the preview update as the raw bytes change.
 
+## Search
+
+Press `Ctrl+F` inside the HEX ON editor to open the search panel. The shortcut is handled by the editor, so it will not replace the active hex nibble with `F`.
+
+Search does not run while you are typing. Enter a query and press the search button to search the current snapshot. During result navigation, the input and mode controls are locked; press the cancel-search button to unlock them and edit the query.
+
+Search has two modes:
+
+- Unicode: searches the current snapshot's decoded preview text. `.` matches one character, `*` matches any number of characters inside the same editor line, and `\.` or `\*` searches for literal wildcard characters. A leading `*` extends the match to the current editor-line start, a trailing `*` extends it to the current editor-line end, and wildcard matches never cross editor lines.
+- Hex: searches the current snapshot's raw bytes. Separate each byte with a space, for example `A6 4F`, `0xA6 0x4F`, or mixed forms such as `A6 0x4F`. Unseparated multi-byte input such as `A64F` is rejected.
+
+Use the previous and next buttons to move through matches. In paged mode, search applies to the current page snapshot.
+
 ## Diagnostics Panel
 
 For supported IBM EBCDIC DBCS files, the diagnostics strip summarizes SO/SI structure and DBCS candidates. Supported SBCS-only EBCDIC files do not show DBCS diagnostics.
@@ -126,6 +141,16 @@ This mode is intended for wide fixed-format files where showing more bytes per r
 The setting `ibmZHexEditor.showRuler` displays a column ruler above the byte grid. The ruler marks every fifth byte column with `+` and every tenth byte column with a digit, for example `----+----1----+----2`.
 
 The ruler uses the current file's longest logical line up to 100 byte columns, and aligns to the same byte cell width as the grid.
+
+## Paged Rendering
+
+The setting `ibmZHexEditor.renderMode` can render the full file in one view or render one page at a time. In paged mode, diagnostics are calculated for the current page only.
+
+The setting `ibmZHexEditor.pageLineLimit` controls the maximum logical lines per page. The default is `30`, with `50` and `100` also available. Files without explicit line breaks use 100 bytes as one logical line, so those choices map to 3000, 5000, and 10000 bytes per page.
+
+## Performance Logging
+
+The setting `ibmZHexEditor.performanceLogging` writes timing logs to the `IBM Z HEX ON Performance` output channel. It is disabled by default and is intended for troubleshooting large-file open, snapshot, transport, and webview rendering time.
 
 ## DBCS Ambiguous Exclusions
 

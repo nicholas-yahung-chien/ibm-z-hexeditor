@@ -49,6 +49,8 @@ npm run package:vsix
 3. `dist/ibm-z-hex-on-editor.vsix` auswählen.
 4. VS Code neu laden, falls Sie dazu aufgefordert werden.
 
+Wenn lokalisierte Einstellungstexte nach dem Installieren oder Aktualisieren einer VSIX nicht sofort aktualisiert werden, führen Sie `Developer: Reload Window` aus oder starten Sie VS Code / IBM Bob neu.
+
 Für wiederholbare Validierung mit einem sauberen VS Code profile siehe [docs/acceptance-checklist.md](docs/acceptance-checklist.md).
 
 ### Aus dem Quellcode ausführen
@@ -73,11 +75,16 @@ Wählen Sie eine unterstützte IBM EBCDIC SBCS- oder DBCS-Codierung, wenn die Da
 
 Wenn eine noch nicht unterstützte IBM-style code page id manuell eingegeben wird, zeigt die extension vor dem Öffnen eine Warnung an. Raw byte editing funktioniert weiterhin, aber preview, row splitting und diagnostics verwenden generic fallback behavior.
 
+Mit `Ctrl+F` im HEX ON editor öffnen Sie die Suche. Geben Sie einen Suchbegriff ein und drücken Sie die Suchschaltfläche, um den aktuellen snapshot zu durchsuchen. Während der Ergebnisnavigation ist die Eingabe gesperrt, bis die Suche abgebrochen wird. Die Unicode-Suche unterstützt `.` und ein auf die editor line begrenztes `*` als Platzhalter sowie `\.` und `\*` für literale Zeichen. Ein führendes `*` erweitert den Treffer bis zum Anfang der aktuellen editor line, ein abschließendes `*` bis zum Ende der aktuellen editor line. Die Hex-Suche akzeptiert durch Leerzeichen getrennte bytes wie `A6 4F` oder `0xA6 0x4F`.
+
 ## Einstellungen
 
 - `ibmZHexEditor.maxFileSizeKb`: Maximale lokale Dateigröße in KB, die im HEX ON editor geöffnet werden kann.
 - `ibmZHexEditor.condenseMode`: Zeigt ein dichteres grid mit schmaleren byte cells, ausgeblendeten offsets und ohne grid edge padding.
 - `ibmZHexEditor.showRuler`: Zeigt einen column ruler über dem byte grid.
+- `ibmZHexEditor.renderMode`: Rendert entweder die gesamte Datei oder jeweils nur eine Seite.
+- `ibmZHexEditor.pageLineLimit`: Maximale Anzahl logischer Zeilen pro Seite im seitenweisen Modus. Wählbar sind `30`, `50` oder `100`; Dateien ohne explizite Zeilenumbrüche verwenden entsprechend `3000`, `5000` oder `10000` bytes pro Seite.
+- `ibmZHexEditor.performanceLogging`: Schreibt editor timing logs in den output channel `IBM Z HEX ON Performance`. Standardmäßig deaktiviert.
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: Verwendet custom byte-pair exclusions für `DBCS_AMBIGUOUS` warnings.
 - `ibmZHexEditor.dbcsAmbiguousExclusions`: Byte-pair rules wie `{ "bytes": "40 40", "label": "EBCDIC spaces" }`. Wenn custom exclusions erstmals aktiviert werden, schreibt die extension die Standardregeln zur Bearbeitung in user settings JSON.
 

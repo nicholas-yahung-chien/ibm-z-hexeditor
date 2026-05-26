@@ -49,6 +49,8 @@ npm run package:vsix
 3. 选择 `dist/ibm-z-hex-on-editor.vsix`。
 4. 如果 VS Code 提示，请重新加载。
 
+安装或更新 VSIX 后，如果设置页的语言文字没有立即更新，请执行 `Developer: Reload Window`，或重新启动 VS Code / IBM Bob。
+
 若要使用干净的 VS Code profile 进行可重复验证，请参考 [docs/acceptance-checklist.md](docs/acceptance-checklist.md)。
 
 ### 从源码运行
@@ -73,11 +75,16 @@ npm run compile
 
 如果手动输入尚未支持的 IBM-style code page id，extension 会先显示警告。原始 byte 编辑仍可使用，但 preview、row splitting 与 diagnostics 会改用通用 fallback 行为。
 
+在 HEX ON editor 内按 `Ctrl+F` 可以打开搜索。输入条件后按搜索按钮才会搜索当前 snapshot；浏览搜索结果期间，输入框会锁定，直到按下取消搜索。Unicode 搜索支持 `.` 与不跨编辑行的 `*` 通配符，也支持用 `\.` 与 `\*` 搜索字面符号。开头 `*` 会延伸到当前编辑行开头，结尾 `*` 会延伸到当前编辑行结尾。Hex 搜索接受用空格分隔的 bytes，例如 `A6 4F` 或 `0xA6 0x4F`。
+
 ## 设置
 
 - `ibmZHexEditor.maxFileSizeKb`：HEX ON editor 可打开的本地文件大小上限，单位为 KB。
 - `ibmZHexEditor.condenseMode`：显示更紧凑的 grid，使用更窄的 byte cell、隐藏 offset，并移除 grid 边缘 padding。
 - `ibmZHexEditor.showRuler`：在 byte grid 上方显示 column ruler。
+- `ibmZHexEditor.renderMode`：选择一次呈现整份文件，或一次只呈现一个分页。
+- `ibmZHexEditor.pageLineLimit`：分页模式下单一分页最多显示的逻辑行数。可选 `30`、`50`、`100`；没有明确换行的文件会对应为每页 `3000`、`5000`、`10000` bytes。
+- `ibmZHexEditor.performanceLogging`：将 editor timing logs 写入 `IBM Z HEX ON Performance` output channel。默认停用。
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`：对 `DBCS_AMBIGUOUS` warnings 使用自定义 byte-pair exclusions。
 - `ibmZHexEditor.dbcsAmbiguousExclusions`：byte-pair rules，例如 `{ "bytes": "40 40", "label": "EBCDIC spaces" }`。第一次启用自定义 exclusions 时，extension 会将默认 rules 写入 user settings JSON 以便编辑。
 

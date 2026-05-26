@@ -105,3 +105,10 @@ The repository provides `npm run package:vsix`, which builds the extension and w
 Release documentation is staged in [marketplace.md](marketplace.md), with screenshot capture guidance in [screenshots.md](screenshots.md). Screenshots should be generated from fixture files and reviewed before adding them to the README or Marketplace listing.
 
 Use [release-checklist.md](release-checklist.md) to record the final VSIX validation environment, command results, manual acceptance outcome, release assets, and sign-off decision.
+
+Packaging principles:
+
+- keep the extension fully usable from a single installed `.vsix`;
+- do not require remote downloads or external JSON assets for code page mapping tables;
+- remove only obvious development, test, temporary, and unrelated dependency files from the VSIX;
+- if mapping tables are optimized later, prefer lazy loading from bundled VSIX assets or bundled modules so offline functionality remains complete after installation.

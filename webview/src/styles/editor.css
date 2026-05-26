@@ -59,6 +59,7 @@ button {
 }
 
 .app-shell {
+  position: relative;
   height: 100%;
   min-height: 0;
   display: grid;
@@ -404,6 +405,109 @@ h1 {
 
 .condense-mode .page-nav {
   padding-inline: 1rem;
+}
+
+.search-panel {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.8rem;
+  z-index: 10;
+  display: grid;
+  gap: 0.45rem;
+  width: min(34rem, calc(100vw - 1.6rem));
+  padding: 0.55rem;
+  border: 1px solid var(--vscode-editorWidget-border);
+  border-radius: 3px;
+  color: var(--vscode-editor-foreground);
+  background: var(--vscode-editorWidget-background, var(--vscode-sideBar-background));
+  box-shadow: 0 0.6rem 1.4rem color-mix(in srgb, #000 38%, transparent);
+  font-family: var(--vscode-font-family);
+  font-size: 0.78rem;
+}
+
+.search-controls,
+.search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.segmented-control {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--vscode-editorWidget-border);
+  border-radius: 3px;
+}
+
+.segmented-control button {
+  min-height: 1.65rem;
+  border: 0;
+  border-right: 1px solid var(--vscode-editorWidget-border);
+  color: var(--vscode-descriptionForeground);
+  background: transparent;
+  padding: 0 0.55rem;
+  cursor: pointer;
+}
+
+.segmented-control button:last-child {
+  border-right: 0;
+}
+
+.segmented-control button:hover,
+.segmented-control .segment-active {
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+}
+
+.segmented-control button:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.segmented-control button:disabled:hover {
+  color: var(--vscode-descriptionForeground);
+  background: transparent;
+}
+
+.segmented-control .segment-active:disabled,
+.segmented-control .segment-active:disabled:hover {
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+}
+
+.search-close {
+  margin-left: auto;
+}
+
+.search-input-row input {
+  flex: 1 1 auto;
+  min-width: 8rem;
+  height: 1.8rem;
+  border: 1px solid var(--vscode-input-border, var(--vscode-editorWidget-border));
+  color: var(--vscode-input-foreground, var(--vscode-editor-foreground));
+  background: var(--vscode-input-background, var(--vscode-editor-background));
+  padding: 0 0.45rem;
+  outline: none;
+}
+
+.search-input-row input:focus {
+  border-color: var(--vscode-focusBorder);
+}
+
+.search-input-row input:disabled {
+  opacity: 0.72;
+  cursor: default;
+}
+
+.search-status {
+  min-height: 1rem;
+  color: var(--vscode-descriptionForeground);
+}
+
+.search-status-error {
+  color: var(--problem);
 }
 
 .hex-grid-shell {

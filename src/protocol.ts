@@ -52,6 +52,7 @@ export interface EditorViewSettings {
   condenseMode: boolean;
   showRuler: boolean;
   renderMode: RenderMode;
+  pageLineLimit: number;
   performanceLogging: boolean;
   locale: string;
 }

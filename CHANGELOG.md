@@ -2,6 +2,22 @@
 
 All notable changes to the IBM Z HEX ON Editor extension will be documented in this file.
 
+## 0.1.5 - Search and Packaging Polish
+
+### Added
+
+- Added `Ctrl+F` search to the HEX ON editor, with Unicode and hex-byte modes.
+- Added search-result navigation, cancel-search behavior, and locked search input while navigating results.
+- Added Unicode wildcard search with `.` and `*`, escape support for `\.` and `\*`, line-bounded `*` behavior, and trailing-wildcard matches that extend to the current editor-line end.
+- Added paged rendering with configurable page sizes of 30, 50, or 100 logical lines.
+- Added optional performance timing logs for editor open, snapshot creation, message transport, and webview rendering.
+
+### Changed
+
+- Updated the in-editor operation hint to mention `Ctrl+F` search.
+- Documented search behavior, paged rendering, performance logging, and localized-settings reload behavior.
+- Refreshed package metadata versioning so local VSIX installs are easier to distinguish during validation.
+
 ## 0.1.4 - Rounded Icon Tile
 
 ### Changed

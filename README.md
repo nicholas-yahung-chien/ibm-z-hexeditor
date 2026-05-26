@@ -49,6 +49,8 @@ Install `dist/ibm-z-hex-on-editor.vsix` from VS Code:
 3. Select `dist/ibm-z-hex-on-editor.vsix`.
 4. Reload VS Code if prompted.
 
+If localized settings text does not update immediately after installing or updating a VSIX, run `Developer: Reload Window` or restart VS Code / IBM Bob.
+
 For repeatable validation with a clean VS Code profile, see [docs/acceptance-checklist.md](docs/acceptance-checklist.md).
 
 ### Run From Source
@@ -73,11 +75,16 @@ Choose one of the supported IBM EBCDIC SBCS or DBCS encodings when the file byte
 
 If you manually enter an IBM-style code page id that is not yet supported, the extension warns before opening. Raw byte editing still works, but preview, row splitting, and diagnostics fall back to generic behavior.
 
+Use `Ctrl+F` inside the HEX ON editor to open search. Enter a query and press the search button to search the current snapshot; while navigating results, the input is locked until the cancel-search button is pressed. Unicode search supports `.` and line-bounded `*` wildcards with `\.` and `\*` escapes. A leading `*` extends to the current editor-line start, a trailing `*` extends to the current editor-line end, and `*` never crosses editor lines. Hex search accepts space-separated bytes such as `A6 4F` or `0xA6 0x4F`.
+
 ## Settings
 
 - `ibmZHexEditor.maxFileSizeKb`: maximum local file size, in KB, that can be opened in the HEX ON editor.
 - `ibmZHexEditor.condenseMode`: show a denser grid with narrower byte cells, hidden offsets, and no grid edge padding.
 - `ibmZHexEditor.showRuler`: show a column ruler above the byte grid.
+- `ibmZHexEditor.renderMode`: render the whole file or one page at a time.
+- `ibmZHexEditor.pageLineLimit`: maximum logical lines per page in paged mode. Choose `30`, `50`, or `100`; files without explicit line breaks use `3000`, `5000`, or `10000` bytes per page.
+- `ibmZHexEditor.performanceLogging`: write editor timing logs to the `IBM Z HEX ON Performance` output channel. Disabled by default.
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: use custom byte-pair exclusions for `DBCS_AMBIGUOUS` warnings.
 - `ibmZHexEditor.dbcsAmbiguousExclusions`: byte-pair rules such as `{ "bytes": "40 40", "label": "EBCDIC spaces" }`. When custom exclusions are enabled and no custom list exists yet, the extension writes the default rules to user settings JSON for editing. The custom list replaces the built-in defaults; set it to `[]` to use no ambiguous exclusions.
 

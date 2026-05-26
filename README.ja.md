@@ -49,6 +49,8 @@ VS Code で `dist/ibm-z-hex-on-editor.vsix` をインストールします。
 3. `dist/ibm-z-hex-on-editor.vsix` を選択します。
 4. 求められた場合は VS Code を再読み込みします。
 
+VSIX のインストールまたは更新後に設定ページのローカライズ文字列がすぐに更新されない場合は、`Developer: Reload Window` を実行するか、VS Code / IBM Bob を再起動してください。
+
 クリーンな VS Code profile で再現可能な検証を行う場合は、[docs/acceptance-checklist.md](docs/acceptance-checklist.md) を参照してください。
 
 ### ソースから実行
@@ -73,11 +75,16 @@ npm run compile
 
 未対応の IBM-style code page id を手入力すると、extension は開く前に警告を表示します。raw byte editing は引き続き利用できますが、preview、row splitting、diagnostics は generic fallback behavior を使用します。
 
+HEX ON editor 内で `Ctrl+F` を押すと検索を開けます。条件を入力して検索ボタンを押すと、現在の snapshot を検索します。結果の移動中は入力欄がロックされ、検索キャンセルを押すまで編集できません。Unicode 検索では `.` と、editor line をまたがない `*` ワイルドカードを使用でき、`\.` と `\*` でリテラル記号を検索できます。先頭の `*` は現在の editor line の先頭まで、末尾の `*` は現在の editor line の末尾まで一致範囲を広げます。Hex 検索では `A6 4F` や `0xA6 0x4F` のように空白で区切った bytes を指定します。
+
 ## 設定
 
 - `ibmZHexEditor.maxFileSizeKb`: HEX ON editor で開けるローカル ファイルの最大サイズ。単位は KB。
 - `ibmZHexEditor.condenseMode`: より密な grid を表示し、狭い byte cell、非表示の offset、grid 端の padding なしで表示します。
 - `ibmZHexEditor.showRuler`: byte grid の上に column ruler を表示します。
+- `ibmZHexEditor.renderMode`: ファイル全体を表示するか、1 ページずつ表示するかを選択します。
+- `ibmZHexEditor.pageLineLimit`: ページ表示モードで 1 ページに表示する論理行数の上限。`30`、`50`、`100` を選択できます。明示的な改行がないファイルでは、それぞれ 1 ページ `3000`、`5000`、`10000` bytes になります。
+- `ibmZHexEditor.performanceLogging`: editor timing logs を `IBM Z HEX ON Performance` output channel に書き込みます。既定では無効です。
 - `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: `DBCS_AMBIGUOUS` warnings に custom byte-pair exclusions を使用します。
 - `ibmZHexEditor.dbcsAmbiguousExclusions`: `{ "bytes": "40 40", "label": "EBCDIC spaces" }` のような byte-pair rules。custom exclusions を初めて有効にすると、extension は既定の rules を user settings JSON に書き込み、編集できるようにします。
 

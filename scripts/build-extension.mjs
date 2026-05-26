@@ -1,4 +1,5 @@
 import * as esbuild from 'esbuild';
+import { copyFileSync, mkdirSync } from 'node:fs';
 
 const watch = process.argv.includes('--watch');
 
@@ -15,9 +16,17 @@ const context = await esbuild.context({
 });
 
 if (watch) {
+  copyCodicons();
   await context.watch();
   console.log('Watching extension sources...');
 } else {
   await context.rebuild();
   await context.dispose();
+  copyCodicons();
+}
+
+function copyCodicons() {
+  mkdirSync('dist/codicons', { recursive: true });
+  copyFileSync('node_modules/@vscode/codicons/dist/codicon.css', 'dist/codicons/codicon.css');
+  copyFileSync('node_modules/@vscode/codicons/dist/codicon.ttf', 'dist/codicons/codicon.ttf');
 }

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, replaceNibble } from './byteModel';
-import { buildDisplayLinesForPage, buildPageRanges } from './paging';
+import { buildDisplayLinesForPage, buildPageRanges, PAGE_LINE_COUNT } from './paging';
 import type { ByteCell, EditorSnapshot, HexNibble, RenderMode } from './protocol';
 import type { PerformanceLogFields } from './protocol';
 import type { AnalysisResult, InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
@@ -57,9 +57,9 @@ export class HexOnDocument implements vscode.CustomDocument {
     this.changeEmitter.dispose();
   }
 
-  snapshot(renderMode: RenderMode = 'full'): EditorSnapshot {
+  snapshot(renderMode: RenderMode = 'full', pageLineLimit = PAGE_LINE_COUNT): EditorSnapshot {
     const start = performance.now();
-    const snapshot = renderMode === 'paged' ? this.pageSnapshot() : this.fullSnapshot();
+    const snapshot = renderMode === 'paged' ? this.pageSnapshot(pageLineLimit) : this.fullSnapshot();
     this.performanceLog?.('document.snapshot', {
       durationMs: elapsed(start),
       bytes: snapshot.cells.length,
@@ -74,9 +74,9 @@ export class HexOnDocument implements vscode.CustomDocument {
     return snapshot;
   }
 
-  setPage(pageIndex: number): void {
+  setPage(pageIndex: number, pageLineLimit = PAGE_LINE_COUNT): void {
     const bytes = bytesFromCells(this.cells);
-    const ranges = buildPageRanges(bytes, this.fileEncoding);
+    const ranges = buildPageRanges(bytes, this.fileEncoding, pageLineLimit);
     this.pageIndex = clampPageIndex(pageIndex, ranges.length);
   }
 
@@ -182,9 +182,9 @@ export class HexOnDocument implements vscode.CustomDocument {
     });
   }
 
-  private pageSnapshot(): EditorSnapshot {
+  private pageSnapshot(pageLineLimit = PAGE_LINE_COUNT): EditorSnapshot {
     const bytes = bytesFromCells(this.cells);
-    const ranges = buildPageRanges(bytes, this.fileEncoding);
+    const ranges = buildPageRanges(bytes, this.fileEncoding, pageLineLimit);
     const pageIndex = clampPageIndex(this.pageIndex, ranges.length);
     this.pageIndex = pageIndex;
     const range = ranges[pageIndex];

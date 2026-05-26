@@ -13,6 +13,7 @@ interface Props {
   jumpTarget: JumpTarget | null;
   condenseMode: boolean;
   showRuler: boolean;
+  onSearchRequested: () => void;
 }
 
 interface JumpTarget {
@@ -42,7 +43,7 @@ function cellClass(cell: ByteCell): string {
   return '';
 }
 
-export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props) {
+export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler, onSearchRequested }: Props) {
   const pageStartOffset = snapshot.page?.pageStartOffset ?? 0;
   const pageEndOffset = snapshot.page?.pageEndOffset ?? snapshot.cells.length;
   const pageCellCount = Math.max(0, pageEndOffset - pageStartOffset);
@@ -217,6 +218,12 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
   }, [cursor.offset, pageCellCount, pageStartOffset]);
 
   const onKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'f') {
+      event.preventDefault();
+      onSearchRequested();
+      return;
+    }
+
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
       event.preventDefault();
       vscode.postMessage({ type: 'save' });
@@ -235,7 +242,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       event.preventDefault();
       editNibble(event.key);
     }
-  }, [backspaceBeforeCursor, deleteAtCursor, editNibble, insertAfterCursor, move]);
+  }, [backspaceBeforeCursor, deleteAtCursor, editNibble, insertAfterCursor, move, onSearchRequested]);
 
   return (
     <main

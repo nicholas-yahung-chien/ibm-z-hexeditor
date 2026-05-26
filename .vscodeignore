@@ -19,9 +19,6 @@ package-lock.json
 images/icon-source.png
 
 node_modules/**
-!node_modules/@vscode/
-!node_modules/@vscode/codicons/
-!node_modules/@vscode/codicons/dist/**
 
 dist/**/*.map
 
