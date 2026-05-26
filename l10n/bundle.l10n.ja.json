@@ -95,5 +95,22 @@
   "Korean EUC-KR / 한국어": "韓国語 EUC-KR / 한국어",
   "Simplified Chinese GBK / 简体中文": "簡体字中国語 GBK / 简体中文",
   "Simplified Chinese GB 18030 / 简体中文": "簡体字中国語 GB 18030 / 简体中文",
-  "Vietnamese Windows-1258 / Tiếng Việt": "ベトナム語 Windows-1258 / Tiếng Việt"
+  "Vietnamese Windows-1258 / Tiếng Việt": "ベトナム語 Windows-1258 / Tiếng Việt",
+  "extension.displayName": "IBM Z HEX ON Editor",
+  "extension.description": "ISPF スタイルの HEX ON ビューで IBM Z ファイルのバイトを編集し、IBM EBCDIC DBCS プレビューと SO/SI 診断を提供します。",
+  "command.openHexOn.title": "IBM Z Hex Editor: HEX ON を開く",
+  "command.openHexOn.category": "IBM Z Hex Editor",
+  "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",
+  "configuration.title": "IBM Z HEX ON Editor",
+  "configuration.maxFileSizeKb.description": "HEX ON エディターで開けるローカル ファイルの最大サイズ (KB)。",
+  "configuration.condenseMode.description": "幅の狭いバイト セル、非表示のオフセット、グリッド端の padding なしで、より高密度な HEX ON グリッドを表示します。",
+  "configuration.showRuler.description": "HEX ON バイト グリッドの上に列ルーラーを表示します。",
+  "configuration.renderMode.description": "HEX ON エディターでファイル全体を表示するか、1 ページずつ表示するかを選択します。",
+  "configuration.renderMode.full.description": "ファイル全体を 1 つのエディター表示でレンダリングします。",
+  "configuration.renderMode.paged.description": "1 ページずつレンダリングします。診断は現在のページだけを対象に計算されます。",
+  "configuration.performanceLogging.description": "HEX ON エディターのパフォーマンス計測ログを IBM Z HEX ON Performance 出力チャネルに書き込みます。既定では無効です。",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "DBCS ambiguous 診断にカスタム バイト ペア除外を使用します。有効化され、カスタム リストがまだ存在しない場合、編集用の既定除外がユーザー設定 JSON に書き込まれます。",
+  "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 診断のカスタム バイト ペア除外。各ルールは、SBCS mode で有効な DBCS ペアを DBCS_AMBIGUOUS 警告から除外します。カスタム リストは組み込み既定値を置き換えます。何も除外しない場合は [] を使用します。",
+  "configuration.dbcsAmbiguousExclusions.bytes.description": "除外する 2 バイト ペア。使用できる形式は \"40 40\"、\"0x40 0x40\"、\"4040\" です。",
+  "configuration.dbcsAmbiguousExclusions.label.description": "このペアを除外する理由を示す任意のメモ。"
 }

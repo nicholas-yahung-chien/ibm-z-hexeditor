@@ -34,6 +34,24 @@ describe('localization bundles', () => {
     }
   });
 
+  it('mirrors package contribution keys into vscode.l10n bundles', () => {
+    const packageLocaleNames = readdirSync(root).filter((name) => (
+      name.startsWith('package.nls.')
+      && name.endsWith('.json')
+      && name !== 'package.nls.json'
+    ));
+
+    for (const localeName of packageLocaleNames) {
+      const locale = localeName.replace(/^package\.nls\./, '').replace(/\.json$/, '');
+      const packageBundle = JSON.parse(readFileSync(join(root, localeName), 'utf8')) as Record<string, string>;
+      const l10nBundlePath = join(root, 'l10n', `bundle.l10n.${locale}.json`);
+      const l10nBundle = JSON.parse(readFileSync(l10nBundlePath, 'utf8')) as Record<string, string>;
+      const missing = Object.keys(packageBundle).filter((key) => l10nBundle[key] !== packageBundle[key]);
+
+      expect(missing, `${l10nBundlePath} must mirror package contribution translations`).toEqual([]);
+    }
+  });
+
   it('provides localized README entry points', () => {
     const readmeNames = [
       'README.zh-TW.md',

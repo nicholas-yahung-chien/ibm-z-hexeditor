@@ -210,13 +210,14 @@ function PageNavigator({ snapshot }: { snapshot: EditorSnapshot }) {
   return (
     <nav className="page-nav" aria-label={t('pageNavigation')}>
       <button
-        className="diagnostic-nav-button"
+        className="icon-button icon-button-secondary page-nav-button"
         type="button"
+        title={t('previousPage')}
+        aria-label={t('previousPage')}
         disabled={!canGoPrevious}
         onClick={() => goToPage(page.pageIndex - 1)}
       >
-        <span className="codicon codicon-chevron-left" aria-hidden="true" />
-        <span>{t('previousPage')}</span>
+        <SvgIcon name="chevron-left" />
       </button>
       <span className="page-nav-status">
         {t('pageStatus', { current: page.pageIndex + 1, total: page.pageCount })}
@@ -225,13 +226,14 @@ function PageNavigator({ snapshot }: { snapshot: EditorSnapshot }) {
         {t('pageByteRange', { start: pageStart, end: pageEnd })}
       </span>
       <button
-        className="diagnostic-nav-button"
+        className="icon-button icon-button-secondary page-nav-button"
         type="button"
+        title={t('nextPage')}
+        aria-label={t('nextPage')}
         disabled={!canGoNext}
         onClick={() => goToPage(page.pageIndex + 1)}
       >
-        <span>{t('nextPage')}</span>
-        <span className="codicon codicon-chevron-right" aria-hidden="true" />
+        <SvgIcon name="chevron-right" />
       </button>
     </nav>
   );
@@ -283,13 +285,15 @@ function installDemoSnapshotsIfRequested(): void {
     .catch(error => console.error('Unable to install demo snapshots', error));
 }
 
-type SvgIconName = 'chevron-down' | 'chevron-up' | 'refresh' | 'revert' | 'save';
+type SvgIconName = 'chevron-down' | 'chevron-up' | 'chevron-left' | 'chevron-right' | 'refresh' | 'revert' | 'save';
 
 function SvgIcon({ name }: { name: SvgIconName }) {
   return (
     <svg className="svg-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       {name === 'chevron-down' ? <path d="M6 9l6 6 6-6" /> : null}
       {name === 'chevron-up' ? <path d="M6 15l6-6 6 6" /> : null}
+      {name === 'chevron-left' ? <path d="M15 6l-6 6 6 6" /> : null}
+      {name === 'chevron-right' ? <path d="M9 6l6 6-6 6" /> : null}
       {name === 'refresh' ? (
         <>
           <path d="M20 6v5h-5" />

@@ -95,5 +95,22 @@
   "Korean EUC-KR / 한국어": "韩文 EUC-KR / 한국어",
   "Simplified Chinese GBK / 简体中文": "简体中文 GBK / 简体中文",
   "Simplified Chinese GB 18030 / 简体中文": "简体中文 GB 18030 / 简体中文",
-  "Vietnamese Windows-1258 / Tiếng Việt": "越南文 Windows-1258 / Tiếng Việt"
+  "Vietnamese Windows-1258 / Tiếng Việt": "越南文 Windows-1258 / Tiếng Việt",
+  "extension.displayName": "IBM Z HEX ON Editor",
+  "extension.description": "在 ISPF 风格的 HEX ON 视图中编辑 IBM Z 文件字节，并提供 IBM EBCDIC DBCS 预览与 SO/SI 诊断。",
+  "command.openHexOn.title": "IBM Z Hex Editor: 打开 HEX ON",
+  "command.openHexOn.category": "IBM Z Hex Editor",
+  "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",
+  "configuration.title": "IBM Z HEX ON Editor",
+  "configuration.maxFileSizeKb.description": "HEX ON 编辑器可打开的本地文件大小上限，单位为 KB。",
+  "configuration.condenseMode.description": "显示更紧凑的 HEX ON 网格，使用更窄的字节单元格、隐藏偏移量，并移除网格边缘 padding。",
+  "configuration.showRuler.description": "在 HEX ON 字节网格上方显示列标尺。",
+  "configuration.renderMode.description": "选择 HEX ON 编辑器一次呈现整份文件，或一次只呈现一个分页。",
+  "configuration.renderMode.full.description": "在同一个编辑器视图中呈现整份文件。",
+  "configuration.renderMode.paged.description": "一次只呈现一个分页。Diagnostics 仅针对当前分页计算。",
+  "configuration.performanceLogging.description": "将 HEX ON 编辑器性能计时日志写入 IBM Z HEX ON Performance 输出通道。默认停用。",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "使用自定义字节对排除规则处理 DBCS ambiguous 诊断。启用且尚未设置自定义列表时，会将默认排除规则写入用户设置 JSON 以便编辑。",
+  "configuration.dbcsAmbiguousExclusions.description": "DBCS ambiguous 诊断的自定义字节对排除规则。每条规则会在 SBCS mode 下，将一组有效 DBCS 字节对排除于 DBCS_AMBIGUOUS 警告之外。自定义列表会替代内置默认值；使用 [] 表示不排除任何组合。",
+  "configuration.dbcsAmbiguousExclusions.bytes.description": "要排除的两字节组合。可接受格式包括 \"40 40\"、\"0x40 0x40\" 和 \"4040\"。",
+  "configuration.dbcsAmbiguousExclusions.label.description": "可选备注，说明为何排除此组合。"
 }

@@ -95,5 +95,22 @@
   "Korean EUC-KR / 한국어": "Koreanisch EUC-KR / 한국어",
   "Simplified Chinese GBK / 简体中文": "Vereinfachtes Chinesisch GBK / 简体中文",
   "Simplified Chinese GB 18030 / 简体中文": "Vereinfachtes Chinesisch GB 18030 / 简体中文",
-  "Vietnamese Windows-1258 / Tiếng Việt": "Vietnamesisch Windows-1258 / Tiếng Việt"
+  "Vietnamese Windows-1258 / Tiếng Việt": "Vietnamesisch Windows-1258 / Tiếng Việt",
+  "extension.displayName": "IBM Z HEX ON Editor",
+  "extension.description": "IBM Z-Dateibytes in einer ISPF-ähnlichen HEX ON-Ansicht bearbeiten, mit IBM EBCDIC DBCS-Vorschau und SO/SI-Diagnosen.",
+  "command.openHexOn.title": "IBM Z Hex Editor: HEX ON öffnen",
+  "command.openHexOn.category": "IBM Z Hex Editor",
+  "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",
+  "configuration.title": "IBM Z HEX ON Editor",
+  "configuration.maxFileSizeKb.description": "Maximale lokale Dateigröße in KB, die im HEX ON-Editor geöffnet werden kann.",
+  "configuration.condenseMode.description": "Zeigt ein dichteres HEX ON-Raster mit schmaleren Byte-Zellen, ausgeblendeten Offsets und ohne Rand-Padding des Rasters.",
+  "configuration.showRuler.description": "Zeigt ein Spaltenlineal über dem HEX ON-Byte-Raster.",
+  "configuration.renderMode.description": "Legt fest, ob der HEX ON-Editor die ganze Datei oder jeweils nur eine Seite rendert.",
+  "configuration.renderMode.full.description": "Rendert die gesamte Datei in einer Editoransicht.",
+  "configuration.renderMode.paged.description": "Rendert jeweils eine Seite. Diagnosen werden nur für die aktuelle Seite berechnet.",
+  "configuration.performanceLogging.description": "Schreibt Performance-Zeitmessungen des HEX ON-Editors in den Ausgabekanal IBM Z HEX ON Performance. Standardmäßig deaktiviert.",
+  "configuration.dbcsAmbiguousExclusionsEnabled.description": "Benutzerdefinierte Byte-Paar-Ausschlüsse für DBCS ambiguous-Diagnosen verwenden. Wenn die Option aktiviert ist und noch keine benutzerdefinierte Liste vorhanden ist, werden Standardausschlüsse zur Bearbeitung in die Benutzer-JSON-Einstellungen geschrieben.",
+  "configuration.dbcsAmbiguousExclusions.description": "Benutzerdefinierte Byte-Paar-Ausschlüsse für DBCS ambiguous-Diagnosen. Jede Regel schließt ein gültiges DBCS-Paar im SBCS mode von DBCS_AMBIGUOUS-Warnungen aus. Die benutzerdefinierte Liste ersetzt die integrierten Standardwerte; [] bedeutet, dass nichts ausgeschlossen wird.",
+  "configuration.dbcsAmbiguousExclusions.bytes.description": "Auszuschließendes Zwei-Byte-Paar. Akzeptierte Formate sind \"40 40\", \"0x40 0x40\" und \"4040\".",
+  "configuration.dbcsAmbiguousExclusions.label.description": "Optionale Notiz, warum dieses Paar ausgeschlossen wird."
 }
