@@ -33,11 +33,12 @@ export default function App() {
       const message = event.data;
       if (message.type === 'init' || message.type === 'snapshot' || message.type === 'saved') {
         const receivedAt = performance.now();
+        const receivedEpochMs = Date.now();
         snapshotRef.current = message.snapshot;
         setSnapshot(message.snapshot);
         setStatus(message.type === 'saved' ? t('saved') : message.snapshot.dirty ? t('modified') : t('ready'));
         if (message.perf && performanceLoggingRef.current) {
-          reportSnapshotRender(message.perf.phase, message.perf.sentAt, receivedAt, message.snapshot);
+          reportSnapshotRender(message.perf.phase, message.perf.sentEpochMs, receivedEpochMs, receivedAt, message.snapshot);
         }
       }
 
@@ -190,7 +191,13 @@ export default function App() {
   );
 }
 
-function reportSnapshotRender(phase: string, sentAt: number, receivedAt: number, snapshot: EditorSnapshot): void {
+function reportSnapshotRender(
+  phase: string,
+  sentEpochMs: number,
+  receivedEpochMs: number,
+  receivedAt: number,
+  snapshot: EditorSnapshot,
+): void {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       vscode.postMessage({
@@ -198,7 +205,7 @@ function reportSnapshotRender(phase: string, sentAt: number, receivedAt: number,
         phase: 'snapshotRender',
         fields: {
           phase,
-          transportMs: roundMs(receivedAt - sentAt),
+          transportMs: Math.max(0, receivedEpochMs - sentEpochMs),
           renderMs: roundMs(performance.now() - receivedAt),
           bytes: snapshot.cells.length,
           lines: snapshot.lines.length,

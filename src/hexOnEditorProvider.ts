@@ -232,7 +232,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   ): void {
     const start = performance.now();
     const marked = this.isPerformanceLoggingEnabled(resource)
-      ? { ...message, perf: { phase, sentAt: performance.now() } }
+      ? { ...message, perf: { phase, sentEpochMs: Date.now() } }
       : message;
     void webview.postMessage(marked);
     this.logPerformance(resource, 'provider.postMessage', {

@@ -43,7 +43,7 @@ export interface EditorViewSettings {
 
 export interface PerformanceMessageMarker {
   phase: string;
-  sentAt: number;
+  sentEpochMs: number;
 }
 
 export type PerformanceLogFields = Record<string, string | number | boolean | null>;
