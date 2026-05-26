@@ -17,6 +17,7 @@
   "Select the actual file-content encoding used to decode raw bytes for preview and diagnostics": "プレビューと診断のために raw bytes をデコードする実際のファイル内容エンコーディングを選択してください",
   "Actual File-Content Encoding": "実際のファイル内容エンコーディング",
   "Enter the encoding of the bytes on disk, using a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.": "VS Code エンコーディング ID を使用して、ディスク上のバイトのエンコーディングを入力します。例: utf8、cp950、big5hkscs、shiftjis、gbk。",
+  "The encoding name is not in the supported VS Code encoding list.": "このエンコーディング名は、サポートされている VS Code エンコーディング一覧にありません。",
   "The encoding \"{0}\" cannot be used because VS Code could not decode bytes with it. Reason: {1}": "VS Code がこのエンコーディングでバイトをデコードできなかったため、エンコーディング \"{0}\" は使用できません。理由: {1}",
   "IBM code page {0} is not yet supported for code-page-aware preview. HEX ON will still edit raw bytes, but the preview, row splitting, and diagnostics will use generic fallback behavior.": "IBM code page {0} は code-page-aware プレビューをまだサポートしていません。HEX ON は raw bytes を編集できますが、プレビュー、行分割、診断は汎用 fallback 動作を使用します。",
   "Use Anyway": "それでも使用",

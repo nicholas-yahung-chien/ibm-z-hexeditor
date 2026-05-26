@@ -3,6 +3,7 @@ import { HexOnEditorProvider } from './hexOnEditorProvider';
 import {
   COMMON_SOURCE_ENCODINGS,
   getDocumentEncoding,
+  isKnownVsCodeTextEncoding,
   normalizeEncoding,
 } from './encoding';
 import {
@@ -224,7 +225,25 @@ async function pickCustomEncoding(currentEncoding: string): Promise<string | und
     return undefined;
   }
 
-  if (looksLikeIbmCodePageEncoding(encoding) && !isSupportedIbmCodePageEncoding(encoding)) {
+  if (isSupportedIbmCodePageEncoding(encoding)) {
+    return encoding;
+  }
+
+  if (isKnownVsCodeTextEncoding(encoding)) {
+    try {
+      const testBuffer = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]);
+      await vscode.workspace.decode(testBuffer, { encoding });
+    } catch (error) {
+      void vscode.window.showErrorMessage(
+        extensionText.invalidEncodingWarning(encoding, messageFromError(error)),
+      );
+      return undefined;
+    }
+
+    return encoding;
+  }
+
+  if (looksLikeIbmCodePageEncoding(encoding)) {
     const choice = await vscode.window.showWarningMessage(
       extensionText.unsupportedIbmEncodingWarning(encoding),
       { modal: true },
@@ -234,19 +253,14 @@ async function pickCustomEncoding(currentEncoding: string): Promise<string | und
     if (choice !== extensionText.useAnyway()) {
       return undefined;
     }
+
+    return encoding;
   }
 
-  try {
-    const testBuffer = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]);
-    await vscode.workspace.decode(testBuffer, { encoding });
-  } catch (error) {
-    void vscode.window.showErrorMessage(
-      extensionText.invalidEncodingWarning(encoding, messageFromError(error)),
-    );
-    return undefined;
-  }
-
-  return encoding;
+  void vscode.window.showErrorMessage(
+    extensionText.invalidEncodingWarning(encoding, extensionText.unknownEncodingReason()),
+  );
+  return undefined;
 }
 
 function messageFromError(error: unknown): string {

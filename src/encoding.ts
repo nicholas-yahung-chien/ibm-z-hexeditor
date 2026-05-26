@@ -27,6 +27,32 @@ export const COMMON_SOURCE_ENCODINGS = [
   'iso88595',
 ] as const;
 
+const VS_CODE_TEXT_ENCODINGS = [
+  ...COMMON_SOURCE_ENCODINGS,
+  'cp437',
+  'cp850',
+  'cp852',
+  'cp865',
+  'cp866',
+  'cp1125',
+  'koi8r',
+  'koi8u',
+  'macroman',
+  'iso88593',
+  'iso88594',
+  'iso88596',
+  'iso88597',
+  'iso88598',
+  'iso88599',
+  'iso885910',
+  'iso885913',
+  'iso885914',
+  'iso885915',
+  'iso885916',
+] as const;
+
+const KNOWN_VS_CODE_TEXT_ENCODINGS = new Set<string>(VS_CODE_TEXT_ENCODINGS);
+
 export const PREFERRED_SOURCE_ENCODINGS = new Set(['utf8', 'utf8bom']);
 
 export function normalizeEncoding(encoding: string | undefined): string {
@@ -34,11 +60,22 @@ export function normalizeEncoding(encoding: string | undefined): string {
     return 'utf8';
   }
 
-  const lower = encoding.toLowerCase();
-  if (lower === 'utf-8') {
+  const lower = encoding.trim().toLowerCase();
+  const compact = lower.replace(/[-_]/g, '');
+
+  if (compact === 'utf8') {
     return 'utf8';
   }
-  return normalizeIbmCodePageEncoding(lower);
+
+  if (compact === 'big5') {
+    return 'cp950';
+  }
+
+  return normalizeIbmCodePageEncoding(compact);
+}
+
+export function isKnownVsCodeTextEncoding(encoding: string): boolean {
+  return KNOWN_VS_CODE_TEXT_ENCODINGS.has(normalizeEncoding(encoding));
 }
 
 export function getDocumentEncoding(document: vscode.TextDocument): string {
