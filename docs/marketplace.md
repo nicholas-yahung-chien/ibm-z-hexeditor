@@ -49,7 +49,7 @@ DBCS preview and SO/SI diagnostics:
 - IBM-1390
 - IBM-1399
 
-Other manually entered encodings may still be used for raw byte editing. Unsupported IBM-style code page ids show a warning and use generic preview behavior.
+Known VS Code text encoding ids can be entered manually. Unsupported IBM-style code page ids show a warning and use generic preview behavior. Unknown custom encoding names are rejected instead of being opened through VS Code's internal decode fallback.
 
 ## Screenshot Order
 

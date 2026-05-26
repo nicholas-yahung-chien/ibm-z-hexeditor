@@ -14,6 +14,7 @@ This MVP preview provides an ISPF-style HEX ON byte editor for local files in VS
 - Use Condense Mode, a collapsible header, and an optional column ruler for fixed-format files.
 - Configure DBCS ambiguous byte-pair exclusions from user settings JSON.
 - Receive a warning before using unsupported manually entered IBM code page ids.
+- Reject unknown manually entered encoding names that are not supported VS Code encoding ids or IBM-style code page ids.
 
 ## Supported IBM EBCDIC Code Pages
 
@@ -40,9 +41,9 @@ DBCS preview and SO/SI diagnostics:
 ## Validation
 
 - TypeScript check passed.
-- Unit and fixture regression tests passed: 15 test files, 72 tests.
+- Unit and fixture regression tests passed: 20 test files, 108 tests.
 - VSIX packaging passed.
-- Manual acceptance passed on 2026-05-25 with IBM Bob `1.109.5+bob1.0.2`.
+- Manual acceptance passed on 2026-05-26 with IBM Bob `1.109.5+bob1.0.2`.
 
 See [docs/release-checklist.md](release-checklist.md) for the detailed validation record.
 
@@ -52,5 +53,6 @@ See [docs/release-checklist.md](release-checklist.md) for the detailed validatio
 - IBM EBCDIC SBCS profiles provide preview but no SO/SI diagnostics.
 - IBM EBCDIC DBCS diagnostics are available only for the supported DBCS profiles listed above.
 - Unsupported IBM-style code page ids can still be edited as raw bytes, but use generic preview, row splitting, and diagnostics behavior.
+- Unknown custom encoding names are rejected instead of being opened through VS Code's internal decode fallback.
 - Full localization catalogs are planned after MVP copy stabilizes.
 - External Marketplace publication still requires product-team review for naming, legal notices, icon usage, and generated mapping table attribution.

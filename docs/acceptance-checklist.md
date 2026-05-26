@@ -294,6 +294,19 @@ Expected:
 - [ ] Canceling the warning keeps the HEX ON editor from opening with the unsupported IBM encoding.
 - [ ] Choosing `Use Anyway` opens the HEX ON editor with the chosen encoding id.
 
+## 7.1 Invalid Custom Encoding
+
+1. Open any copied fixture in VS Code.
+2. Run `IBM Z Hex Editor: Open HEX ON`.
+3. Choose `Enter another encoding...`.
+4. Enter `dummy105`.
+
+Expected:
+
+- [ ] The extension rejects the custom encoding name.
+- [ ] The message explains that the encoding name is not in the supported VS Code encoding list.
+- [ ] The HEX ON editor does not open with `dummy105`.
+
 ## 8. Diagnostics Navigation
 
 1. Expand the diagnostics panel.

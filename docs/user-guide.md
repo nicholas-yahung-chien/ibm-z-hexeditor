@@ -38,6 +38,8 @@ The editor is byte-first:
 
 If you choose `Enter another encoding...` and enter an IBM-style code page id that is not yet supported, such as `cp273`, the extension warns that HEX ON can still edit raw bytes but preview, row splitting, and diagnostics will use generic fallback behavior.
 
+If you enter a name that is neither a supported VS Code text encoding id nor an IBM-style code page id, such as `dummy105`, the extension rejects it instead of opening through VS Code's internal decode fallback.
+
 The MVP has focused validation for:
 
 - `ibm937`
@@ -57,7 +59,7 @@ The MVP has focused validation for:
 - `utf8`
 - common VS Code encoding ids such as `cp950`, `big5hkscs`, `shiftjis`, and `gbk`
 
-Other VS Code encoding ids can be entered manually.
+Known VS Code encoding ids can be entered manually. Unknown custom names are rejected so the editor header does not display an encoding id that VS Code silently interpreted through fallback behavior.
 
 ## Editor Layout
 

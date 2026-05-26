@@ -6,7 +6,7 @@ Use this checklist to record a complete release-candidate validation pass before
 
 - Version: `0.1.5`
 - Package: `dist/ibm-z-hex-on-editor.vsix`
-- Validation baseline commit: `pending final release commit`
+- Validation baseline commit: `fbb6cc9`
 - Validation date: `2026-05-26`
 - Validator: Nicholas Chien
 - VS Code-compatible host: IBM Bob `1.109.5+bob1.0.2`, commit `473fcbe9e52a0216936d3c384820ebb51fb5cfc2`, x64
@@ -63,6 +63,7 @@ Summary:
 - [x] Column ruler accepted.
 - [x] User-configurable DBCS ambiguous exclusions accepted.
 - [x] Unsupported IBM code-page warning accepted.
+- [x] Invalid non-IBM custom encoding rejection accepted.
 - [x] Paged rendering accepted with configurable page limits of 30, 50, and 100 logical lines.
 - [x] IBM-937 1200-line stress fixture accepted for manual open and navigation testing.
 - [x] `Ctrl+F` search accepted for Unicode and Hex modes.
@@ -92,6 +93,7 @@ Summary:
 - Supported IBM EBCDIC SBCS profiles provide preview but no SO/SI diagnostics.
 - Supported IBM EBCDIC DBCS profiles provide preview and SO/SI diagnostics.
 - Unsupported IBM-style code page ids can still be edited as raw bytes, but use generic preview, row splitting, and diagnostics behavior.
+- Unknown custom encoding names that are not supported VS Code encoding ids or IBM-style code page ids are rejected.
 - First-pass localization exists for Traditional Chinese, Simplified Chinese, Japanese, Korean, and German, but product localization review is still recommended before external publication.
 - Code page mapping tables are bundled into the VSIX so the extension works offline after installation. Future lazy loading must keep the complete mapping data inside the single VSIX package.
 - `dist/extension.js` is large because mapping tables are bundled for complete offline functionality.

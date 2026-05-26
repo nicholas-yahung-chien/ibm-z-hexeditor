@@ -17,6 +17,7 @@ All notable changes to the IBM Z HEX ON Editor extension will be documented in t
 - Updated the in-editor operation hint to mention `Ctrl+F` search.
 - Documented search behavior, paged rendering, performance logging, and localized-settings reload behavior.
 - Refreshed package metadata versioning so local VSIX installs are easier to distinguish during validation.
+- Reject unknown manually entered encoding names instead of relying on VS Code's internal decode fallback; unsupported IBM-style code page ids still require explicit confirmation before opening with generic behavior.
 
 ## 0.1.4 - Rounded Icon Tile
 
