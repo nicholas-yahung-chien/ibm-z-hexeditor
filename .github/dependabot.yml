@@ -1,0 +1,43 @@
+# GitHub Dependabot configuration.
+# Weekly dependency PRs use dependency labels only; security alert settings are
+# managed by the repository's GitHub security configuration.
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      react:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      vite:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+      testing:
+        patterns:
+          - "vitest*"
+          - "@vitest/*"
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+      vscode:
+        patterns:
+          - "@vscode/*"
+          - "@types/vscode"
+          - "@vscode/vsce"

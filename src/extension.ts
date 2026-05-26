@@ -236,5 +236,19 @@ async function pickCustomEncoding(currentEncoding: string): Promise<string | und
     }
   }
 
+  try {
+    const testBuffer = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]);
+    await vscode.workspace.decode(testBuffer, { encoding });
+  } catch (error) {
+    void vscode.window.showErrorMessage(
+      extensionText.invalidEncodingWarning(encoding, messageFromError(error)),
+    );
+    return undefined;
+  }
+
   return encoding;
+}
+
+function messageFromError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

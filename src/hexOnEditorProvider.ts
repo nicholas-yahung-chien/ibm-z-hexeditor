@@ -11,12 +11,19 @@ import { diagnosticKindLabels, extensionText } from './i18n';
 import type { EditorViewSettings, FromWebviewMessage, PerformanceLogFields, RenderMode, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
+function validateLocalFileUri(uri: vscode.Uri): void {
+  if (uri.scheme !== 'file') {
+    throw new Error(extensionText.localFilesOnlyWarning());
+  }
+}
+
 export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDocument> {
   static readonly viewType = 'ibmZHexEditor.hexOn';
 
   private readonly changeEmitter = new vscode.EventEmitter<vscode.CustomDocumentEditEvent<HexOnDocument>>();
   readonly onDidChangeCustomDocument = this.changeEmitter.event;
   private readonly webviews = new Map<HexOnDocument, vscode.Webview>();
+  private readonly webviewNonces = new Map<vscode.Webview, string>();
   private readonly performanceOutput: vscode.OutputChannel;
   private lastInvalidDiagnosticsSettingsWarning = '';
 
@@ -26,27 +33,35 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   ) {
     this.performanceOutput = vscode.window.createOutputChannel('IBM Z HEX ON Performance');
     this.context.subscriptions.push(this.performanceOutput);
-    this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
-      if (
-        event.affectsConfiguration('ibmZHexEditor.condenseMode') ||
-        event.affectsConfiguration('ibmZHexEditor.showRuler') ||
-        event.affectsConfiguration('ibmZHexEditor.renderMode') ||
-        event.affectsConfiguration('ibmZHexEditor.pageLineLimit') ||
-        event.affectsConfiguration('ibmZHexEditor.performanceLogging')
-      ) {
-        for (const [document, webview] of this.webviews) {
-          this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
-          this.postSnapshot(webview, document, 'snapshot', 'webview.settingsSnapshot');
-        }
-      }
 
-      if (affectsDiagnosticsSettings(event)) {
-        void this.refreshDiagnosticsSettings();
-      }
-    }));
+    try {
+      this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
+        if (
+          event.affectsConfiguration('ibmZHexEditor.condenseMode') ||
+          event.affectsConfiguration('ibmZHexEditor.showRuler') ||
+          event.affectsConfiguration('ibmZHexEditor.renderMode') ||
+          event.affectsConfiguration('ibmZHexEditor.pageLineLimit') ||
+          event.affectsConfiguration('ibmZHexEditor.performanceLogging')
+        ) {
+          for (const [document, webview] of this.webviews) {
+            this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+            this.postSnapshot(webview, document, 'snapshot', 'webview.settingsSnapshot');
+          }
+        }
+
+        if (affectsDiagnosticsSettings(event)) {
+          void this.refreshDiagnosticsSettings();
+        }
+      }));
+    } catch (error) {
+      // Ensure performanceOutput is disposed if configuration listener setup fails
+      this.performanceOutput.dispose();
+      throw error;
+    }
   }
 
   async openCustomDocument(uri: vscode.Uri): Promise<HexOnDocument> {
+    validateLocalFileUri(uri);
     const start = performance.now();
     await seedDefaultDbcsAmbiguousExclusionsIfNeeded();
     const settings = readDiagnosticsSettings(uri);
@@ -68,10 +83,12 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     const start = performance.now();
     webviewPanel.webview.options = {
       enableScripts: true,
-      localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview')],
+      localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'dist')],
     };
 
-    webviewPanel.webview.html = this.html(webviewPanel.webview);
+    const nonce = crypto.randomUUID();
+    this.webviewNonces.set(webviewPanel.webview, nonce);
+    webviewPanel.webview.html = this.html(webviewPanel.webview, nonce);
     this.webviews.set(document, webviewPanel.webview);
     this.logPerformance(document.uri, 'provider.resolveCustomEditor', {
       durationMs: elapsed(start),
@@ -86,6 +103,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }));
     webviewPanel.onDidDispose(() => {
       this.webviews.delete(document);
+      this.webviewNonces.delete(webviewPanel.webview);
       disposables.forEach(disposable => disposable.dispose());
     });
   }
@@ -162,77 +180,71 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   }
 
   private handleMessage(document: HexOnDocument, webview: vscode.Webview, message: FromWebviewMessage): void {
-    if (message.type === 'ready') {
-      this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
-      this.postSnapshot(webview, document, 'init', 'webview.init');
+    // Verify message nonce for security
+    const expectedNonce = this.webviewNonces.get(webview);
+    if (!expectedNonce || message.nonce !== expectedNonce) {
+      console.error('IBM Z HEX ON: Invalid message nonce, ignoring message');
       return;
     }
 
-    if (message.type === 'performanceLog') {
-      this.logPerformance(document.uri, `webview.${message.phase}`, message.fields);
-      return;
+    switch (message.type) {
+      case 'ready':
+        this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+        this.postSnapshot(webview, document, 'init', 'webview.init');
+        return;
+      case 'performanceLog':
+        this.logPerformance(document.uri, `webview.${message.phase}`, message.fields);
+        return;
+      case 'save':
+        this.postStatus(webview, extensionText.saving());
+        this.handleMessageTask(
+          webview,
+          vscode.commands.executeCommand('workbench.action.files.save'),
+          error => extensionText.saveFailed(messageFromError(error)),
+        );
+        return;
+      case 'revert':
+        this.handleMessageTask(webview, this.revertActiveDocument());
+        return;
+      case 'reload':
+        this.handleMessageTask(webview, this.reloadFromDisk(document, webview));
+        return;
+      case 'goToPage':
+        this.handleMessageTask(webview, this.goToPage(document, webview, message.pageIndex));
+        return;
+      case 'replaceNibble':
+        this.fireDocumentEdit(document, extensionText.replaceNibbleEditLabel(), document.replaceNibble(message.offset, message.nibble, message.digit));
+        return;
+      case 'insertByte':
+        this.fireDocumentEdit(document, extensionText.insertByteEditLabel(), document.insertByte(message.offset, message.value));
+        return;
+      case 'deleteByte':
+        this.fireDocumentEdit(document, extensionText.deleteByteEditLabel(), document.deleteByte(message.offset));
+        return;
     }
+  }
 
-    if (message.type === 'save') {
-      this.postStatus(webview, extensionText.saving());
-      void Promise.resolve(vscode.commands.executeCommand('workbench.action.files.save')).catch((error: unknown) => {
-        this.post(webview, { type: 'error', message: extensionText.saveFailed(messageFromError(error)) });
-      });
-      return;
-    }
+  private handleMessageTask(
+    webview: vscode.Webview,
+    task: Thenable<unknown> | Promise<unknown>,
+    formatError: (error: unknown) => string = messageFromError,
+  ): void {
+    void Promise.resolve(task).catch((error: unknown) => {
+      this.post(webview, { type: 'error', message: formatError(error) });
+    });
+  }
 
-    if (message.type === 'revert') {
-      void this.revertActiveDocument().catch(error => {
-        this.post(webview, { type: 'error', message: messageFromError(error) });
-      });
-      return;
-    }
-
-    if (message.type === 'reload') {
-      void this.reloadFromDisk(document, webview).catch(error => {
-        this.post(webview, { type: 'error', message: messageFromError(error) });
-      });
-      return;
-    }
-
-    if (message.type === 'goToPage') {
-      void this.goToPage(document, webview, message.pageIndex).catch(error => {
-        this.post(webview, { type: 'error', message: messageFromError(error) });
-      });
-      return;
-    }
-
-    if (message.type === 'replaceNibble') {
-      const edit = document.replaceNibble(message.offset, message.nibble, message.digit);
-      this.changeEmitter.fire({
-        document,
-        label: extensionText.replaceNibbleEditLabel(),
-        undo: edit.undo,
-        redo: edit.redo,
-      });
-      return;
-    }
-
-    if (message.type === 'insertByte') {
-      const edit = document.insertByte(message.offset, message.value);
-      this.changeEmitter.fire({
-        document,
-        label: extensionText.insertByteEditLabel(),
-        undo: edit.undo,
-        redo: edit.redo,
-      });
-      return;
-    }
-
-    if (message.type === 'deleteByte') {
-      const edit = document.deleteByte(message.offset);
-      this.changeEmitter.fire({
-        document,
-        label: extensionText.deleteByteEditLabel(),
-        undo: edit.undo,
-        redo: edit.redo,
-      });
-    }
+  private fireDocumentEdit(
+    document: HexOnDocument,
+    label: string,
+    edit: { undo(): void; redo(): void },
+  ): void {
+    this.changeEmitter.fire({
+      document,
+      label,
+      undo: edit.undo,
+      redo: edit.redo,
+    });
   }
 
   private postWithPerformance(
@@ -261,7 +273,8 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     const formattedFields = Object.entries(fields)
       .map(([key, value]) => `${key}=${formatPerformanceField(value)}`)
       .join(' ');
-    const message = `[${new Date().toISOString()}] ${phase} file=${resource.fsPath || resource.toString()}${formattedFields ? ` ${formattedFields}` : ''}`;
+    const fileName = resource.fsPath ? resource.fsPath.split(/[\\/]/).pop() : resource.toString();
+    const message = `[${new Date().toISOString()}] ${phase} file=${fileName}${formattedFields ? ` ${formattedFields}` : ''}`;
     this.performanceOutput.appendLine(message);
     console.log(`IBM Z HEX ON Performance ${message}`);
   }
@@ -414,32 +427,33 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }, document.uri, phase);
   }
 
-  private html(webview: vscode.Webview): string {
+  private html(webview: vscode.Webview, messageNonce: string): string {
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview', 'assets', 'index.js'));
     const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview', 'assets', 'index.css'));
     const codiconsUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'codicons', 'codicon.css'));
-    const nonce = crypto.randomUUID();
+    const cspNonce = crypto.randomUUID();
 
     return `<!DOCTYPE html>
 <html lang="${escapeHtmlAttribute(vscode.env.language)}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${cspNonce}';">
+  <meta name="vscode-message-nonce" content="${escapeHtmlAttribute(messageNonce)}">
   <link href="${codiconsUri}" rel="stylesheet">
   <link href="${styleUri}" rel="stylesheet">
   <title>IBM Z HEX ON Editor</title>
 </head>
 <body>
   <div id="root"></div>
-  <script nonce="${nonce}" type="module" src="${scriptUri}"></script>
+  <script nonce="${cspNonce}" type="module" src="${scriptUri}"></script>
 </body>
 </html>`;
   }
 }
 
 function messageFromError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return error instanceof Error ? error.message : (typeof error === 'object' ? JSON.stringify(error) : String(error));
 }
 
 function elapsed(start: number): number {
@@ -460,6 +474,7 @@ function isCancellationError(error: unknown): boolean {
 function escapeHtmlAttribute(value: string): string {
   return value.replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }

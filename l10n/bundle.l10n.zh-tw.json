@@ -18,6 +18,7 @@
   "Select the actual file-content encoding used to decode raw bytes for preview and diagnostics": "選擇用來解碼原始位元組、進行預覽與診斷的實際檔案內容編碼",
   "Actual File-Content Encoding": "實際檔案內容編碼",
   "Enter the encoding of the bytes on disk, using a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.": "使用 VS Code 編碼 ID 輸入磁碟上位元組的編碼。例如：utf8、cp950、big5hkscs、shiftjis、gbk。",
+  "The encoding \"{0}\" cannot be used because VS Code could not decode bytes with it. Reason: {1}": "無法使用編碼「{0}」，因為 VS Code 無法使用此編碼解碼位元組。原因：{1}",
   "IBM code page {0} is not yet supported for code-page-aware preview. HEX ON will still edit raw bytes, but the preview, row splitting, and diagnostics will use generic fallback behavior.": "IBM code page {0} 尚未支援 code-page-aware 預覽。HEX ON 仍會編輯原始位元組，但預覽、列切分與診斷會使用一般 fallback 行為。",
   "Use Anyway": "仍要使用",
   "Save canceled": "已取消儲存",

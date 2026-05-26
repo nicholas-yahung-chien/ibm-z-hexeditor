@@ -17,6 +17,7 @@
   "Select the actual file-content encoding used to decode raw bytes for preview and diagnostics": "Wählen Sie die tatsächliche Dateiinhaltscodierung zum Decodieren der Rohbytes für Vorschau und Diagnosen",
   "Actual File-Content Encoding": "Tatsächliche Dateiinhaltscodierung",
   "Enter the encoding of the bytes on disk, using a VS Code encoding id. Examples: utf8, cp950, big5hkscs, shiftjis, gbk.": "Geben Sie die Codierung der Bytes auf dem Datenträger mit einer VS Code-Codierungs-ID ein. Beispiele: utf8, cp950, big5hkscs, shiftjis, gbk.",
+  "The encoding \"{0}\" cannot be used because VS Code could not decode bytes with it. Reason: {1}": "Die Codierung \"{0}\" kann nicht verwendet werden, weil VS Code damit keine Bytes decodieren konnte. Grund: {1}",
   "IBM code page {0} is not yet supported for code-page-aware preview. HEX ON will still edit raw bytes, but the preview, row splitting, and diagnostics will use generic fallback behavior.": "IBM-Codepage {0} wird noch nicht für codepagebewusste Vorschau unterstützt. HEX ON bearbeitet weiterhin Rohbytes, aber Vorschau, Zeilenaufteilung und Diagnosen verwenden generisches Fallback-Verhalten.",
   "Use Anyway": "Trotzdem verwenden",
   "Save canceled": "Speichern abgebrochen",

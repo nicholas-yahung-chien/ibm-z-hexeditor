@@ -50,7 +50,7 @@ export function replaceNibble(
   nibble: 'high' | 'low',
   digit: number,
 ): ByteCell[] {
-  if (offset < 0 || offset >= cells.length || digit < 0 || digit > 0x0f) {
+  if (offset < 0 || offset >= cells.length || !Number.isInteger(digit) || digit < 0 || digit > 0x0f) {
     return [...cells];
   }
 

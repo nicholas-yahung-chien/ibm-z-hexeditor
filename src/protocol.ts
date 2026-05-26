@@ -77,12 +77,12 @@ export type ToWebviewMessage =
   ));
 
 export type FromWebviewMessage =
-  | { type: 'ready' }
-  | { type: 'performanceLog'; phase: string; fields: PerformanceLogFields }
-  | { type: 'replaceNibble'; offset: number; nibble: HexNibble; digit: number }
-  | { type: 'insertByte'; offset: number; value?: number }
-  | { type: 'deleteByte'; offset: number }
-  | { type: 'goToPage'; pageIndex: number }
-  | { type: 'revert' }
-  | { type: 'reload' }
-  | { type: 'save' };
+  | { type: 'ready'; nonce: string }
+  | { type: 'performanceLog'; phase: string; fields: PerformanceLogFields; nonce: string }
+  | { type: 'replaceNibble'; offset: number; nibble: HexNibble; digit: number; nonce: string }
+  | { type: 'insertByte'; offset: number; value?: number; nonce: string }
+  | { type: 'deleteByte'; offset: number; nonce: string }
+  | { type: 'goToPage'; pageIndex: number; nonce: string }
+  | { type: 'revert'; nonce: string }
+  | { type: 'reload'; nonce: string }
+  | { type: 'save'; nonce: string };
