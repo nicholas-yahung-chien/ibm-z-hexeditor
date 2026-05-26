@@ -1,16 +1,18 @@
 import * as vscode from 'vscode';
 import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, replaceNibble } from './byteModel';
-import type { ByteCell, EditorSnapshot, HexNibble } from './protocol';
+import { buildDisplayLinesForPage, buildPageRanges } from './paging';
+import type { ByteCell, EditorSnapshot, HexNibble, RenderMode } from './protocol';
 import type { PerformanceLogFields } from './protocol';
-import type { InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
+import type { AnalysisResult, InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
 import type { HexOnSession } from './sessionRegistry';
 
 export class HexOnDocument implements vscode.CustomDocument {
   private cells: ByteCell[];
   private savedCells: ByteCell[];
   private dirty = false;
+  private pageIndex = 0;
 
-  private readonly changeEmitter = new vscode.EventEmitter<EditorSnapshot>();
+  private readonly changeEmitter = new vscode.EventEmitter<void>();
   readonly onDidChangeSnapshot = this.changeEmitter.event;
 
   constructor(
@@ -55,16 +57,9 @@ export class HexOnDocument implements vscode.CustomDocument {
     this.changeEmitter.dispose();
   }
 
-  snapshot(): EditorSnapshot {
+  snapshot(renderMode: RenderMode = 'full'): EditorSnapshot {
     const start = performance.now();
-    const snapshot = makeSnapshot({
-      uri: this.uri.toString(),
-      fileName: this.fileName,
-      fileEncoding: this.fileEncoding,
-      cells: this.cells,
-      dirty: this.dirty,
-      diagnosticsOptions: this.diagnosticsOptions,
-    });
+    const snapshot = renderMode === 'paged' ? this.pageSnapshot() : this.fullSnapshot();
     this.performanceLog?.('document.snapshot', {
       durationMs: elapsed(start),
       bytes: snapshot.cells.length,
@@ -72,13 +67,22 @@ export class HexOnDocument implements vscode.CustomDocument {
       previewEntries: snapshot.preview.length,
       diagnosticEvents: snapshot.diagnostics?.events.length ?? 0,
       dirty: snapshot.dirty,
+      renderMode,
+      pageIndex: snapshot.page?.pageIndex ?? null,
+      pageCount: snapshot.page?.pageCount ?? null,
     });
     return snapshot;
   }
 
+  setPage(pageIndex: number): void {
+    const bytes = bytesFromCells(this.cells);
+    const ranges = buildPageRanges(bytes, this.fileEncoding);
+    this.pageIndex = clampPageIndex(pageIndex, ranges.length);
+  }
+
   updateDiagnosticsOptions(diagnosticsOptions: InspectIbmDbcsOptions): void {
     this.diagnosticsOptions = diagnosticsOptions;
-    this.changeEmitter.fire(this.snapshot());
+    this.changeEmitter.fire();
   }
 
   hasUnsavedChanges(): boolean {
@@ -107,7 +111,7 @@ export class HexOnDocument implements vscode.CustomDocument {
     const apply = (cells: ByteCell[]) => {
       this.cells = cells;
       this.dirty = !sameCellValues(this.cells, this.savedCells);
-      this.changeEmitter.fire(this.snapshot());
+      this.changeEmitter.fire();
     };
 
     apply(after);
@@ -127,7 +131,7 @@ export class HexOnDocument implements vscode.CustomDocument {
     await this.writeTo(this.uri, cancellation);
     this.savedCells = this.cells;
     this.dirty = false;
-    this.changeEmitter.fire(this.snapshot());
+    this.changeEmitter.fire();
     this.performanceLog?.('document.save', {
       durationMs: elapsed(start),
       bytes: this.cells.length,
@@ -159,11 +163,62 @@ export class HexOnDocument implements vscode.CustomDocument {
     this.cells = cellsFromBytes(bytes);
     this.savedCells = cellsFromBytes(bytes);
     this.dirty = false;
-    this.changeEmitter.fire(this.snapshot());
+    this.pageIndex = 0;
+    this.changeEmitter.fire();
     this.performanceLog?.('document.revert', {
       durationMs: elapsed(start),
       bytes: bytes.length,
     });
+  }
+
+  private fullSnapshot(): EditorSnapshot {
+    return makeSnapshot({
+      uri: this.uri.toString(),
+      fileName: this.fileName,
+      fileEncoding: this.fileEncoding,
+      cells: this.cells,
+      dirty: this.dirty,
+      diagnosticsOptions: this.diagnosticsOptions,
+    });
+  }
+
+  private pageSnapshot(): EditorSnapshot {
+    const bytes = bytesFromCells(this.cells);
+    const ranges = buildPageRanges(bytes, this.fileEncoding);
+    const pageIndex = clampPageIndex(this.pageIndex, ranges.length);
+    this.pageIndex = pageIndex;
+    const range = ranges[pageIndex];
+    const pageCells = this.cells.slice(range.pageStartOffset, range.pageEndOffset);
+    const snapshot = makeSnapshot({
+      uri: this.uri.toString(),
+      fileName: this.fileName,
+      fileEncoding: this.fileEncoding,
+      cells: pageCells,
+      dirty: this.dirty,
+      diagnosticsOptions: this.diagnosticsOptions,
+    });
+
+    const pageBytes = bytes.slice(range.pageStartOffset, range.pageEndOffset);
+    return {
+      ...snapshot,
+      lines: buildDisplayLinesForPage(pageBytes, this.fileEncoding, range),
+      preview: snapshot.preview.map(entry => ({
+        ...entry,
+        byteOffset: entry.byteOffset + range.pageStartOffset,
+      })),
+      diagnostics: shiftDiagnostics(snapshot.diagnostics, range.pageStartOffset),
+      page: {
+        mode: 'paged',
+        pageIndex: range.pageIndex,
+        pageCount: range.pageCount,
+        pageStartOffset: range.pageStartOffset,
+        pageEndOffset: range.pageEndOffset,
+        totalBytes: range.totalBytes,
+        totalLines: range.totalLines,
+        pageLineStart: range.pageLineStart,
+        pageLineCount: range.pageLineCount,
+      },
+    };
   }
 }
 
@@ -183,4 +238,24 @@ function sameCellValues(left: readonly ByteCell[], right: readonly ByteCell[]): 
   }
 
   return true;
+}
+
+function clampPageIndex(pageIndex: number, pageCount: number): number {
+  return Math.max(0, Math.min(Math.trunc(pageIndex), Math.max(0, pageCount - 1)));
+}
+
+function shiftDiagnostics(result: AnalysisResult | null, offsetDelta: number): AnalysisResult | null {
+  if (!result || offsetDelta === 0) {
+    return result;
+  }
+
+  return {
+    ...result,
+    events: result.events.map(event => ({
+      ...event,
+      offset: event.offset + offsetDelta,
+      startOrdinal: event.startOrdinal + offsetDelta,
+      endOrdinal: event.endOrdinal + offsetDelta,
+    })),
+  };
 }

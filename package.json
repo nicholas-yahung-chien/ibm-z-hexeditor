@@ -103,6 +103,19 @@
           "default": false,
           "description": "%configuration.showRuler.description%"
         },
+        "ibmZHexEditor.renderMode": {
+          "type": "string",
+          "enum": [
+            "full",
+            "paged"
+          ],
+          "default": "full",
+          "description": "%configuration.renderMode.description%",
+          "enumDescriptions": [
+            "%configuration.renderMode.full.description%",
+            "%configuration.renderMode.paged.description%"
+          ]
+        },
         "ibmZHexEditor.performanceLogging": {
           "type": "boolean",
           "default": false,

@@ -43,23 +43,31 @@ function cellClass(cell: ByteCell): string {
 }
 
 export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props) {
-  const [cursor, setCursor] = useState<Cursor>({ offset: 0, nibble: 'high' });
+  const pageStartOffset = snapshot.page?.pageStartOffset ?? 0;
+  const pageEndOffset = snapshot.page?.pageEndOffset ?? snapshot.cells.length;
+  const pageCellCount = Math.max(0, pageEndOffset - pageStartOffset);
+  const [cursor, setCursor] = useState<Cursor>({ offset: pageStartOffset, nibble: 'high' });
   const [bytesPerRow, setBytesPerRow] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const effectiveBytesPerRow = bytesPerRow ?? FALLBACK_BYTES_PER_ROW;
 
   useEffect(() => {
-    if (cursor.offset >= snapshot.cells.length) {
-      setCursor({ offset: Math.max(0, snapshot.cells.length - 1), nibble: 'high' });
-    }
-  }, [cursor.offset, snapshot.cells.length]);
-
-  useEffect(() => {
-    if (jumpTarget === null || snapshot.cells.length === 0) {
+    if (pageCellCount === 0) {
+      setCursor({ offset: pageStartOffset, nibble: 'high' });
       return;
     }
 
-    const offset = Math.max(0, Math.min(jumpTarget.offset, snapshot.cells.length - 1));
+    if (cursor.offset < pageStartOffset || cursor.offset >= pageEndOffset) {
+      setCursor({ offset: pageStartOffset, nibble: 'high' });
+    }
+  }, [cursor.offset, pageCellCount, pageEndOffset, pageStartOffset]);
+
+  useEffect(() => {
+    if (jumpTarget === null || pageCellCount === 0) {
+      return;
+    }
+
+    const offset = Math.max(pageStartOffset, Math.min(jumpTarget.offset, pageEndOffset - 1));
     setCursor({ offset, nibble: 'high' });
     requestAnimationFrame(() => {
       const grid = gridRef.current;
@@ -83,7 +91,7 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       });
       grid.focus({ preventScroll: true });
     });
-  }, [jumpTarget?.token]);
+  }, [jumpTarget?.token, pageCellCount, pageEndOffset, pageStartOffset]);
 
   useLayoutEffect(() => {
     const element = gridRef.current;
@@ -123,7 +131,8 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
 
   const groups = useMemo(() => {
     return snapshot.lines.map(line => {
-      const cells = snapshot.cells.slice(line.startOffset, line.startOffset + line.length);
+      const pageRelativeStart = Math.max(0, line.startOffset - pageStartOffset);
+      const cells = snapshot.cells.slice(pageRelativeStart, pageRelativeStart + line.length);
       const preview = snapshot.preview.filter(entry => {
         const entryEnd = entry.byteOffset + entry.byteLength;
         const lineEnd = line.startOffset + line.length;
@@ -131,13 +140,13 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
       });
       return { line, cells, preview };
     });
-  }, [snapshot]);
+  }, [pageStartOffset, snapshot]);
   const rulerColumnCount = useMemo(() => {
     const longestLine = snapshot.lines.reduce((max, line) => Math.max(max, line.length), 0);
     return Math.min(MAX_RULER_COLUMNS, longestLine);
   }, [snapshot.lines]);
-  const selectedStart = jumpTarget && snapshot.cells.length > 0
-    ? Math.max(0, Math.min(jumpTarget.offset, snapshot.cells.length - 1))
+  const selectedStart = jumpTarget && pageCellCount > 0
+    ? Math.max(pageStartOffset, Math.min(jumpTarget.offset, pageEndOffset - 1))
     : null;
   const selectedLength = jumpTarget ? Math.max(1, jumpTarget.length) : 0;
 
@@ -145,18 +154,18 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
     setCursor(current => {
       if (direction === 'left') {
         if (current.nibble === 'low') return { ...current, nibble: 'high' };
-        return current.offset > 0 ? { offset: current.offset - 1, nibble: 'low' } : current;
+        return current.offset > pageStartOffset ? { offset: current.offset - 1, nibble: 'low' } : current;
       }
       if (direction === 'right') {
         if (current.nibble === 'high') return { ...current, nibble: 'low' };
-        return current.offset < snapshot.cells.length - 1 ? { offset: current.offset + 1, nibble: 'high' } : current;
+        return current.offset < pageEndOffset - 1 ? { offset: current.offset + 1, nibble: 'high' } : current;
       }
       if (direction === 'up') {
-        return { offset: Math.max(0, current.offset - effectiveBytesPerRow), nibble: current.nibble };
+        return { offset: Math.max(pageStartOffset, current.offset - effectiveBytesPerRow), nibble: current.nibble };
       }
-      return { offset: Math.min(snapshot.cells.length - 1, current.offset + effectiveBytesPerRow), nibble: current.nibble };
+      return { offset: Math.min(pageEndOffset - 1, current.offset + effectiveBytesPerRow), nibble: current.nibble };
     });
-  }, [effectiveBytesPerRow, snapshot.cells.length]);
+  }, [effectiveBytesPerRow, pageEndOffset, pageStartOffset]);
 
   const editNibble = useCallback((hexDigit: string) => {
     const digit = Number.parseInt(hexDigit, 16);
@@ -170,42 +179,42 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler }: Props
         return { ...current, nibble: 'low' };
       }
       return {
-        offset: Math.min(snapshot.cells.length - 1, current.offset + 1),
+        offset: Math.min(pageEndOffset - 1, current.offset + 1),
         nibble: 'high',
       };
     });
-  }, [cursor, snapshot.cells.length]);
+  }, [cursor, pageEndOffset]);
 
   const insertAfterCursor = useCallback(() => {
-    const insertAt = snapshot.cells.length === 0 ? 0 : cursor.offset + 1;
+    const insertAt = pageCellCount === 0 ? pageStartOffset : cursor.offset + 1;
     vscode.postMessage({ type: 'insertByte', offset: insertAt, value: 0x00 });
     setCursor({ offset: insertAt, nibble: 'high' });
-  }, [cursor.offset, snapshot.cells.length]);
+  }, [cursor.offset, pageCellCount, pageStartOffset]);
 
   const deleteAtCursor = useCallback(() => {
-    if (snapshot.cells.length === 0) {
+    if (pageCellCount === 0) {
       return;
     }
 
     vscode.postMessage({ type: 'deleteByte', offset: cursor.offset });
     setCursor({
-      offset: Math.max(0, Math.min(cursor.offset, snapshot.cells.length - 2)),
+      offset: Math.max(pageStartOffset, Math.min(cursor.offset, pageEndOffset - 2)),
       nibble: 'high',
     });
-  }, [cursor.offset, snapshot.cells.length]);
+  }, [cursor.offset, pageCellCount, pageEndOffset, pageStartOffset]);
 
   const backspaceBeforeCursor = useCallback(() => {
-    if (snapshot.cells.length === 0) {
+    if (pageCellCount === 0) {
       return;
     }
 
-    const deleteAt = Math.max(0, cursor.offset - 1);
+    const deleteAt = Math.max(pageStartOffset, cursor.offset - 1);
     vscode.postMessage({ type: 'deleteByte', offset: deleteAt });
     setCursor({
-      offset: Math.max(0, deleteAt),
+      offset: Math.max(pageStartOffset, deleteAt),
       nibble: 'high',
     });
-  }, [cursor.offset, snapshot.cells.length]);
+  }, [cursor.offset, pageCellCount, pageStartOffset]);
 
   const onKeyDown = useCallback((event: React.KeyboardEvent) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {

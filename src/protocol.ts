@@ -1,6 +1,7 @@
 import type { AnalysisResult } from './inspector/inspectIbmDbcs';
 
 export type HexNibble = 'high' | 'low';
+export type RenderMode = 'full' | 'paged';
 
 export interface ByteCell {
   value: number;
@@ -23,6 +24,18 @@ export interface PreviewEntry {
   kind: PreviewKind;
 }
 
+export interface PageInfo {
+  mode: RenderMode;
+  pageIndex: number;
+  pageCount: number;
+  pageStartOffset: number;
+  pageEndOffset: number;
+  totalBytes: number;
+  totalLines: number;
+  pageLineStart: number;
+  pageLineCount: number;
+}
+
 export interface EditorSnapshot {
   uri: string;
   fileName: string;
@@ -32,11 +45,13 @@ export interface EditorSnapshot {
   preview: PreviewEntry[];
   diagnostics: AnalysisResult | null;
   dirty: boolean;
+  page?: PageInfo;
 }
 
 export interface EditorViewSettings {
   condenseMode: boolean;
   showRuler: boolean;
+  renderMode: RenderMode;
   performanceLogging: boolean;
   locale: string;
 }
@@ -66,6 +81,7 @@ export type FromWebviewMessage =
   | { type: 'replaceNibble'; offset: number; nibble: HexNibble; digit: number }
   | { type: 'insertByte'; offset: number; value?: number }
   | { type: 'deleteByte'; offset: number }
+  | { type: 'goToPage'; pageIndex: number }
   | { type: 'revert' }
   | { type: 'reload' }
   | { type: 'save' };

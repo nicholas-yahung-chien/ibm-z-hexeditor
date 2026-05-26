@@ -32,6 +32,8 @@
   "Reload from disk and discard unsaved HEX ON edits?": "Vom Datenträger neu laden und nicht gespeicherte HEX ON-Änderungen verwerfen?",
   "The editor will reread the file bytes from disk. Any unsaved hex changes in this editor will be discarded.": "Der Editor liest die Dateibytes erneut vom Datenträger. Nicht gespeicherte Hex-Änderungen in diesem Editor werden verworfen.",
   "Reload From Disk": "Vom Datenträger neu laden",
+  "Save or revert the current page before switching pages.": "Speichern Sie die aktuelle Seite oder setzen Sie sie zurück, bevor Sie die Seite wechseln.",
+  "Paged mode keeps edits anchored to the current byte range. Save or revert first to avoid writing changes to the wrong location.": "Im Seitenmodus bleiben Änderungen am aktuellen Bytebereich verankert. Speichern Sie zuerst oder setzen Sie zurück, um Änderungen nicht an die falsche Stelle zu schreiben.",
   "Save {0} DBCS issue(s) to disk?": "{0} DBCS-Problem(e) auf Datenträger speichern?",
   "Diagnostics currently reports: {0}. Saving will write the current raw bytes exactly as shown in the HEX ON editor.": "Diagnose meldet derzeit: {0}. Beim Speichern werden die aktuellen Rohbytes genau wie im HEX ON-Editor angezeigt geschrieben.",
   "Saving will write the current raw bytes exactly as shown in the HEX ON editor.": "Beim Speichern werden die aktuellen Rohbytes genau wie im HEX ON-Editor angezeigt geschrieben.",

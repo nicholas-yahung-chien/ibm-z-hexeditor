@@ -7,7 +7,7 @@ import {
   seedDefaultDbcsAmbiguousExclusionsIfNeeded,
 } from './settings';
 import { diagnosticKindLabels, extensionText } from './i18n';
-import type { EditorViewSettings, FromWebviewMessage, PerformanceLogFields, ToWebviewMessage } from './protocol';
+import type { EditorViewSettings, FromWebviewMessage, PerformanceLogFields, RenderMode, ToWebviewMessage } from './protocol';
 import type { SessionRegistry } from './sessionRegistry';
 
 export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDocument> {
@@ -29,10 +29,12 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       if (
         event.affectsConfiguration('ibmZHexEditor.condenseMode') ||
         event.affectsConfiguration('ibmZHexEditor.showRuler') ||
+        event.affectsConfiguration('ibmZHexEditor.renderMode') ||
         event.affectsConfiguration('ibmZHexEditor.performanceLogging')
       ) {
         for (const [document, webview] of this.webviews) {
           this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
+          this.postSnapshot(webview, document, 'snapshot', 'webview.settingsSnapshot');
         }
       }
 
@@ -74,8 +76,8 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     });
 
     const disposables: vscode.Disposable[] = [];
-    disposables.push(document.onDidChangeSnapshot(snapshot => {
-      this.post(webviewPanel.webview, { type: 'snapshot', snapshot }, document.uri, 'webview.snapshot');
+    disposables.push(document.onDidChangeSnapshot(() => {
+      this.postSnapshot(webviewPanel.webview, document, 'snapshot', 'webview.snapshot');
     }));
     disposables.push(webviewPanel.webview.onDidReceiveMessage((message: FromWebviewMessage) => {
       this.handleMessage(document, webviewPanel.webview, message);
@@ -160,7 +162,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
   private handleMessage(document: HexOnDocument, webview: vscode.Webview, message: FromWebviewMessage): void {
     if (message.type === 'ready') {
       this.post(webview, { type: 'settings', settings: this.readViewSettings(document.uri) });
-      this.post(webview, { type: 'init', snapshot: document.snapshot() }, document.uri, 'webview.init');
+      this.postSnapshot(webview, document, 'init', 'webview.init');
       return;
     }
 
@@ -186,6 +188,13 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
 
     if (message.type === 'reload') {
       void this.reloadFromDisk(document, webview).catch(error => {
+        this.post(webview, { type: 'error', message: messageFromError(error) });
+      });
+      return;
+    }
+
+    if (message.type === 'goToPage') {
+      void this.goToPage(document, webview, message.pageIndex).catch(error => {
         this.post(webview, { type: 'error', message: messageFromError(error) });
       });
       return;
@@ -279,9 +288,15 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     return {
       condenseMode: config.get<boolean>('condenseMode', false),
       showRuler: config.get<boolean>('showRuler', false),
+      renderMode: this.readRenderMode(resource),
       performanceLogging: config.get<boolean>('performanceLogging', false),
       locale: vscode.env.language,
     };
+  }
+
+  private readRenderMode(resource: vscode.Uri): RenderMode {
+    const configured = vscode.workspace.getConfiguration('ibmZHexEditor', resource).get<string>('renderMode', 'full');
+    return configured === 'paged' ? 'paged' : 'full';
   }
 
   private async refreshDiagnosticsSettings(): Promise<void> {
@@ -332,7 +347,23 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }
 
     await document.revert();
-    this.post(webview, { type: 'snapshot', snapshot: document.snapshot() }, document.uri, 'webview.reloadSnapshot');
+    this.postSnapshot(webview, document, 'snapshot', 'webview.reloadSnapshot');
+  }
+
+  private async goToPage(document: HexOnDocument, webview: vscode.Webview, pageIndex: number): Promise<void> {
+    if (document.hasUnsavedChanges()) {
+      await vscode.window.showWarningMessage(
+        extensionText.pageSwitchDirtyPrompt(),
+        {
+          modal: true,
+          detail: extensionText.pageSwitchDirtyDetail(),
+        },
+      );
+      return;
+    }
+
+    document.setPage(pageIndex);
+    this.postSnapshot(webview, document, 'snapshot', 'webview.pageSnapshot');
   }
 
   private async confirmSaveWithProblems(document: HexOnDocument, cancellation: vscode.CancellationToken): Promise<number> {
@@ -340,7 +371,7 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
       throw new vscode.CancellationError();
     }
 
-    const diagnostics = document.snapshot().diagnostics;
+    const diagnostics = document.snapshot(this.readRenderMode(document.uri)).diagnostics;
     const problemCount = countDiagnosticProblems(diagnostics);
     if (problemCount === 0) {
       return 0;
@@ -361,6 +392,15 @@ export class HexOnEditorProvider implements vscode.CustomEditorProvider<HexOnDoc
     }
 
     return problemCount;
+  }
+
+  private postSnapshot(
+    webview: vscode.Webview,
+    document: HexOnDocument,
+    type: 'init' | 'snapshot' | 'saved',
+    phase: string,
+  ): void {
+    this.post(webview, { type, snapshot: document.snapshot(this.readRenderMode(document.uri)) }, document.uri, phase);
   }
 
   private html(webview: vscode.Webview): string {

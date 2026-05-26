@@ -19,6 +19,7 @@ export default function App() {
   const [viewSettings, setViewSettings] = useState<EditorViewSettings>({
     condenseMode: false,
     showRuler: false,
+    renderMode: 'full',
     performanceLogging: false,
     locale: initialLocale,
   });
@@ -109,7 +110,7 @@ export default function App() {
               <div className="meta-row">
                 <span>{snapshot?.fileEncoding ?? t('encodingFallback')}</span>
                 <span>{t('rawBytes')}</span>
-                <span>{snapshot ? t('bytes', { count: snapshot.cells.length.toLocaleString() }) : t('loading')}</span>
+                <span>{snapshot ? t('bytes', { count: (snapshot.page?.totalBytes ?? snapshot.cells.length).toLocaleString() }) : t('loading')}</span>
                 <span>{status}</span>
               </div>
               <div className="hint-row">{t('editingHint')}</div>
@@ -160,14 +161,17 @@ export default function App() {
 
       {snapshot ? (
         <>
-          <DiagnosticsStrip
-            result={snapshot.diagnostics}
-            onJump={event => setJumpTarget(current => ({
-              offset: event.offset,
-              length: event.length,
-              token: (current?.token ?? 0) + 1,
-            }))}
-          />
+          <div className="editor-panel-stack">
+            <DiagnosticsStrip
+              result={snapshot.diagnostics}
+              onJump={event => setJumpTarget(current => ({
+                offset: event.offset,
+                length: event.length,
+                token: (current?.token ?? 0) + 1,
+              }))}
+            />
+            {snapshot.page?.mode === 'paged' ? <PageNavigator snapshot={snapshot} /> : null}
+          </div>
           <HexGrid
             snapshot={snapshot}
             jumpTarget={jumpTarget}
@@ -188,6 +192,48 @@ export default function App() {
         </main>
       )}
     </div>
+  );
+}
+
+function PageNavigator({ snapshot }: { snapshot: EditorSnapshot }) {
+  const page = snapshot.page;
+  if (!page || page.mode !== 'paged') {
+    return null;
+  }
+
+  const canGoPrevious = page.pageIndex > 0;
+  const canGoNext = page.pageIndex < page.pageCount - 1;
+  const goToPage = (pageIndex: number) => vscode.postMessage({ type: 'goToPage', pageIndex });
+  const pageStart = page.pageStartOffset.toString(16).toUpperCase().padStart(6, '0');
+  const pageEnd = Math.max(page.pageStartOffset, page.pageEndOffset - 1).toString(16).toUpperCase().padStart(6, '0');
+
+  return (
+    <nav className="page-nav" aria-label={t('pageNavigation')}>
+      <button
+        className="diagnostic-nav-button"
+        type="button"
+        disabled={!canGoPrevious}
+        onClick={() => goToPage(page.pageIndex - 1)}
+      >
+        <span className="codicon codicon-chevron-left" aria-hidden="true" />
+        <span>{t('previousPage')}</span>
+      </button>
+      <span className="page-nav-status">
+        {t('pageStatus', { current: page.pageIndex + 1, total: page.pageCount })}
+      </span>
+      <span className="page-nav-range">
+        {t('pageByteRange', { start: pageStart, end: pageEnd })}
+      </span>
+      <button
+        className="diagnostic-nav-button"
+        type="button"
+        disabled={!canGoNext}
+        onClick={() => goToPage(page.pageIndex + 1)}
+      >
+        <span>{t('nextPage')}</span>
+        <span className="codicon codicon-chevron-right" aria-hidden="true" />
+      </button>
+    </nav>
   );
 }
 

@@ -32,6 +32,8 @@
   "Reload from disk and discard unsaved HEX ON edits?": "ディスクから再読み込みし、未保存の HEX ON 編集を破棄しますか?",
   "The editor will reread the file bytes from disk. Any unsaved hex changes in this editor will be discarded.": "エディターはディスクからファイル バイトを再読み込みします。このエディターの未保存の hex 変更は破棄されます。",
   "Reload From Disk": "ディスクから再読み込み",
+  "Save or revert the current page before switching pages.": "ページを切り替える前に、現在のページを保存または元に戻してください。",
+  "Paged mode keeps edits anchored to the current byte range. Save or revert first to avoid writing changes to the wrong location.": "ページ モードでは、編集内容が現在のバイト範囲に固定されます。誤った位置に変更を書き込まないよう、先に保存または元に戻してください。",
   "Save {0} DBCS issue(s) to disk?": "{0} 件の DBCS 問題をディスクに保存しますか?",
   "Diagnostics currently reports: {0}. Saving will write the current raw bytes exactly as shown in the HEX ON editor.": "診断の現在の報告: {0}。保存すると、現在の raw bytes が HEX ON エディターに表示されたとおりに書き込まれます。",
   "Saving will write the current raw bytes exactly as shown in the HEX ON editor.": "保存すると、現在の raw bytes が HEX ON エディターに表示されたとおりに書き込まれます。",

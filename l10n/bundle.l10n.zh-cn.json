@@ -32,6 +32,8 @@
   "Reload from disk and discard unsaved HEX ON edits?": "要从磁盘重新加载并丢弃未保存的 HEX ON 编辑吗？",
   "The editor will reread the file bytes from disk. Any unsaved hex changes in this editor will be discarded.": "编辑器会从磁盘重新读取文件字节。此编辑器中任何未保存的 hex 更改都将被丢弃。",
   "Reload From Disk": "从磁盘重新加载",
+  "Save or revert the current page before switching pages.": "切换分页前，请先保存或还原当前分页。",
+  "Paged mode keeps edits anchored to the current byte range. Save or revert first to avoid writing changes to the wrong location.": "分页模式会将编辑内容锚定在当前字节范围。请先保存或还原，以避免将更改写入错误位置。",
   "Save {0} DBCS issue(s) to disk?": "要将 {0} 个 DBCS 问题保存到磁盘吗？",
   "Diagnostics currently reports: {0}. Saving will write the current raw bytes exactly as shown in the HEX ON editor.": "诊断当前报告：{0}。保存时会将当前原始字节完全按照 HEX ON 编辑器中显示的内容写入。",
   "Saving will write the current raw bytes exactly as shown in the HEX ON editor.": "保存时会将当前原始字节完全按照 HEX ON 编辑器中显示的内容写入。",

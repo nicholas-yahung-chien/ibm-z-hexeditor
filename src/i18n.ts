@@ -40,6 +40,8 @@ export const extensionText = {
   reloadDiscardPrompt: () => vscode.l10n.t('Reload from disk and discard unsaved HEX ON edits?'),
   reloadDiscardDetail: () => vscode.l10n.t('The editor will reread the file bytes from disk. Any unsaved hex changes in this editor will be discarded.'),
   reloadFromDisk: () => vscode.l10n.t('Reload From Disk'),
+  pageSwitchDirtyPrompt: () => vscode.l10n.t('Save or revert the current page before switching pages.'),
+  pageSwitchDirtyDetail: () => vscode.l10n.t('Paged mode keeps edits anchored to the current byte range. Save or revert first to avoid writing changes to the wrong location.'),
   saveProblemsPrompt: (count: number) => vscode.l10n.t('Save {0} DBCS issue(s) to disk?', count),
   saveProblemsDetail: (summary: string) => summary
     ? vscode.l10n.t('Diagnostics currently reports: {0}. Saving will write the current raw bytes exactly as shown in the HEX ON editor.', summary)

@@ -371,6 +371,36 @@ h1 {
   box-shadow: inset 0 -2px 0 var(--vscode-focusBorder);
 }
 
+.editor-panel-stack {
+  display: grid;
+  min-width: 0;
+}
+
+.page-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0.35rem 1rem;
+  color: var(--vscode-descriptionForeground);
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+  background: var(--vscode-editor-background);
+  font-size: 0.78rem;
+}
+
+.page-nav-status {
+  color: var(--vscode-editor-foreground);
+  font-weight: 650;
+}
+
+.page-nav-range {
+  font-family: var(--vscode-editor-font-family), Consolas, monospace;
+}
+
+.condense-mode .page-nav {
+  padding-inline: 1rem;
+}
+
 .hex-grid-shell {
   min-height: 0;
   overflow: auto;
