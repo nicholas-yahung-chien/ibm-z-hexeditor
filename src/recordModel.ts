@@ -117,6 +117,7 @@ export function makeSnapshot(args: {
     uri: args.uri,
     fileName: args.fileName,
     fileEncoding: args.sourceEncoding,
+    byteSource: 'local-raw',
     cells: inspected.cells,
     lines: args.lines,
     preview: [],

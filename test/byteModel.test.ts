@@ -20,6 +20,42 @@ describe('byte-first model', () => {
     expect(deleted.map(cell => cell.value)).toEqual([0xc1, 0x0e]);
   });
 
+  it('keeps fixed records the same length when deleting a byte', () => {
+    const cells = cellsFromBytes(Uint8Array.from([0xc1, 0xc2, 0xc3, 0xc4, 0xd1, 0xd2, 0xd3, 0xd4]));
+    const deleted = deleteByte(cells, 1, {
+      source: 'zowe',
+      recordFormat: 'FB',
+      logicalRecordLength: 4,
+    }, 'ibm937');
+
+    expect(deleted.map(cell => cell.value)).toEqual([0xc1, 0xc3, 0xc4, 0x40, 0xd1, 0xd2, 0xd3, 0xd4]);
+    expect(deleted).toHaveLength(cells.length);
+  });
+
+  it('keeps fixed records the same length when inserting a byte', () => {
+    const cells = cellsFromBytes(Uint8Array.from([0xc1, 0xc2, 0xc3, 0xc4, 0xd1, 0xd2, 0xd3, 0xd4]));
+    const inserted = insertByte(cells, 2, 0x00, {
+      source: 'zowe',
+      recordFormat: 'FB',
+      logicalRecordLength: 4,
+    }, 'ibm937');
+
+    expect(inserted.map(cell => cell.value)).toEqual([0xc1, 0xc2, 0x00, 0xc3, 0xd1, 0xd2, 0xd3, 0xd4]);
+    expect(inserted).toHaveLength(cells.length);
+  });
+
+  it('keeps an insert at a fixed-record boundary in the previous record', () => {
+    const cells = cellsFromBytes(Uint8Array.from([0xc1, 0xc2, 0xc3, 0xc4, 0xd1, 0xd2, 0xd3, 0xd4]));
+    const inserted = insertByte(cells, 4, 0x00, {
+      source: 'zowe',
+      recordFormat: 'FB',
+      logicalRecordLength: 4,
+    }, 'ibm937');
+
+    expect(inserted.map(cell => cell.value)).toEqual([0xc1, 0xc2, 0xc3, 0x00, 0xd1, 0xd2, 0xd3, 0xd4]);
+    expect(inserted).toHaveLength(cells.length);
+  });
+
   it('previews IBM-937 SO/SI DBCS bytes with byte ranges', () => {
     const bytes = encodeToIbm937('A測');
     const preview = previewBytes(bytes, 'ibm937');
@@ -37,6 +73,47 @@ describe('byte-first model', () => {
 
     expect(preview.map(entry => entry.text)).toEqual(['A', '測']);
     expect(preview[1]).toMatchObject({ byteOffset: 1, byteLength: 3 });
+  });
+
+  it('splits fixed Zowe records by LRECL when bytes have no newline markers', () => {
+    const snapshot = makeSnapshot({
+      uri: 'inline',
+      fileName: 'fixed.cpy',
+      fileEncoding: 'ibm937',
+      cells: cellsFromBytes(new Uint8Array(165).fill(0x40)),
+      dirty: false,
+      recordMetadata: {
+        source: 'zowe',
+        recordFormat: 'FB',
+        logicalRecordLength: 80,
+        blockSize: 3200,
+      },
+    });
+
+    expect(snapshot.recordMetadata).toMatchObject({ recordFormat: 'FB', logicalRecordLength: 80 });
+    expect(snapshot.lines.map(line => [line.startOffset, line.length])).toEqual([
+      [0, 80],
+      [80, 80],
+      [160, 5],
+    ]);
+  });
+
+  it('keeps variable Zowe records on the normal newline/no-newline path', () => {
+    const snapshot = makeSnapshot({
+      uri: 'inline',
+      fileName: 'variable.cpy',
+      fileEncoding: 'ibm937',
+      cells: cellsFromBytes(new Uint8Array(165).fill(0x40)),
+      dirty: false,
+      recordMetadata: {
+        source: 'zowe',
+        recordFormat: 'VB',
+        logicalRecordLength: 80,
+      },
+    });
+
+    expect(snapshot.lines).toHaveLength(1);
+    expect(snapshot.lines[0]).toMatchObject({ startOffset: 0, length: 165 });
   });
 
   it('does not flag the IBM-937 COBOL fixture comment asterisks as missing SO', () => {

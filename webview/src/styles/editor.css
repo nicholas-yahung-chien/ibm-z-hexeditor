@@ -1,6 +1,6 @@
 :root {
-  --cell-size: 1.36rem;
-  --record-gap: 0.7rem;
+  --cell-size: 0.92rem;
+  --record-gap: 0.25rem;
   --accent: var(--vscode-terminal-ansiGreen);
   --accent-soft: color-mix(in srgb, var(--accent) 28%, transparent);
   --problem: var(--vscode-editorError-foreground);
@@ -67,8 +67,8 @@ button {
 }
 
 .app-shell.condense-mode {
-  --cell-size: 0.92rem;
-  --record-gap: 0.25rem;
+  --cell-size: 0.74rem;
+  --record-gap: 0.18rem;
 }
 
 .top-bar {
@@ -592,26 +592,26 @@ h1 {
 
 .ruler-grid {
   display: grid;
-  grid-template-rows: 1.25rem;
+  grid-template-rows: 1.16rem;
   column-gap: 0;
   align-items: center;
   max-width: 100%;
 }
 
 .condense-mode .ruler-grid {
-  grid-template-rows: 1.16rem;
+  grid-template-rows: 1.08rem;
 }
 
 .ruler-mark {
   grid-row: 1;
   width: var(--cell-size);
   text-align: center;
-  line-height: 1.25rem;
+  line-height: 1.16rem;
   color: var(--vscode-descriptionForeground);
 }
 
 .condense-mode .ruler-mark {
-  line-height: 1.16rem;
+  line-height: 1.08rem;
 }
 
 .record-group {
@@ -624,20 +624,20 @@ h1 {
   grid-template-columns: 5.5rem minmax(0, max-content);
   align-items: start;
   gap: 0.8rem;
-  min-height: 4.4rem;
+  min-height: 3.95rem;
   max-width: max-content;
 }
 
 .condense-mode .hex-row {
   grid-template-columns: minmax(0, max-content);
   gap: 0;
-  min-height: 3.95rem;
+  min-height: 3.62rem;
 }
 
 .offset {
   color: var(--accent);
   font-weight: 700;
-  padding-top: 1.52rem;
+  padding-top: 1.36rem;
   user-select: none;
 }
 
@@ -647,14 +647,14 @@ h1 {
 
 .byte-grid {
   display: grid;
-  grid-template-rows: 1.35rem 1.25rem 1.25rem;
+  grid-template-rows: 1.22rem 1.16rem 1.16rem;
   column-gap: 0;
   align-items: center;
   max-width: 100%;
 }
 
 .condense-mode .byte-grid {
-  grid-template-rows: 1.22rem 1.16rem 1.16rem;
+  grid-template-rows: 1.08rem 1.04rem 1.04rem;
 }
 
 .preview {
@@ -688,7 +688,7 @@ h1 {
 
 .nibble {
   width: var(--cell-size);
-  height: 1.25rem;
+  height: 1.16rem;
   border: 0;
   border-radius: 0;
   appearance: none;
@@ -697,13 +697,13 @@ h1 {
   text-align: center;
   cursor: text;
   padding: 0;
-  line-height: 1.25rem;
+  line-height: 1.16rem;
   outline: none;
 }
 
 .condense-mode .nibble {
-  height: 1.16rem;
-  line-height: 1.16rem;
+  height: 1.04rem;
+  line-height: 1.04rem;
 }
 
 .nibble-high {

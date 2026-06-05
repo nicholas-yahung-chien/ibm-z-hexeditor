@@ -4,19 +4,22 @@ This page collects copy and release assets for a VS Code Marketplace listing or 
 
 ## Short Description
 
-ISPF-style HEX ON byte editing for IBM Z files, with IBM EBCDIC preview and DBCS SO/SI diagnostics.
+ISPF-style HEX ON byte editing for IBM Z files, with IBM EBCDIC preview, DBCS SO/SI diagnostics, and safer Zowe raw-byte saves.
 
 ## Long Description
 
-IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, inspect the decoded character preview, edit high and low hex nibbles directly, and save the updated raw bytes back to the file.
+IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file or supported Zowe resource, choose the actual encoding of the bytes, inspect the decoded character preview, edit high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
 The editor is byte-first. It reads raw file bytes from disk and writes raw file bytes back to disk, so it can be used even when VS Code's text editor would display the file with the wrong encoding.
 
 Supported IBM EBCDIC SBCS profiles provide code-page-aware preview for common host files. Supported IBM EBCDIC DBCS profiles also include SO/SI structure diagnostics, confirmed DBCS pair counts, and conservative DBCS ambiguity warnings to help identify shift-byte problems before saving.
 
+For supported fixed-length Zowe data set members opened from the Zowe Explorer tree, HEX ON now prefers a direct binary save path before any text-based upload fallback. This reduces false-positive "data loss" warnings in the common raw-byte repair workflow while keeping fallback behavior for unsupported cases.
+
 ## Feature Bullets
 
-- Open local files in a custom HEX ON editor.
+- Open local files, Zowe data sets, and Zowe USS files in a custom HEX ON editor.
+- Prefer direct binary save for supported fixed-length Zowe data set members opened from the Zowe Explorer tree.
 - Edit raw bytes as high and low hex nibbles.
 - Preview bytes using selected UTF-8, IBM EBCDIC SBCS, or IBM EBCDIC DBCS encodings.
 - Choose the actual bytes-on-disk encoding instead of relying on the VS Code-reported text encoding.
@@ -72,6 +75,7 @@ Recommended Marketplace order:
 - `dist/ibm-z-hex-on-editor.vsix`
 - `README.md`
 - `CHANGELOG.md`
+- `docs/release-notes-0.2.0.md`
 - `docs/release-notes-0.1.0.md`
 - `images/icon.png`
 - selected screenshots under `images/screenshots/`

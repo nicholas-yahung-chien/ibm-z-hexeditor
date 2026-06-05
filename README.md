@@ -2,15 +2,21 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md) | [简体中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | [Deutsch](README.de.md)
 
+Localized extension metadata follows the active VS Code display language. The extension details body itself uses this single `README.md`, so use the links above to open the translated companion documents.
+
 ![IBM Z HEX ON Editor icon](images/icon.png)
 
-IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file, choose the actual encoding of the bytes on disk, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
+IBM Z HEX ON Editor adds an ISPF-style byte editor to VS Code. Open a local file or supported Zowe resource, choose the actual encoding of the bytes, edit the high and low hex nibbles directly, and save the updated raw bytes back to the file.
 
 The current MVP is focused on IBM EBCDIC and UTF-8 workflows. IBM-037, IBM-500, IBM-1047, and IBM-1140 files get SBCS preview support. IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 files get SO/SI structure diagnostics for DBCS data so you can inspect, repair, and verify shift-byte problems without leaving VS Code.
 
+For supported fixed-length Zowe data set members opened from the Zowe Explorer tree, HEX ON now prefers a direct binary save path before any text-based upload fallback. This keeps validated raw-byte edits on the binary path and avoids the common false-positive "data loss" warning from Zowe Explorer's generic text upload guard.
+
 ## What You Can Do
 
-- Open a local file in a HEX ON custom editor.
+- Open a local file, Zowe data set, or Zowe USS file in a HEX ON custom editor.
+- See whether the current editor is using local raw bytes, Zowe host raw bytes, or Zowe text-backed bytes.
+- Use safer direct-binary save for supported fixed-length Zowe data set members opened from the Zowe Explorer tree.
 - View raw file bytes as editable high/low hex-nibble rows.
 - See a read-only character preview decoded with the encoding you choose.
 - Edit bytes by replacing nibbles, inserting `00`, or deleting bytes.
@@ -64,8 +70,8 @@ Open this repository in VS Code and press `F5` to launch an Extension Developmen
 
 ## Basic Use
 
-1. Open a local file in VS Code.
-2. Run `IBM Z Hex Editor: Open HEX ON` from the Command Palette, editor title menu, or editor context menu.
+1. Open a local file in VS Code, or select a supported data set/member or USS file in Zowe Explorer.
+2. Run `IBM Z Hex Editor: Open HEX ON` from the Command Palette, editor title menu, editor context menu, or Zowe Explorer tree context menu.
 3. If the current file has unsaved changes, save it first.
 4. Choose the actual file-content encoding of the bytes on disk.
 5. Edit bytes in the HEX ON view.
@@ -79,7 +85,7 @@ Use `Ctrl+F` inside the HEX ON editor to open search. Enter a query and press th
 
 ## Settings
 
-- `ibmZHexEditor.maxFileSizeKb`: maximum local file size, in KB, that can be opened in the HEX ON editor.
+- `ibmZHexEditor.maxFileSizeKb`: maximum resource size, in KB, that can be opened in the HEX ON editor.
 - `ibmZHexEditor.condenseMode`: show a denser grid with narrower byte cells, hidden offsets, and no grid edge padding.
 - `ibmZHexEditor.showRuler`: show a column ruler above the byte grid.
 - `ibmZHexEditor.renderMode`: render the whole file or one page at a time.
@@ -98,6 +104,7 @@ Use `Ctrl+F` inside the HEX ON editor to open search. Enter a query and press th
 - [Localization plan](docs/i18n.md)
 - [Marketplace listing draft](docs/marketplace.md)
 - [Release checklist](docs/release-checklist.md)
+- [Release notes 0.2.0](docs/release-notes-0.2.0.md)
 - [Release notes 0.1.0](docs/release-notes-0.1.0.md)
 - [Screenshot plan](docs/screenshots.md)
 - [Change log](CHANGELOG.md)
@@ -105,7 +112,9 @@ Use `Ctrl+F` inside the HEX ON editor to open search. Enter a query and press th
 
 ## Current Limits
 
-- Local files only.
+- Local files and Zowe Explorer `zowe-ds` / `zowe-uss` resources are supported.
+- For Zowe host raw-byte editing, start HEX ON from the Zowe Explorer tree. Supported fixed-length `zowe-ds:` members now prefer direct binary save from that path; starting from an already open Zowe text editor may still reuse Zowe's text-transfer encoding and fallback save behavior.
+- If a Zowe resource is already open in a normal text editor and you start HEX ON from that editor, the header shows `Zowe text-backed bytes`. This mode can be useful for text-oriented edits that should follow Zowe Explorer's normal transfer encoding, but it is not a safe substitute for raw-byte repair of SO/SI or damaged DBCS byte sequences.
 - IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
 - Additional IBM EBCDIC SBCS or DBCS code pages can be added through the generated-table workflow after fixtures and tests are available.

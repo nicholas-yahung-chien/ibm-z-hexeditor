@@ -2,7 +2,7 @@
   "name": "ibm-z-hex-on-editor",
   "displayName": "%extension.displayName%",
   "description": "%extension.description%",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "publisher": "nicholas-yahung-chien",
   "license": "MIT",
   "icon": "images/icon.png",
@@ -69,6 +69,18 @@
           "command": "ibmZHexEditor.openHexOn",
           "group": "navigation@90",
           "when": "editorTextFocus"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ibmZHexEditor.openHexOn",
+          "group": "navigation@90",
+          "when": "view == zowe.ds.explorer && viewItem =~ /^(ds|dsBinary|member|memberBinary).*/ && !listMultiSelection"
+        },
+        {
+          "command": "ibmZHexEditor.openHexOn",
+          "group": "navigation@90",
+          "when": "view == zowe.uss.explorer && viewItem =~ /^(textFile|binaryFile).*/ && !listMultiSelection"
         }
       ]
     },

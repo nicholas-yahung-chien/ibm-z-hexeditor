@@ -96,6 +96,31 @@ Expected:
 - [ ] The encoding picker describes IBM DBCS choices by language, such as Korean, Simplified Chinese, Traditional Chinese, and Japanese.
 - [ ] Encoding picker descriptions are short enough to scan without relying on repeated tooltip text.
 
+## 4a. Zowe Explorer Resource Smoke Test
+
+Use this section only in an environment with Zowe Explorer configured.
+
+1. Select a data set/member or USS file in the Zowe Explorer tree.
+2. Run `IBM Z Hex Editor: Open HEX ON` from the tree context menu.
+3. Choose the actual host file-content encoding.
+
+Expected:
+
+- [ ] The command is visible from supported Zowe Data Sets and USS tree items.
+- [ ] HEX ON opens the selected `zowe-ds:` or `zowe-uss:` resource.
+- [ ] When launched from the Zowe tree, the extension attempts to reopen the resource through `zowe.openWithEncoding` in binary mode before reading bytes.
+- [ ] When launched from the Zowe tree and binary mode is confirmed, the header shows `Zowe host raw bytes`.
+- [ ] If HEX ON is launched from an already open Zowe editor instead of the tree, the extension warns that the bytes may reflect Zowe text conversion.
+- [ ] When launched from an already open Zowe editor or `zowe-ds:`/`zowe-uss:` URI without a tree resource, the header shows `Zowe text-backed bytes`.
+- [ ] For supported fixed-length `zowe-ds:` members opened from the tree, saving prefers HEX ON direct binary save back to the same resource.
+- [ ] The supported fixed-length member save path does not show Zowe Explorer's generic "data loss" warning during a successful direct-binary save.
+- [ ] Unsupported or ineligible resources still fall back to the previous Zowe-based save path.
+- [ ] If fallback save is blocked by Zowe Explorer's upload safety check, HEX ON reports that the bytes were not written and includes the original Zowe error.
+- [ ] When a blocked `zowe-ds:` resource was opened from a Zowe tree item and fallback is available, HEX ON offers text-converted fallback save.
+- [ ] The fallback writes only when the current bytes round-trip exactly with the selected IBM encoding.
+- [ ] If the round-trip check fails, HEX ON reports that no data was written.
+- [ ] `Save As` writes the current edited bytes to a user-selected local file without saving back to the original Zowe resource.
+
 ## 5. IBM EBCDIC Code Page Baselines
 
 ### IBM SBCS

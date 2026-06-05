@@ -1,6 +1,6 @@
 {
   "extension.displayName": "IBM Z HEX ON Editor",
-  "extension.description": "在 ISPF 風格的 HEX ON 檢視中編輯 IBM Z 檔案位元組，並提供 IBM EBCDIC DBCS 預覽與 SO/SI 診斷。",
+  "extension.description": "在 ISPF 風格的 HEX ON 檢視中編輯 IBM Z 檔案位元組，並提供 IBM EBCDIC 預覽、SO/SI 診斷與更安全的 Zowe 原始位元組儲存流程。",
   "command.openHexOn.title": "IBM Z Hex Editor: 開啟 HEX ON",
   "command.openHexOn.category": "IBM Z Hex Editor",
   "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",

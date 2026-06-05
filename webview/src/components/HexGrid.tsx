@@ -111,8 +111,9 @@ export function HexGrid({ snapshot, jumpTarget, condenseMode, showRuler, onSearc
       const byteGridStyles = byteGrid ? window.getComputedStyle(byteGrid) : null;
 
       const cellSize = nibble?.getBoundingClientRect().width || (fontSize * 1.45);
-      const offsetWidth = condenseMode ? 0 : offset?.getBoundingClientRect().width || (fontSize * 6);
-      const rowGap = condenseMode ? 0 : rowStyles ? Number.parseFloat(rowStyles.columnGap) || 0 : fontSize;
+      const offsetVisible = !condenseMode && offset !== null && window.getComputedStyle(offset).display !== 'none';
+      const offsetWidth = offsetVisible && offset !== null ? offset.getBoundingClientRect().width : 0;
+      const rowGap = offsetVisible && rowStyles ? Number.parseFloat(rowStyles.columnGap) || 0 : 0;
       const cellGap = byteGridStyles ? Number.parseFloat(byteGridStyles.columnGap) || 0 : fontSize * 0.18;
       const sidePadding = Number.parseFloat(styles.paddingLeft) + Number.parseFloat(styles.paddingRight);
       const available = element.clientWidth - sidePadding - offsetWidth - rowGap;

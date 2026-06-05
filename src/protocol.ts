@@ -2,6 +2,7 @@ import type { AnalysisResult } from './inspector/inspectIbmDbcs';
 
 export type HexNibble = 'high' | 'low';
 export type RenderMode = 'full' | 'paged';
+export type ByteSourceKind = 'local-raw' | 'zowe-tree-raw' | 'zowe-tree-unconfirmed' | 'zowe-text-backed';
 
 export interface ByteCell {
   value: number;
@@ -13,6 +14,13 @@ export interface RecordLine {
   startOffset: number;
   length: number;
   eol?: string;
+}
+
+export interface RecordMetadata {
+  source: 'zowe' | 'inferred';
+  recordFormat: string;
+  logicalRecordLength?: number;
+  blockSize?: number;
 }
 
 export type PreviewKind = 'sbcs' | 'so' | 'si' | 'dbcs' | 'control' | 'invalid';
@@ -40,6 +48,8 @@ export interface EditorSnapshot {
   uri: string;
   fileName: string;
   fileEncoding: string;
+  byteSource: ByteSourceKind;
+  recordMetadata?: RecordMetadata;
   cells: ByteCell[];
   lines: RecordLine[];
   preview: PreviewEntry[];
@@ -85,4 +95,5 @@ export type FromWebviewMessage =
   | { type: 'goToPage'; pageIndex: number; nonce: string }
   | { type: 'revert'; nonce: string }
   | { type: 'reload'; nonce: string }
+  | { type: 'saveAs'; nonce: string }
   | { type: 'save'; nonce: string };

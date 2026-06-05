@@ -3,7 +3,8 @@ import { decodeIbmDbcsPair, decodeIbmDbcsSbcsByte, type IbmDbcsCodePageProfile }
 import { decodeIbmSbcsByte, type IbmSbcsCodePageProfile } from './codec/ibmSbcs';
 import { inspectIbmDbcs } from './inspector/inspectIbmDbcs';
 import type { AnalysisResult, InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
-import type { ByteCell, EditorSnapshot, PreviewEntry, RecordLine } from './protocol';
+import { fixedRecordLength } from './recordMetadata';
+import type { ByteCell, ByteSourceKind, EditorSnapshot, PreviewEntry, RecordLine, RecordMetadata } from './protocol';
 
 export function cellsFromBytes(bytes: Uint8Array): ByteCell[] {
   return Array.from(bytes, value => ({ value }));
@@ -13,9 +14,14 @@ export function bytesFromCells(cells: readonly ByteCell[]): Uint8Array {
   return Uint8Array.from(cells.map(cell => cell.value));
 }
 
-export function buildLines(bytes: Uint8Array, encoding: string): RecordLine[] {
+export function buildLines(bytes: Uint8Array, encoding: string, recordMetadata?: RecordMetadata): RecordLine[] {
   if (bytes.length === 0) {
     return [{ lineIndex: 0, startOffset: 0, length: 0 }];
+  }
+
+  const fixedLength = fixedRecordLength(recordMetadata);
+  if (fixedLength !== undefined) {
+    return buildFixedRecordLines(bytes, fixedLength);
   }
 
   const newlineBytes = newlineSetForEncoding(encoding);
@@ -44,6 +50,18 @@ export function buildLines(bytes: Uint8Array, encoding: string): RecordLine[] {
   return lines;
 }
 
+function buildFixedRecordLines(bytes: Uint8Array, recordLength: number): RecordLine[] {
+  const lines: RecordLine[] = [];
+  for (let startOffset = 0; startOffset < bytes.length; startOffset += recordLength) {
+    lines.push({
+      lineIndex: lines.length,
+      startOffset,
+      length: Math.min(recordLength, bytes.length - startOffset),
+    });
+  }
+  return lines;
+}
+
 export function replaceNibble(
   cells: readonly ByteCell[],
   offset: number,
@@ -67,9 +85,28 @@ export function replaceNibble(
   });
 }
 
-export function insertByte(cells: readonly ByteCell[], offset: number, value = 0x00): ByteCell[] {
-  const insertAt = Math.max(0, Math.min(offset, cells.length));
+export function insertByte(cells: readonly ByteCell[], offset: number, value?: number): ByteCell[];
+export function insertByte(
+  cells: readonly ByteCell[],
+  offset: number,
+  value: number | undefined,
+  recordMetadata: RecordMetadata | undefined,
+  fileEncoding: string | undefined,
+): ByteCell[];
+export function insertByte(
+  cells: readonly ByteCell[],
+  offset: number,
+  value = 0x00,
+  recordMetadata?: RecordMetadata,
+  fileEncoding?: string,
+): ByteCell[] {
   const byte = Math.max(0, Math.min(value, 0xff));
+  const fixedLength = fixedRecordLength(recordMetadata);
+  if (fixedLength !== undefined) {
+    return insertByteWithinFixedRecord(cells, offset, byte, fixedLength, fileEncoding);
+  }
+
+  const insertAt = Math.max(0, Math.min(offset, cells.length));
   return [
     ...cells.slice(0, insertAt),
     { value: byte },
@@ -77,7 +114,24 @@ export function insertByte(cells: readonly ByteCell[], offset: number, value = 0
   ];
 }
 
-export function deleteByte(cells: readonly ByteCell[], offset: number): ByteCell[] {
+export function deleteByte(cells: readonly ByteCell[], offset: number): ByteCell[];
+export function deleteByte(
+  cells: readonly ByteCell[],
+  offset: number,
+  recordMetadata: RecordMetadata | undefined,
+  fileEncoding: string | undefined,
+): ByteCell[];
+export function deleteByte(
+  cells: readonly ByteCell[],
+  offset: number,
+  recordMetadata?: RecordMetadata,
+  fileEncoding?: string,
+): ByteCell[] {
+  const fixedLength = fixedRecordLength(recordMetadata);
+  if (fixedLength !== undefined) {
+    return deleteByteWithinFixedRecord(cells, offset, fixedLength, fileEncoding);
+  }
+
   if (offset < 0 || offset >= cells.length) {
     return [...cells];
   }
@@ -88,16 +142,109 @@ export function deleteByte(cells: readonly ByteCell[], offset: number): ByteCell
   ];
 }
 
+function insertByteWithinFixedRecord(
+  cells: readonly ByteCell[],
+  offset: number,
+  value: number,
+  recordLength: number,
+  fileEncoding: string | undefined,
+): ByteCell[] {
+  if (cells.length === 0) {
+    return [{ value }];
+  }
+
+  const effectiveOffset = fixedRecordEffectiveOffset(cells, offset, recordLength);
+  if (effectiveOffset === undefined) {
+    return [...cells];
+  }
+
+  const { recordStart, recordEnd } = fixedRecordBounds(effectiveOffset, recordLength, cells.length);
+  const insertAt = Math.max(recordStart, Math.min(offset, recordEnd - 1));
+  const recordCells = [
+    ...cells.slice(recordStart, insertAt),
+    { value },
+    ...cells.slice(insertAt, recordEnd),
+  ].slice(0, recordEnd - recordStart);
+
+  return [
+    ...cells.slice(0, recordStart),
+    ...recordCells,
+    ...cells.slice(recordEnd),
+  ];
+}
+
+function deleteByteWithinFixedRecord(
+  cells: readonly ByteCell[],
+  offset: number,
+  recordLength: number,
+  fileEncoding: string | undefined,
+): ByteCell[] {
+  if (offset < 0 || offset >= cells.length) {
+    return [...cells];
+  }
+
+  const { recordStart, recordEnd } = fixedRecordBounds(offset, recordLength, cells.length);
+  return [
+    ...cells.slice(0, recordStart),
+    ...cells.slice(recordStart, offset),
+    ...cells.slice(offset + 1, recordEnd),
+    { value: paddingByteForEncoding(fileEncoding) },
+    ...cells.slice(recordEnd),
+  ];
+}
+
+function fixedRecordEffectiveOffset(cells: readonly ByteCell[], offset: number, recordLength: number): number | undefined {
+  if (offset < 0 || !Number.isFinite(offset)) {
+    return undefined;
+  }
+
+  if (offset >= cells.length) {
+    return cells.length - 1;
+  }
+
+  if (offset > 0 && offset % recordLength === 0) {
+    return offset - 1;
+  }
+
+  return offset;
+}
+
+function fixedRecordBounds(offset: number, recordLength: number, totalLength: number): { recordStart: number; recordEnd: number } {
+  const recordStart = Math.floor(offset / recordLength) * recordLength;
+  return {
+    recordStart,
+    recordEnd: Math.min(recordStart + recordLength, totalLength),
+  };
+}
+
+function paddingByteForEncoding(fileEncoding: string | undefined): number {
+  if (fileEncoding) {
+    const dbcsProfile = getIbmDbcsProfile(fileEncoding);
+    if (dbcsProfile?.unicodeToSbcs[0x20] !== undefined) {
+      return dbcsProfile.unicodeToSbcs[0x20];
+    }
+
+    const sbcsProfile = getIbmSbcsProfile(fileEncoding);
+    if (sbcsProfile?.unicodeToSbcs[0x20] !== undefined) {
+      return sbcsProfile.unicodeToSbcs[0x20];
+    }
+  }
+
+  return 0x20;
+}
+
 export function makeSnapshot(args: {
   uri: string;
   fileName: string;
   fileEncoding: string;
+  byteSource?: ByteSourceKind;
   cells: ByteCell[];
   dirty: boolean;
   diagnosticsOptions?: InspectIbmDbcsOptions;
+  recordMetadata?: RecordMetadata;
 }): EditorSnapshot {
   const bytes = bytesFromCells(args.cells);
-  const lines = buildLines(bytes, args.fileEncoding);
+  const lines = buildLines(bytes, args.fileEncoding, args.recordMetadata);
   const profile = getIbmDbcsProfile(args.fileEncoding);
   const diagnostics = profile ? inspectIbmDbcs(profile, bytes, args.diagnosticsOptions) : null;
   const preview = previewBytes(bytes, args.fileEncoding);
@@ -107,6 +254,8 @@ export function makeSnapshot(args: {
     uri: args.uri,
     fileName: args.fileName,
     fileEncoding: args.fileEncoding,
+    byteSource: args.byteSource ?? 'local-raw',
+    recordMetadata: args.recordMetadata,
     cells: annotated,
     lines,
     preview,

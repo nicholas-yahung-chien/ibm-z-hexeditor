@@ -12,6 +12,22 @@ This roadmap captures the current direction after the IBM-937 MVP.
 6. Review the Marketplace-ready copy in [marketplace.md](marketplace.md) with the product team before publishing.
 7. Keep [../CHANGELOG.md](../CHANGELOG.md) current as MVP release notes evolve.
 
+## Zowe Explorer Resources
+
+Implemented direction:
+
+- accept `zowe-ds:` and `zowe-uss:` resources in addition to local `file:` resources;
+- expose `IBM Z Hex Editor: Open HEX ON` from supported Zowe Explorer Data Sets and USS tree items;
+- when launched from a Zowe tree item, call `zowe.openWithEncoding` with binary mode before HEX ON reads the resource bytes;
+- when launched from an already open Zowe editor, allow best-effort editing but warn that the bytes may reflect the existing Zowe text-transfer encoding.
+
+Planned review:
+
+- manually validate tree-context launch and save behavior with real z/OSMF and RSE API profiles;
+- confirm whether Zowe Explorer keeps the selected tree node encoding state synchronized after `zowe.openWithEncoding`;
+- investigate a future direct raw-download path through public Zowe APIs only if binary tree launch is not enough;
+- keep this integration non-invasive unless the Zowe Explorer or Z Open Editor teams explicitly approve a tighter integration contract.
+
 ## Multi-Code-Page EBCDIC DBCS Support
 
 The editor is already byte-first, so support for additional IBM EBCDIC code pages should build on the current architecture instead of changing the editing model.

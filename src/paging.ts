@@ -1,5 +1,6 @@
 import { buildLines } from './byteModel';
-import type { RecordLine, RenderMode } from './protocol';
+import { fixedRecordLength } from './recordMetadata';
+import type { RecordLine, RecordMetadata, RenderMode } from './protocol';
 
 export const PAGE_LINE_COUNT = 30;
 export const NO_NEWLINE_DISPLAY_LINE_BYTES = 100;
@@ -22,14 +23,16 @@ export function buildPageRanges(
   bytes: Uint8Array,
   encoding: string,
   pageLineLimit = PAGE_LINE_COUNT,
+  recordMetadata?: RecordMetadata,
 ): PageRange[] {
   const normalizedPageLineLimit = normalizePageLineLimit(pageLineLimit);
   if (bytes.length === 0) {
     return [singleRange(0, 0, 1, 0, 0, 0, 0, 1)];
   }
 
-  const lines = buildLines(bytes, encoding);
-  if (lines.length <= 1) {
+  const lines = buildLines(bytes, encoding, recordMetadata);
+  const hasFixedRecordLayout = fixedRecordLength(recordMetadata) !== undefined;
+  if (lines.length <= 1 && !hasFixedRecordLayout) {
     return buildBytePageRanges(bytes.length, normalizedPageLineLimit);
   }
 
@@ -60,9 +63,10 @@ export function buildDisplayLinesForPage(
   pageBytes: Uint8Array,
   encoding: string,
   range: PageRange,
+  recordMetadata?: RecordMetadata,
 ): RecordLine[] {
   if (range.forceLineBytes === undefined) {
-    return buildLines(pageBytes, encoding).map((line, index) => ({
+    return buildLines(pageBytes, encoding, recordMetadata).map((line, index) => ({
       ...line,
       lineIndex: range.pageLineStart + index,
       startOffset: range.pageStartOffset + line.startOffset,

@@ -4,10 +4,10 @@ Use this checklist to record a complete release-candidate validation pass before
 
 ## Release Candidate
 
-- Version: `0.1.5`
+- Version: `0.2.0`
 - Package: `dist/ibm-z-hex-on-editor.vsix`
-- Validation baseline commit: `fbb6cc9`
-- Validation date: `2026-05-26`
+- Validation baseline commit: `1016ff7`
+- Validation date: `2026-06-05`
 - Validator: Nicholas Chien
 - VS Code-compatible host: IBM Bob `1.109.5+bob1.0.2`, commit `473fcbe9e52a0216936d3c384820ebb51fb5cfc2`, x64
 - Host CLI: `C:\Users\NicholasChien\Documents\IBM Bob\bin\bobide.cmd`
@@ -71,6 +71,7 @@ Summary:
 - [x] Search result navigation and cancel-search behavior accepted.
 - [x] Optional performance logging accepted and remains disabled by default.
 - [x] Localized extension, settings, prompt, and webview strings accepted for first-pass validation, with reload-window guidance documented.
+- [x] Supported fixed-length `zowe-ds:` members save through HEX ON's primary direct-binary path without the generic Zowe Explorer "data loss" warning.
 
 ## Release Assets
 
@@ -87,9 +88,10 @@ Summary:
 - [x] `CHANGELOG.md` reflects the release contents.
 - [ ] Product naming, legal notices, icon usage, and generated mapping table attribution are ready for product-team review.
 
-## Known Limits For 0.1.5
+## Known Limits For 0.2.0
 
-- Local files only.
+- Local files and Zowe Explorer `zowe-ds` / `zowe-uss` resources are supported.
+- Supported fixed-length `zowe-ds:` members opened from the Zowe tree now prefer direct binary save, but other Zowe resources may still use fallback behavior.
 - Supported IBM EBCDIC SBCS profiles provide preview but no SO/SI diagnostics.
 - Supported IBM EBCDIC DBCS profiles provide preview and SO/SI diagnostics.
 - Unsupported IBM-style code page ids can still be edited as raw bytes, but use generic preview, row splitting, and diagnostics behavior.
@@ -109,6 +111,6 @@ Decision:
 Notes:
 
 ```text
-Manual validation accepted across the MVP feature set using IBM Bob 1.109.5+bob1.0.2.
+Manual validation accepted across the MVP feature set using IBM Bob 1.109.5+bob1.0.2, including direct-binary save for supported fixed-length Zowe data set members.
 External publication remains pending product-team review for naming, legal notices, icon usage, and generated mapping table attribution.
 ```

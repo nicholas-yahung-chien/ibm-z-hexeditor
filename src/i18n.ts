@@ -2,9 +2,12 @@ import * as vscode from 'vscode';
 import type { DiagnosticKind } from './inspector/inspectIbmDbcs';
 
 export const extensionText = {
-  openLocalFileWarning: () => vscode.l10n.t('Open a local file before starting HEX ON editing.'),
-  localFilesOnlyWarning: () => vscode.l10n.t('HEX ON editing currently supports local files only.'),
-  fileSizeLimitWarning: (maxKb: number) => vscode.l10n.t('This MVP opens files up to {0} KB.', maxKb),
+  openLocalFileWarning: () => vscode.l10n.t('Open a local file or supported Zowe resource before starting HEX ON editing.'),
+  localFilesOnlyWarning: () => vscode.l10n.t('HEX ON editing currently supports local files and Zowe Data Sets/USS resources only.'),
+  unsupportedResourceWarning: (scheme: string) => vscode.l10n.t('HEX ON editing does not support "{0}" resources.', scheme),
+  remoteRawModeWarning: () => vscode.l10n.t('This Zowe resource may be using an existing text-transfer encoding. For host raw-byte editing, start HEX ON from the Zowe Explorer tree so the resource can be reopened in binary mode.'),
+  remoteRawModeFailedWarning: () => vscode.l10n.t('HEX ON could not confirm that Zowe reopened this resource in binary/raw mode. The editor will still open, but the bytes may reflect Zowe text conversion.'),
+  fileSizeLimitWarning: (maxKb: number) => vscode.l10n.t('This editor opens resources up to {0} KB.', maxKb),
   saveBeforeOpenWarning: () => vscode.l10n.t('Please save the current file before opening HEX ON editing.'),
 
   currentEncodingLabel: (encoding: string) => vscode.l10n.t('Use VS Code-reported encoding: {0}', encoding),
@@ -31,6 +34,20 @@ export const extensionText = {
 
   saveCanceled: () => vscode.l10n.t('Save canceled'),
   saveFailed: (message: string) => vscode.l10n.t('Save failed: {0}', message),
+  saveAsLocalTitle: () => vscode.l10n.t('Save HEX ON bytes as local file'),
+  saveAsLocalStatus: (destination: string) => vscode.l10n.t('Saved local copy: {0}', destination),
+  saveAsLocalFilterName: () => vscode.l10n.t('All files'),
+  zoweDataSetRawSaveBlocked: (message: string) => vscode.l10n.t('Zowe Explorer blocked this raw-byte data set save with its text-based upload safety check. The bytes were not written. Original error: {0}', message),
+  zoweTextConvertedSavePrompt: () => vscode.l10n.t('Try text-converted save for this Zowe data set?'),
+  zoweTextConvertedSaveDetail: (encoding: string) => vscode.l10n.t('HEX ON will decode the current bytes as {0}, verify that encoding the text returns the exact same bytes, then ask Zowe Explorer to upload through its text encoding path. This is a fallback, not a raw-byte upload.', encoding),
+  zoweTextConvertedSaveAction: () => vscode.l10n.t('Try Text-Converted Save'),
+  zoweTextConvertedSaveUnavailable: () => vscode.l10n.t('Text-converted save is available only when HEX ON was opened from a Zowe Explorer tree item that can switch encodings. No data was written.'),
+  zoweTextConvertedSaveFixedRecordUnavailable: (recordFormat: string, recordLength: number) => vscode.l10n.t('Direct binary upload could not complete for this fixed-record Zowe data set ({0} LRECL {1}), and text-converted save is disabled because newline-delimited text upload can change MVS record boundaries. No data was written. Use Save As Local File to keep a local copy.', recordFormat, recordLength),
+  zoweTextConvertedSaveUnsupportedEncoding: (encoding: string) => vscode.l10n.t('Text-converted save is not available for {0}. No data was written.', encoding),
+  zoweTextConvertedSaveRoundTripFailed: (encoding: string, offset: number) => vscode.l10n.t('Text-converted save is not safe because the current bytes do not round-trip with {0}. First mismatch at offset {1}. No data was written.', encoding, offset),
+  zoweTextConvertedSaveRestoreWarning: () => vscode.l10n.t('The Zowe text-converted save completed, but HEX ON could not restore the resource to binary/raw mode. Reopen the data set from the Zowe Explorer tree before making more HEX ON edits.'),
+  zoweTextConvertedSaved: () => vscode.l10n.t('Saved through Zowe text-converted fallback'),
+  zoweDirectBinarySaved: () => vscode.l10n.t('Saved through Zowe direct binary upload'),
   saved: () => vscode.l10n.t('Saved'),
   savedWithProblems: (count: number) => vscode.l10n.t('Saved with {0} DBCS issue(s)', count),
   savedButReopenFailed: (message: string) => vscode.l10n.t('Saved, but failed to reopen default editor: {0}', message),

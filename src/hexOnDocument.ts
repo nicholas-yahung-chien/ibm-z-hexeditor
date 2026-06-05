@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { bytesFromCells, cellsFromBytes, deleteByte, insertByte, makeSnapshot, replaceNibble } from './byteModel';
 import { buildDisplayLinesForPage, buildPageRanges, PAGE_LINE_COUNT } from './paging';
-import type { ByteCell, EditorSnapshot, HexNibble, RenderMode } from './protocol';
+import type { ByteCell, ByteSourceKind, EditorSnapshot, HexNibble, RecordMetadata, RenderMode } from './protocol';
 import type { PerformanceLogFields } from './protocol';
 import type { AnalysisResult, InspectIbmDbcsOptions } from './inspector/inspectIbmDbcs';
 import type { HexOnSession } from './sessionRegistry';
+import type { ZoweTreeResource } from './resourceSupport';
 
 export class HexOnDocument implements vscode.CustomDocument {
   private cells: ByteCell[];
@@ -19,7 +20,10 @@ export class HexOnDocument implements vscode.CustomDocument {
     readonly uri: vscode.Uri,
     readonly fileName: string,
     readonly fileEncoding: string,
+    readonly byteSource: ByteSourceKind,
     readonly sourceViewColumn: vscode.ViewColumn | undefined,
+    readonly zoweTreeResource: ZoweTreeResource | undefined,
+    readonly recordMetadata: RecordMetadata | undefined,
     bytes: Uint8Array,
     private diagnosticsOptions: InspectIbmDbcsOptions = {},
     private readonly performanceLog?: (phase: string, fields: PerformanceLogFields) => void,
@@ -46,7 +50,10 @@ export class HexOnDocument implements vscode.CustomDocument {
       uri,
       uri.fsPath || uri.path,
       session?.fileEncoding ?? 'utf8',
+      session?.byteSource ?? defaultByteSourceForUri(uri),
       session?.sourceViewColumn,
+      session?.zoweTreeResource,
+      session?.recordMetadata,
       bytes,
       diagnosticsOptions,
       performanceLog,
@@ -76,7 +83,7 @@ export class HexOnDocument implements vscode.CustomDocument {
 
   setPage(pageIndex: number, pageLineLimit = PAGE_LINE_COUNT): void {
     const bytes = bytesFromCells(this.cells);
-    const ranges = buildPageRanges(bytes, this.fileEncoding, pageLineLimit);
+    const ranges = buildPageRanges(bytes, this.fileEncoding, pageLineLimit, this.recordMetadata);
     this.pageIndex = clampPageIndex(pageIndex, ranges.length);
   }
 
@@ -97,13 +104,13 @@ export class HexOnDocument implements vscode.CustomDocument {
 
   insertByte(offset: number, value = 0x00): { undo: () => void; redo: () => void } {
     const before = [...this.cells];
-    const after = insertByte(this.cells, offset, value);
+    const after = insertByte(this.cells, offset, value, this.recordMetadata, this.fileEncoding);
     return this.applyEdit(before, after);
   }
 
   deleteByte(offset: number): { undo: () => void; redo: () => void } {
     const before = [...this.cells];
-    const after = deleteByte(this.cells, offset);
+    const after = deleteByte(this.cells, offset, this.recordMetadata, this.fileEncoding);
     return this.applyEdit(before, after);
   }
 
@@ -136,6 +143,16 @@ export class HexOnDocument implements vscode.CustomDocument {
       durationMs: elapsed(start),
       bytes: this.cells.length,
     });
+  }
+
+  currentBytes(): Uint8Array {
+    return bytesFromCells(this.cells);
+  }
+
+  markSaved(): void {
+    this.savedCells = this.cells;
+    this.dirty = false;
+    this.changeEmitter.fire();
   }
 
   async writeTo(uri: vscode.Uri, cancellation?: vscode.CancellationToken): Promise<void> {
@@ -176,15 +193,17 @@ export class HexOnDocument implements vscode.CustomDocument {
       uri: this.uri.toString(),
       fileName: this.fileName,
       fileEncoding: this.fileEncoding,
+      byteSource: this.byteSource,
       cells: this.cells,
       dirty: this.dirty,
       diagnosticsOptions: this.diagnosticsOptions,
+      recordMetadata: this.recordMetadata,
     });
   }
 
   private pageSnapshot(pageLineLimit = PAGE_LINE_COUNT): EditorSnapshot {
     const bytes = bytesFromCells(this.cells);
-    const ranges = buildPageRanges(bytes, this.fileEncoding, pageLineLimit);
+    const ranges = buildPageRanges(bytes, this.fileEncoding, pageLineLimit, this.recordMetadata);
     const pageIndex = clampPageIndex(this.pageIndex, ranges.length);
     this.pageIndex = pageIndex;
     const range = ranges[pageIndex];
@@ -193,15 +212,17 @@ export class HexOnDocument implements vscode.CustomDocument {
       uri: this.uri.toString(),
       fileName: this.fileName,
       fileEncoding: this.fileEncoding,
+      byteSource: this.byteSource,
       cells: pageCells,
       dirty: this.dirty,
       diagnosticsOptions: this.diagnosticsOptions,
+      recordMetadata: this.recordMetadata,
     });
 
     const pageBytes = bytes.slice(range.pageStartOffset, range.pageEndOffset);
     return {
       ...snapshot,
-      lines: buildDisplayLinesForPage(pageBytes, this.fileEncoding, range),
+      lines: buildDisplayLinesForPage(pageBytes, this.fileEncoding, range, this.recordMetadata),
       preview: snapshot.preview.map(entry => ({
         ...entry,
         byteOffset: entry.byteOffset + range.pageStartOffset,
@@ -224,6 +245,10 @@ export class HexOnDocument implements vscode.CustomDocument {
 
 function elapsed(start: number): number {
   return Number((performance.now() - start).toFixed(2));
+}
+
+function defaultByteSourceForUri(uri: vscode.Uri): ByteSourceKind {
+  return uri.scheme === 'zowe-ds' || uri.scheme === 'zowe-uss' ? 'zowe-text-backed' : 'local-raw';
 }
 
 function sameCellValues(left: readonly ByteCell[], right: readonly ByteCell[]): boolean {

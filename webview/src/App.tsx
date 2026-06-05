@@ -94,6 +94,10 @@ export default function App() {
     }
     return snapshot.fileName.replace(/^.*[\\/]/, '');
   }, [snapshot]);
+  const recordMetadataLabel = snapshot?.recordMetadata ? formatRecordMetadata(snapshot.recordMetadata) : '';
+  const editingHint = snapshot?.recordMetadata?.recordFormat?.toUpperCase().startsWith('F') && snapshot.recordMetadata.logicalRecordLength
+    ? t('fixedRecordEditingHint', { lrecl: snapshot.recordMetadata.logicalRecordLength })
+    : t('editingHint');
 
   const searchOutcome = useMemo(() => {
     if (!snapshot || !activeSearch?.query.trim()) {
@@ -189,6 +193,8 @@ export default function App() {
             <div className="collapsed-header-meta">
               <strong>{fileLabel}</strong>
               <span>{snapshot?.fileEncoding ?? t('encodingFallback')}</span>
+              {recordMetadataLabel ? <span>{recordMetadataLabel}</span> : null}
+              {snapshot ? <span title={byteSourceDescription(snapshot.byteSource)}>{byteSourceLabel(snapshot.byteSource)}</span> : null}
               <span>{status}</span>
             </div>
           </>
@@ -200,11 +206,12 @@ export default function App() {
               </div>
               <div className="meta-row">
                 <span>{snapshot?.fileEncoding ?? t('encodingFallback')}</span>
-                <span>{t('rawBytes')}</span>
+                {recordMetadataLabel ? <span>{recordMetadataLabel}</span> : null}
+                {snapshot ? <span title={byteSourceDescription(snapshot.byteSource)}>{byteSourceLabel(snapshot.byteSource)}</span> : null}
                 <span>{snapshot ? t('bytes', { count: (snapshot.page?.totalBytes ?? snapshot.cells.length).toLocaleString() }) : t('loading')}</span>
                 <span>{status}</span>
               </div>
-              <div className="hint-row">{t('editingHint')}</div>
+              <div className="hint-row">{editingHint}</div>
             </div>
             <div className="toolbar-actions" aria-label={t('fileActions')}>
               <button
@@ -244,6 +251,15 @@ export default function App() {
                 onClick={() => vscode.postMessage({ type: 'save' })}
               >
                 <SvgIcon name="save" />
+              </button>
+              <button
+                className="icon-button icon-button-secondary"
+                type="button"
+                title={t('saveAs')}
+                aria-label={t('saveAs')}
+                onClick={() => vscode.postMessage({ type: 'saveAs' })}
+              >
+                <SvgIcon name="save-as" />
               </button>
             </div>
           </>
@@ -310,6 +326,42 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function formatRecordMetadata(metadata: EditorSnapshot['recordMetadata']): string {
+  if (!metadata) {
+    return '';
+  }
+
+  const parts = [];
+  if (metadata.recordFormat) {
+    parts.push(metadata.recordFormat);
+  }
+  if (metadata.logicalRecordLength !== undefined) {
+    parts.push(`LRECL ${metadata.logicalRecordLength}`);
+  }
+  if (metadata.blockSize !== undefined) {
+    parts.push(`BLKSIZE ${metadata.blockSize}`);
+  }
+  return parts.join(' ');
+}
+
+function byteSourceLabel(byteSource: EditorSnapshot['byteSource']): string {
+  switch (byteSource) {
+    case 'local-raw': return t('byteSourceLocalRaw');
+    case 'zowe-tree-raw': return t('byteSourceZoweRaw');
+    case 'zowe-tree-unconfirmed': return t('byteSourceZoweUnconfirmed');
+    case 'zowe-text-backed': return t('byteSourceZoweTextBacked');
+  }
+}
+
+function byteSourceDescription(byteSource: EditorSnapshot['byteSource']): string {
+  switch (byteSource) {
+    case 'local-raw': return t('byteSourceLocalRawDescription');
+    case 'zowe-tree-raw': return t('byteSourceZoweRawDescription');
+    case 'zowe-tree-unconfirmed': return t('byteSourceZoweUnconfirmedDescription');
+    case 'zowe-text-backed': return t('byteSourceZoweTextBackedDescription');
+  }
 }
 
 function SearchPanel({
@@ -534,7 +586,7 @@ function installDemoSnapshotsIfRequested(): void {
     .catch(error => console.error('Unable to install demo snapshots', error));
 }
 
-type SvgIconName = 'cancel' | 'chevron-down' | 'chevron-up' | 'chevron-left' | 'chevron-right' | 'close' | 'refresh' | 'revert' | 'save' | 'search';
+type SvgIconName = 'cancel' | 'chevron-down' | 'chevron-up' | 'chevron-left' | 'chevron-right' | 'close' | 'refresh' | 'revert' | 'save' | 'save-as' | 'search';
 
 function SvgIcon({ name }: { name: SvgIconName }) {
   return (
@@ -575,6 +627,14 @@ function SvgIcon({ name }: { name: SvgIconName }) {
         <>
           <path d="M5 4h12l2 2v14H5V4z" />
           <path d="M8 4v6h8V4M8 20v-6h8v6" />
+        </>
+      ) : null}
+      {name === 'save-as' ? (
+        <>
+          <path d="M5 4h12l2 2v14H5V4z" />
+          <path d="M8 4v6h8V4" />
+          <path d="M8 20h4" />
+          <path d="M14 19l5-5 2 2-5 5h-2v-2z" />
         </>
       ) : null}
       {name === 'search' ? (

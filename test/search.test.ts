@@ -112,6 +112,7 @@ function snapshotFromBytes(bytes: number[], pageStartOffset = 0): EditorSnapshot
     uri: 'test:',
     fileName: 'test',
     fileEncoding: 'ibm937',
+    byteSource: 'local-raw',
     cells: bytes.map(value => ({ value })),
     lines: [{ lineIndex: 0, startOffset: pageStartOffset, length: bytes.length }],
     preview: bytes.map((value, index) => ({
@@ -145,6 +146,7 @@ function snapshotFromPreview(
     uri: 'test:',
     fileName: 'test',
     fileEncoding: 'ibm937',
+    byteSource: 'local-raw',
     cells: Array.from({ length: maxOffset }, () => ({ value: 0x00 })),
     lines: lines ?? [{ lineIndex: 0, startOffset: 0, length: maxOffset }],
     preview,

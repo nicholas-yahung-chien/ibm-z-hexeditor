@@ -2,6 +2,19 @@
 
 All notable changes to the IBM Z HEX ON Editor extension will be documented in this file.
 
+## 0.2.0 - Safer Zowe Save Flow Milestone
+
+### Added
+
+- Added record-metadata inference for fixed-length `zowe-ds:` members so HEX ON can identify stable direct-binary save candidates.
+- Added a primary direct-binary save path for supported Zowe data set members, plus focused unit coverage for save eligibility decisions.
+
+### Changed
+
+- Updated `saveCustomDocument()` to prefer direct binary writes for supported fixed-length `zowe-ds:` members before falling back to Zowe Explorer's standard save path.
+- Reduced false-positive Zowe Explorer "data loss" warnings for validated fixed-length member save flows while preserving existing fallback behavior for unsupported cases.
+- Refreshed release, Marketplace, and user-guide documentation to describe the current Zowe save behavior and rollout guidance.
+
 ## 0.1.5 - Search and Packaging Polish
 
 ### Added
@@ -11,6 +24,8 @@ All notable changes to the IBM Z HEX ON Editor extension will be documented in t
 - Added Unicode wildcard search with `.` and `*`, escape support for `\.` and `\*`, line-bounded `*` behavior, and trailing-wildcard matches that extend to the current editor-line end.
 - Added paged rendering with configurable page sizes of 30, 50, or 100 logical lines.
 - Added optional performance timing logs for editor open, snapshot creation, message transport, and webview rendering.
+- Added initial Zowe Explorer resource support for `zowe-ds:` and `zowe-uss:` resources without modifying Zowe Explorer or Z Open Editor.
+- Added Zowe Explorer tree context-menu entry points that ask Zowe Explorer to reopen the selected resource in binary mode before HEX ON reads raw bytes.
 
 ### Changed
 
@@ -18,6 +33,7 @@ All notable changes to the IBM Z HEX ON Editor extension will be documented in t
 - Documented search behavior, paged rendering, performance logging, and localized-settings reload behavior.
 - Refreshed package metadata versioning so local VSIX installs are easier to distinguish during validation.
 - Reject unknown manually entered encoding names instead of relying on VS Code's internal decode fallback; unsupported IBM-style code page ids still require explicit confirmation before opening with generic behavior.
+- Documented the Zowe resource launch path and warning behavior when opening from an already open Zowe text editor.
 
 ## 0.1.4 - Rounded Icon Tile
 
@@ -77,7 +93,8 @@ Initial MVP preview for local HEX ON byte editing in VS Code.
 
 ### Current Limits
 
-- Local files only.
+- Local files and Zowe Explorer `zowe-ds` / `zowe-uss` resources are supported.
+- For Zowe host raw-byte editing, start HEX ON from the Zowe Explorer tree so the resource can be reopened in binary mode.
 - IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
 - Other encodings are currently preview/edit flows without code-page-specific diagnostics.

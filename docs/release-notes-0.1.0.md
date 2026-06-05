@@ -1,10 +1,10 @@
 # IBM Z HEX ON Editor 0.1.0
 
-This MVP preview provides an ISPF-style HEX ON byte editor for local files in VS Code-compatible editors such as IBM Bob.
+This MVP preview provides an ISPF-style HEX ON byte editor for local files and supported Zowe Explorer resources in VS Code-compatible editors such as IBM Bob.
 
 ## Highlights
 
-- Open local files in a custom HEX ON editor.
+- Open local files, Zowe data sets, and Zowe USS files in a custom HEX ON editor.
 - Edit raw bytes as high and low hex nibbles.
 - Choose the actual bytes-on-disk encoding instead of relying only on the editor-reported text encoding.
 - Preview UTF-8, IBM EBCDIC SBCS, and supported IBM EBCDIC DBCS files.
@@ -49,7 +49,7 @@ See [docs/release-checklist.md](release-checklist.md) for the detailed validatio
 
 ## Current Limits
 
-- Local files only.
+- Local files and Zowe Explorer `zowe-ds` / `zowe-uss` resources are supported.
 - IBM EBCDIC SBCS profiles provide preview but no SO/SI diagnostics.
 - IBM EBCDIC DBCS diagnostics are available only for the supported DBCS profiles listed above.
 - Unsupported IBM-style code page ids can still be edited as raw bytes, but use generic preview, row splitting, and diagnostics behavior.

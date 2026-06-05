@@ -1,6 +1,6 @@
 {
   "extension.displayName": "IBM Z HEX ON Editor",
-  "extension.description": "ISPF 스타일 HEX ON 보기에서 IBM Z 파일 바이트를 편집하고 IBM EBCDIC DBCS 미리 보기 및 SO/SI 진단을 제공합니다.",
+  "extension.description": "ISPF 스타일 HEX ON 보기에서 IBM Z 파일 바이트를 편집하고 IBM EBCDIC 미리 보기, SO/SI 진단, 더 안전한 Zowe 원시 바이트 저장 흐름을 제공합니다.",
   "command.openHexOn.title": "IBM Z Hex Editor: HEX ON 열기",
   "command.openHexOn.category": "IBM Z Hex Editor",
   "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",

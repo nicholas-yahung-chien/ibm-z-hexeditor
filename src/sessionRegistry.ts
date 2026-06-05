@@ -1,9 +1,14 @@
 import * as vscode from 'vscode';
+import type { ByteSourceKind, RecordMetadata } from './protocol';
+import type { ZoweTreeResource } from './resourceSupport';
 
 export interface HexOnSession {
   fileEncoding: string;
+  byteSource: ByteSourceKind;
   bytes: Uint8Array;
   sourceViewColumn?: vscode.ViewColumn;
+  zoweTreeResource?: ZoweTreeResource;
+  recordMetadata?: RecordMetadata;
 }
 
 export class SessionRegistry {

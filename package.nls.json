@@ -1,6 +1,6 @@
 {
   "extension.displayName": "IBM Z HEX ON Editor",
-  "extension.description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM EBCDIC DBCS preview and SO/SI diagnostics.",
+  "extension.description": "Edit IBM Z file bytes in an ISPF-style HEX ON view with IBM EBCDIC preview, SO/SI diagnostics, and safer Zowe raw-byte save flows.",
   "command.openHexOn.title": "IBM Z Hex Editor: Open HEX ON",
   "command.openHexOn.category": "IBM Z Hex Editor",
   "customEditor.hexOn.displayName": "IBM Z HEX ON Editor",

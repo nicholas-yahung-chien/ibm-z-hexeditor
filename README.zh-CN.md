@@ -4,26 +4,30 @@
 
 ![IBM Z HEX ON Editor icon](images/icon.png)
 
-IBM Z HEX ON Editor 为 VS Code 增加 ISPF 风格的字节编辑器。打开本地文件、选择磁盘上实际使用的内容编码、直接编辑 high/low hex nibbles，并将更新后的原始字节写回文件。
+IBM Z HEX ON Editor 为 VS Code 提供 ISPF 风格的字节编辑器。你可以打开本地文件或受支持的 Zowe 资源，选择字节实际使用的编码，直接编辑高位与低位 hex nibble，并将更新后的原始字节写回文件。
 
-当前 MVP 聚焦于 IBM EBCDIC 与 UTF-8 工作流。IBM-037、IBM-500、IBM-1047、IBM-1140 文件提供 SBCS 预览支持。IBM-930、IBM-933、IBM-935、IBM-937、IBM-939、IBM-1364、IBM-1371、IBM-1388、IBM-1390、IBM-1399 文件提供 DBCS 数据的 SO/SI 结构诊断，帮助你在 VS Code 内检查、修复并验证 shift-byte 问题。
+当前 MVP 主要聚焦 IBM EBCDIC 与 UTF-8 工作流。IBM-037、IBM-500、IBM-1047、IBM-1140 提供 SBCS 预览支持。IBM-930、IBM-933、IBM-935、IBM-937、IBM-939、IBM-1364、IBM-1371、IBM-1388、IBM-1390、IBM-1399 提供 DBCS 的 SO/SI 结构诊断，让你可以直接在 VS Code 中检查、修复并验证 shift-byte 问题。
 
-## 可以做什么
+对于从 Zowe Explorer 树视图打开、且属于固定长度的 Zowe data set member，HEX ON 现在会优先使用 direct binary save，再视需要退回 text-based upload fallback。这样可以让经过验证的 raw-byte 编辑尽量保留在 binary 路径上，并避免 Zowe Explorer 常见的误报“数据丢失”警告。
 
-- 用 HEX ON custom editor 打开本地文件。
-- 以可编辑的 high/low hex-nibble 行查看原始文件字节。
-- 根据所选编码显示只读字符预览。
-- 通过替换 nibble、插入 `00` 或删除 byte 来编辑内容。
-- 将支持的 IBM EBCDIC SBCS 与 DBCS 字节预览为文本。
-- 检查 IBM EBCDIC DBCS SO/SI 结构与 DBCS ambiguous 警告。
-- 从 diagnostics 跳转到精确的 byte 位置。
-- 将编辑后的字节保存回磁盘，然后回到 VS Code 默认编辑器。
-- 启用 Condense Mode，让每行显示更多 bytes。
-- 收合 header，并可选择在 byte grid 上方显示 column ruler。
+## 你可以做什么
+
+- 以 HEX ON custom editor 打开本地文件、Zowe data set 或 Zowe USS 文件。
+- 识别当前编辑器使用的是 local raw bytes、Zowe host raw bytes 还是 Zowe text-backed bytes。
+- 对受支持的固定长度 Zowe data set member 使用更安全的 direct-binary save。
+- 以可编辑的 high/low hex-nibble rows 查看 raw file bytes。
+- 用所选编码显示只读字符预览。
+- 通过修改 nibble、插入 `00`、删除 byte 来编辑内容。
+- 预览受支持的 IBM EBCDIC SBCS 与 DBCS 字节文本。
+- 检查 IBM EBCDIC DBCS 的 SO/SI 结构与 DBCS ambiguity warnings。
+- 从 diagnostics 直接跳转到对应 byte 位置。
+- 将编辑后的字节写回文件，并在完成后返回 VS Code 默认编辑器。
+- 启用 Condense Mode，在每行显示更多 bytes。
+- 折叠 header，并按需在 byte grid 上方显示 column ruler。
 
 ## 截图
 
-当前 webview 体验的截图如下。完整截图清单、文件名与手动 fixture 设置记录在 [docs/screenshots.md](docs/screenshots.md)。Marketplace 文案草稿记录在 [docs/marketplace.md](docs/marketplace.md)。
+当前 webview 体验的截图如下。完整截图清单、文件名与手动 fixture 准备方式记录在 [docs/screenshots.md](docs/screenshots.md)。Marketplace 使用的文案草稿记录在 [docs/marketplace.md](docs/marketplace.md)。
 
 ![Standard HEX ON editor](images/screenshots/hex-on-standard.png)
 
@@ -35,7 +39,7 @@ IBM Z HEX ON Editor 为 VS Code 增加 ISPF 风格的字节编辑器。打开本
 
 ### 从 VSIX 安装
 
-构建包：
+先构建安装包：
 
 ```sh
 npm install
@@ -47,11 +51,11 @@ npm run package:vsix
 1. 打开 Extensions 视图。
 2. 执行 `Extensions: Install from VSIX...`。
 3. 选择 `dist/ibm-z-hex-on-editor.vsix`。
-4. 如果 VS Code 提示，请重新加载。
+4. 如果系统提示，重新加载 VS Code。
 
-安装或更新 VSIX 后，如果设置页的语言文字没有立即更新，请执行 `Developer: Reload Window`，或重新启动 VS Code / IBM Bob。
+如果安装或更新 VSIX 后，本地化设置文字没有立即更新，请执行 `Developer: Reload Window`，或重新启动 VS Code / IBM Bob。
 
-若要使用干净的 VS Code profile 进行可重复验证，请参考 [docs/acceptance-checklist.md](docs/acceptance-checklist.md)。
+如果要用干净的 VS Code profile 做可重复验证，请参考 [docs/acceptance-checklist.md](docs/acceptance-checklist.md)。
 
 ### 从源码运行
 
@@ -60,33 +64,33 @@ npm install
 npm run compile
 ```
 
-用 VS Code 打开此 repository，按 `F5` 启动 Extension Development Host。
+在 VS Code 中打开此 repository，并按 `F5` 启动 Extension Development Host。
 
-## 基本使用
+## 基本用法
 
-1. 在 VS Code 中打开本地文件。
-2. 从 Command Palette、editor title menu 或 editor context menu 执行 `IBM Z Hex Editor: Open HEX ON`。
-3. 如果当前文件有未保存更改，请先保存。
-4. 选择磁盘上实际文件内容使用的编码。
+1. 在 VS Code 中打开本地文件，或在 Zowe Explorer 中选择受支持的 data set/member 或 USS 文件。
+2. 从 Command Palette、editor title menu、editor context menu 或 Zowe Explorer tree context menu 执行 `IBM Z Hex Editor: Open HEX ON`。
+3. 如果当前文件存在未保存更改，请先保存。
+4. 选择磁盘上字节实际使用的 file-content encoding。
 5. 在 HEX ON 视图中编辑 bytes。
 6. 按 `Ctrl+S` 或点击 `Save`。
 
-当文件 bytes 使用支持的 IBM EBCDIC SBCS 或 DBCS code page 时，请选择该编码，即使 VS Code 之前是用其他文本编码显示文件也一样。
+如果文件字节使用受支持的 IBM EBCDIC SBCS 或 DBCS code page，请选择对应编码，即使 VS Code 之前是用其他文本编码显示该文件。
 
-如果手动输入尚未支持的 IBM-style code page id，extension 会先显示警告。原始 byte 编辑仍可使用，但 preview、row splitting 与 diagnostics 会改用通用 fallback 行为。
+如果手动输入尚未支持的 IBM-style code page id，extension 会在打开前显示警告。raw byte editing 仍然可以继续，但 preview、row splitting 与 diagnostics 会退回 generic fallback behavior。
 
-在 HEX ON editor 内按 `Ctrl+F` 可以打开搜索。输入条件后按搜索按钮才会搜索当前 snapshot；浏览搜索结果期间，输入框会锁定，直到按下取消搜索。Unicode 搜索支持 `.` 与不跨编辑行的 `*` 通配符，也支持用 `\.` 与 `\*` 搜索字面符号。开头 `*` 会延伸到当前编辑行开头，结尾 `*` 会延伸到当前编辑行结尾。Hex 搜索接受用空格分隔的 bytes，例如 `A6 4F` 或 `0xA6 0x4F`。
+在 HEX ON editor 中按 `Ctrl+F` 可打开搜索。输入查询后点击搜索按钮，会在当前 snapshot 中搜索；当你在结果之间导航时，输入框会被锁定，直到按下取消搜索。Unicode 搜索支持 `.` 与限制在同一 editor line 内的 `*` 通配符，也支持 `\.` 与 `\*` 搜索字面值。前置 `*` 会将匹配扩展到当前 editor line 的开头，结尾 `*` 会扩展到当前 editor line 的结尾。Hex 搜索接受以空格分隔的 bytes，例如 `A6 4F` 或 `0xA6 0x4F`。
 
 ## 设置
 
-- `ibmZHexEditor.maxFileSizeKb`：HEX ON editor 可打开的本地文件大小上限，单位为 KB。
-- `ibmZHexEditor.condenseMode`：显示更紧凑的 grid，使用更窄的 byte cell、隐藏 offset，并移除 grid 边缘 padding。
-- `ibmZHexEditor.showRuler`：在 byte grid 上方显示 column ruler。
-- `ibmZHexEditor.renderMode`：选择一次呈现整份文件，或一次只呈现一个分页。
-- `ibmZHexEditor.pageLineLimit`：分页模式下单一分页最多显示的逻辑行数。可选 `30`、`50`、`100`；没有明确换行的文件会对应为每页 `3000`、`5000`、`10000` bytes。
-- `ibmZHexEditor.performanceLogging`：将 editor timing logs 写入 `IBM Z HEX ON Performance` output channel。默认停用。
-- `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`：对 `DBCS_AMBIGUOUS` warnings 使用自定义 byte-pair exclusions。
-- `ibmZHexEditor.dbcsAmbiguousExclusions`：byte-pair rules，例如 `{ "bytes": "40 40", "label": "EBCDIC spaces" }`。第一次启用自定义 exclusions 时，extension 会将默认 rules 写入 user settings JSON 以便编辑。
+- `ibmZHexEditor.maxFileSizeKb`: 可在 HEX ON editor 中打开的最大资源大小，单位为 KB。
+- `ibmZHexEditor.condenseMode`: 显示更紧凑的 grid，包括更窄的 byte cells、隐藏 offsets，以及移除 grid edge padding。
+- `ibmZHexEditor.showRuler`: 在 byte grid 上方显示 column ruler。
+- `ibmZHexEditor.renderMode`: 选择显示整个文件，或一次只显示一页。
+- `ibmZHexEditor.pageLineLimit`: paged mode 每页最多显示的 logical lines。可选 `30`、`50`、`100`；如果文件没有明确换行，则分别对应 `3000`、`5000`、`10000` bytes。
+- `ibmZHexEditor.performanceLogging`: 将 editor timing logs 写入 `IBM Z HEX ON Performance` output channel，默认关闭。
+- `ibmZHexEditor.dbcsAmbiguousExclusionsEnabled`: 为 `DBCS_AMBIGUOUS` warnings 启用 custom byte-pair exclusions。
+- `ibmZHexEditor.dbcsAmbiguousExclusions`: byte-pair rules，例如 `{ "bytes": "40 40", "label": "EBCDIC spaces" }`。首次启用 custom exclusions 时，extension 会将默认规则写入 user settings JSON 供你编辑。
 
 ## 文档
 
@@ -98,6 +102,7 @@ npm run compile
 - [Localization plan](docs/i18n.md)
 - [Marketplace listing draft](docs/marketplace.md)
 - [Release checklist](docs/release-checklist.md)
+- [Release notes 0.2.0](docs/release-notes-0.2.0.md)
 - [Release notes 0.1.0](docs/release-notes-0.1.0.md)
 - [Screenshot plan](docs/screenshots.md)
 - [Change log](CHANGELOG.md)
@@ -105,11 +110,13 @@ npm run compile
 
 ## 当前限制
 
-- 仅支持本地文件。
-- IBM-037、IBM-500、IBM-1047、IBM-1140 有 SBCS preview 支持，但没有 DBCS diagnostics。
-- IBM-930、IBM-933、IBM-935、IBM-937、IBM-939、IBM-1364、IBM-1371、IBM-1388、IBM-1390、IBM-1399 有 SO/SI DBCS diagnostics。
-- 其他 IBM EBCDIC SBCS 或 DBCS code pages 可在取得 fixtures 与 tests 后，通过 generated-table workflow 加入。
-- 已提供繁体中文、简体中文、日文、韩文、德文的第一版多语言内容；对外发布前仍建议进行产品本地化审阅。
+- 支持本地文件与 Zowe Explorer `zowe-ds` / `zowe-uss` 资源。
+- 如果要获得最可靠的 Zowe host raw-byte editing，请从 Zowe Explorer 树视图启动 HEX ON。对于受支持的固定长度 `zowe-ds:` member，这条路径也会优先走 direct binary save；如果是从已打开的 Zowe 文本编辑器进入，仍可能沿用文本传输编码与 fallback save 行为。
+- 如果 Zowe 资源已经在普通文本编辑器中打开，再从该编辑器启动 HEX ON，header 会显示 `Zowe text-backed bytes`。这对文本导向修改可能有帮助，但不能替代用于修复 SO/SI 或损坏 DBCS byte sequences 的 raw-byte 路径。
+- IBM-037、IBM-500、IBM-1047、IBM-1140 提供 SBCS preview，但没有 DBCS diagnostics。
+- IBM-930、IBM-933、IBM-935、IBM-937、IBM-939、IBM-1364、IBM-1371、IBM-1388、IBM-1390、IBM-1399 提供 SO/SI DBCS diagnostics。
+- 其他 IBM EBCDIC SBCS 或 DBCS code pages 可在 fixtures 与 tests 就绪后，通过 generated-table workflow 扩展。
+- 当前提供繁体中文、简体中文、日文、韩文与德文的第一轮本地化，但在对外正式发布前，仍建议进行产品级语言审校。
 
 ## 开发验证
 

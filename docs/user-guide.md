@@ -17,14 +17,29 @@ If localized settings text does not update immediately after installing or updat
 
 ## Open HEX ON
 
-1. Open a local file in VS Code.
-2. Run `IBM Z Hex Editor: Open HEX ON` from the Command Palette, editor title menu, or editor context menu.
+1. Open a local file in VS Code, or select a supported data set/member or USS file in Zowe Explorer.
+2. Run `IBM Z Hex Editor: Open HEX ON` from the Command Palette, editor title menu, editor context menu, or Zowe Explorer tree context menu.
 3. If the current editor has unsaved changes, save it first. The HEX ON editor reads bytes from disk.
 4. Choose the actual file-content encoding used by the bytes on disk.
 
 The encoding picker may show the encoding reported by VS Code for the current text document. Treat that as a reference only. If the file bytes are actually IBM EBCDIC, choose the matching IBM code page even when VS Code displayed the file as UTF-8 or another encoding.
 
 Encoding choices include a short language or encoding-family description, such as `Korean EBCDIC DBCS / 한국어` or `Traditional Chinese Big5 / 繁體中文`, to make the actual bytes-on-disk choice easier to distinguish.
+
+For Zowe Explorer resources, prefer starting HEX ON from the Zowe tree. When launched from a Zowe tree item, the extension asks Zowe Explorer to reopen the resource in binary mode before reading bytes. If HEX ON is launched from an already open `zowe-ds:` or `zowe-uss:` editor, the extension can still read and edit the resource, but it warns that the bytes may already reflect Zowe's current text-transfer encoding.
+
+The editor header labels the byte source:
+
+- `local raw bytes`: HEX ON is editing bytes read directly from a local file.
+- `Zowe host raw bytes`: HEX ON was started from a Zowe Explorer tree item and requested binary/raw access before reading bytes.
+- `Zowe raw mode unconfirmed`: HEX ON was started from a Zowe Explorer tree item, but Zowe did not confirm binary/raw access.
+- `Zowe text-backed bytes`: HEX ON was started from an already open Zowe editor or URI, so the bytes may reflect Zowe text-transfer encoding.
+
+`Zowe text-backed bytes` can be convenient when you intentionally want Zowe Explorer's normal text open/save behavior. It is not the same as host raw-byte editing, and it should not be used as the primary repair path for missing SO/SI bytes or damaged DBCS byte sequences.
+
+When saving `zowe-ds:` resources, HEX ON now checks whether the resource looks like a supported fixed-length member opened from the Zowe Explorer tree. If it does, HEX ON prefers its direct binary save path first. This keeps the write on the validated raw-byte path and avoids Zowe Explorer's generic text-upload safety warning in the common fixed-length member workflow.
+
+If the direct binary path is not available, HEX ON falls back to the previous save behavior. For resources opened from a Zowe Explorer tree item that support encoding changes, the editor may offer a text-converted fallback save. This fallback first verifies that the current bytes can be decoded with the selected IBM encoding and encoded back to the exact same bytes. If the round-trip check fails, no data is written. If it succeeds, HEX ON asks Zowe Explorer to upload through its text encoding path. This fallback is not a replacement for a true raw-byte data set upload API.
 
 ## Encoding Choices
 
@@ -119,7 +134,10 @@ Important diagnostic interpretation notes:
 ## Save, Reload, and Revert
 
 `Save`
-: Writes the current raw bytes to disk. If IBM DBCS structural problems exist, the extension asks for confirmation before saving. After a normal save, VS Code reopens the file in the default editor.
+: Writes the current raw bytes to disk. If IBM DBCS structural problems exist, the extension asks for confirmation before saving. For supported fixed-length Zowe data set members opened from the tree, HEX ON prefers direct binary save before any fallback path. After a normal save, VS Code reopens the file in the default editor.
+
+`Save As`
+: Writes the current raw bytes to a local file chosen with VS Code's save dialog. This creates a local copy and does not save back to the original remote `zowe-ds:` or `zowe-uss:` resource.
 
 `Reload`
 : Rereads the file bytes from disk. If the HEX ON editor has unsaved edits, the extension asks before discarding them.
@@ -174,7 +192,8 @@ When custom exclusions are enabled, the custom list replaces the built-in defaul
 
 ## Current Limits
 
-- The extension currently supports local files only.
+- The extension currently supports local files and Zowe Explorer `zowe-ds` / `zowe-uss` resources.
+- Zowe host raw-byte editing is best-effort when started from an already open Zowe editor. For the most reliable raw-byte path and direct-binary save eligibility, start from the Zowe Explorer tree so the resource can be reopened in binary mode.
 - Files larger than `ibmZHexEditor.maxFileSizeKb` are blocked by the MVP size guard.
 - IBM-037, IBM-500, IBM-1047, and IBM-1140 have SBCS preview support but no DBCS diagnostics.
 - IBM-930, IBM-933, IBM-935, IBM-937, IBM-939, IBM-1364, IBM-1371, IBM-1388, IBM-1390, and IBM-1399 have SO/SI DBCS diagnostics.
